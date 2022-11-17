@@ -3,8 +3,7 @@ import { watch } from 'vue';
 import { useBroadcastChannel } from '@vueuse/core';
 
 const {
-    data,
-    error
+    data
 } = useBroadcastChannel({ name: 'hydra-plus-channel' })
 
 watch(data, () => {
@@ -14,7 +13,6 @@ watch(data, () => {
 </script>
 
 <template>
-    {{ error }}
 </template>
 
 <script>

@@ -14,11 +14,10 @@
 
 <script>
 import { useBroadcastChannel } from '@vueuse/core';
+const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' });
 
 import hljs from "highlight.js";
 import CodeEditor from 'simple-code-editor';
-
-const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' })
 
 export default {
     components: {
@@ -55,9 +54,7 @@ export default {
                 e.preventDefault();
                 this.update();
             }
-        };
 
-        this._keyListener = function (e) {
             if (e.key === "P" && (e.ctrlKey || e.metaKey)) {
                 e.preventDefault();
                 this.updateAndSend();
