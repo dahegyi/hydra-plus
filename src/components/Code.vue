@@ -1,6 +1,3 @@
-<script setup>
-</script>
-
 <template>
     <div class="code-container">
         <CodeEditor v-model="code" :hide_header="true" :autofocus="true" width="100%" height="100%" border_radius="0" />
@@ -24,8 +21,6 @@ import CodeEditor from 'simple-code-editor';
 const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' })
 
 export default {
-    name: 'Code',
-
     components: {
         hljs, // keep this as vite cannot handle its module export
         CodeEditor
@@ -44,7 +39,7 @@ export default {
                 eval(this.code);
                 this.error = null;
             } catch (error) {
-                this.error = error
+                this.error = error;
             }
         },
 
@@ -58,7 +53,6 @@ export default {
         this._keyListener = function (e) {
             if (e.key === "S" && (e.ctrlKey || e.metaKey)) {
                 e.preventDefault();
-                console.log('asd')
                 this.update();
             }
         };

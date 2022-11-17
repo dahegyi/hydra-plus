@@ -18,7 +18,5 @@ watch(data, () => {
 </template>
 
 <script>
-export default {
-    name: 'Visualizer',
-}
+export default {}
 </script>
