@@ -1,7 +1,7 @@
 {
-  "name": "3d-hydra",
+  "name": "hydra-plus",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,7 +19,7 @@
     "simple-code-editor": "^1.2.2",
     "vue": "^3.2.41",
     "vue-router": "^4.1.6",
-    "vuex": "^4.0.2"
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.2.0",
