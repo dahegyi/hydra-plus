@@ -5,8 +5,7 @@ export const deepCopy = (obj) => {
 };
 
 /**
- * Flattens codeblocks to hydra code
- * @param {object} obj
+ * Returns hydra code from codeblox
  */
 export const flatten = (obj) => {
   let source = "";
@@ -16,11 +15,12 @@ export const flatten = (obj) => {
       source += flatten(item);
     }
   } else {
-    if (obj.type === TYPE_SRC) {
-      source += `${obj.name}(`;
-    } else {
-      source += `.${obj.name}(`;
+    // Sources are top level functions
+    if (!obj.type === TYPE_SRC) {
+      source += ".";
     }
+
+    source += `${obj.name}(`;
 
     for (let param of obj.params) {
       source += param.value;

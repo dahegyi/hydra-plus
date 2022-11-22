@@ -9,7 +9,6 @@
 
     <button @click="update">update</button>
 
-
     <div v-for="(block, index) in blocks" :key="index">
         <strong>o{{ index }} - {{ block.name }}</strong>
         <div v-for="(param, index) in block.params" :key="index">
@@ -86,7 +85,6 @@ export default {
 
         /**
          * Adds geometry block to parent block
-         * @param {object} parent
          */
         addEffect(parent, type) {
             this.selectedEffect !== {} && parent.blocks.push(
@@ -102,7 +100,7 @@ export default {
         update() {
             const codeString = flatten(this.blocks[0]);
 
-            console.log(this.blocks, codeString);
+            // console.log(this.blocks, codeString);
 
             try {
                 eval(`${codeString}.out()`);
