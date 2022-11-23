@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import * as Vue from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 import "./style.scss";
@@ -28,7 +28,7 @@ const router = createRouter({
 library.add(faShare);
 library.add(faPlay);
 
-createApp(App)
+Vue.createApp(App)
   .use(router)
   .component("font-awesome-icon", FontAwesomeIcon)
   .mount("#app");
