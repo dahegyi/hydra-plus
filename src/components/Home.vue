@@ -10,8 +10,8 @@
 export default {
     methods: {
         start() {
-            this.$router.push({ path: "/visualizer" })
-            window.open(`/code`, '_blank');
+            this.$router.push({ path: "./visualizer" })
+            window.open(`./code`, '_blank');
         }
     }
 }

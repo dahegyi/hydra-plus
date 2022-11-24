@@ -14,10 +14,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faShare, faPlay } from "@fortawesome/free-solid-svg-icons";
 
 const routes = [
-  { path: "/", component: Home },
-  { path: "/visualizer", component: Visualizer },
-  { path: "/code", component: Code },
-  { path: "/gui", component: Gui },
+  { path: "./", component: Home },
+  { path: "./visualizer", component: Visualizer },
+  { path: "./code", component: Code },
+  { path: "./gui", component: Gui },
 ];
 
 const router = createRouter({
