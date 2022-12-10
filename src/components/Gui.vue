@@ -52,6 +52,8 @@ import {
 import { deepCopy, flatten } from '../utils/object-utils';
 
 export default {
+    Name: 'Gui',
+
     components: {
         NestedDraggable
     },
@@ -75,12 +77,14 @@ export default {
          * to handle the input parameters differently for different sources.
          */
         addSource() {
-            this.selectedSource !== {} && this.blocks.push(
-                deepCopy(
-                    { ...this.selectedSource, type: TYPE_SRC, blocks: [] }
-                )
+            if (this.blocks.length < 4 && this.selectedSource !== {}) {
+                this.blocks.push(
+                    deepCopy(
+                        { ...this.selectedSource, type: TYPE_SRC, blocks: [] }
+                    )
 
-            );
+                );
+            }
         },
 
         /**
