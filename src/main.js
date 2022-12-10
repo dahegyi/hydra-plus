@@ -13,13 +13,11 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faShare, faPlay } from "@fortawesome/free-solid-svg-icons";
 
-const BASE_URL = import.meta.env.BASE_URL;
-
 const routes = [
-  { path: `${BASE_URL}/`, component: Home },
-  { path: `${BASE_URL}/visualizer`, component: Visualizer },
-  { path: `${BASE_URL}/code`, component: Code },
-  { path: `${BASE_URL}/gui`, component: Gui },
+  { path: '/', component: Home },
+  { path: '/visualizer', component: Visualizer },
+  { path: '/code', component: Code },
+  { path: '/gui', component: Gui },
 ];
 
 const router = createRouter({
