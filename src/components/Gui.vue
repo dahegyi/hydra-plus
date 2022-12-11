@@ -31,7 +31,7 @@
         </div>
 
         <div>
-            <!-- <button @click="openSettingsModal" class="settings">synth settings</button> -->
+            <button @click="isSettingsModalOpen = true" class="settings">synth settings</button>
             <button @click="update" class="green">update</button>
             <button @click="updateAndSend" class="red">send</button>
         </div>
@@ -52,6 +52,24 @@
         </div>
 
         <nested-draggable :blocks="block.blocks" />
+    </div>
+
+    <!-- settings modal -->
+    <div class="settings-modal" v-if="isSettingsModalOpen">
+        <h1>settings</h1>
+        <div class="row">
+            <label for="speed">speed</label>
+            <input type="text" id="speed" v-model="synthSettings.speed.current" />
+        </div>
+        <div class="row">
+            <label for="bpm">bpm</label>
+            <input type="text" id="bpm" v-model="synthSettings.bpm.current" />
+        </div>
+
+        <div>
+            <button @click="closeSettingsModal">cancel</button>
+            <button @click="saveAndCloseSettingsModal">save and close</button>
+        </div>
     </div>
 </template>
 
@@ -92,6 +110,11 @@ export default {
             selectedEffect: {
                 name: "",
                 type: ""
+            },
+            isSettingsModalOpen: false,
+            synthSettings: {
+                bpm: { current: 30, previous: 30 },
+                speed: { current: 1, previous: 1 },
             }
         }
     },
@@ -175,6 +198,30 @@ export default {
         removeFocus() {
             this.focus = null;
             // console.log('focus out', this.focus);
+        },
+
+        closeSettingsModal() {
+            // @TODO ask user if they want to save changes
+            this.isSettingsModalOpen = false;
+        },
+
+        saveAndCloseSettingsModal() {
+            const synthBpm = this.synthSettings.bpm;
+            const synthSpeed = this.synthSettings.speed;
+
+            if (synthBpm.current !== synthBpm.previous) {
+                eval(`bpm = ${synthBpm.current}`)
+                post(`bpm = ${synthBpm.current}`);
+                synthBpm.previous = synthBpm.current;
+            }
+
+            if (synthSpeed.current !== synthSpeed.previous) {
+                eval(`speed = ${synthSpeed.current}`)
+                post(`speed = ${synthSpeed.current}`);
+                synthSpeed.previous = synthSpeed.current;
+            }
+
+            this.isSettingsModalOpen = false;
         },
 
         update() {
@@ -346,6 +393,44 @@ $darkblue: #02042c;
     &:nth-child(4) {
         .output-header {
             background: #9696ff;
+        }
+    }
+}
+
+.settings-modal {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    z-index: 999;
+    top: 20%;
+    left: calc(50% - 150px);
+    width: 300px;
+    background: #222222bb;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+
+    button {
+        margin: 5px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1rem;
+
+        label {
+            margin-right: 1rem;
+        }
+
+        input {
+            width: 60%;
+            padding: 0.2rem;
+            border: 1px solid #00000040;
+            border-radius: 0;
+            background: #000000aa;
         }
     }
 }
