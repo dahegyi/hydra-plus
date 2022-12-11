@@ -16,7 +16,7 @@ export const flatten = (obj) => {
     }
   } else {
     // Sources are top level functions
-    if (!obj.type === TYPE_SRC) {
+    if (obj.type !== TYPE_SRC) {
       source += ".";
     }
 

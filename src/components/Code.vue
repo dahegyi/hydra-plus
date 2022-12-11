@@ -1,5 +1,5 @@
 <template>
-    <div class="code-container">
+    <div class="container">
         <CodeEditor v-model="code" :hide_header="true" :autofocus="true" width="100%" height="100%" border_radius="0" />
         <a @click="updateAndSend">
             <font-awesome-icon icon="fa-solid fa-share" />
@@ -20,6 +20,8 @@ import hljs from "highlight.js";
 import CodeEditor from 'simple-code-editor';
 
 export default {
+    name: 'Code',
+
     components: {
         hljs, // keep this as vite cannot handle its module export
         CodeEditor
@@ -69,3 +71,34 @@ export default {
     }
 }
 </script>
+<style lang="scss">
+.container {
+    a {
+        position: absolute;
+        right: 0;
+        margin: 1rem;
+        z-index: 100;
+        cursor: pointer;
+        font-size: 1.5rem;
+
+        &:nth-child(2) {
+            bottom: 0;
+        }
+    }
+
+    .hljs,
+    textarea {
+        background: none !important;
+        position: absolute !important;
+        font-family: monospace !important;
+        font-size: 18px !important;
+        font-weight: 600;
+    }
+
+    .error {
+        position: absolute;
+        bottom: 0;
+        margin: 0.5rem;
+    }
+}
+</style>

@@ -1,6 +1,10 @@
+export const BACKGROUND_CODES = [
+  "osc(10, 0.1, 0.8).scale(0.7).brightness(0.4).contrast(1.8).posterize(5, 5).modulatePixelate(osc(30), 100).modulateScrollX(osc(80), 0.008).modulateScale(noise(10), 0.1).modulateScale(osc(10), 0.5).colorama(4).out();",
+  "osc(190, 0.1).modulateRotate(osc(3, 0.4)).modulateScale(osc(10)).repeat(2, 2).add(shape(3).rotate(1)).out()",
+];
+
 export const TYPE_SRC = "source";
-export const TYPE_GEO = "geometry";
-export const TYPE_COL = "color";
+export const TYPE_EFFECT = "effect";
 
 export const SOURCE_FUNCTIONS = [
   {
