@@ -2,7 +2,7 @@
     <div class="container">
         <h1>hydra+</h1>
 
-        <p>display this tab on a projector to start hacking</p>
+        <p>display this tab on a projector and start hacking</p>
 
         <button @click="openCode"><span>open code editor</span></button>
         <button @click="openGui"><span>open gui</span></button>
@@ -37,6 +37,10 @@ $btn-transition: all 0.3s ease-in-out;
     align-items: center;
     flex-direction: column;
     min-height: 100vh;
+}
+
+h1, p {
+    text-shadow: 0 0 8px #000000ae;
 }
 
 button {
