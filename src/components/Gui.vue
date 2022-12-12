@@ -1,7 +1,7 @@
 <template>
     <!-- navigation -->
     <div class="navigation">
-        <div v-if="!focus">
+        <div v-if="isSourceSelectVisible">
             <select v-model="selectedSource">
                 <option value="">select source</option>
                 <option v-for="source in sources" :value="source" @change="selectedSource = source">
@@ -17,14 +17,20 @@
             </strong>
             <select v-model="selectedEffect">
                 <option disabled value="">geometry functions</option>
-                <option v-for="geometry in geometryFunctions" :value="geometry" @change="selectEffect(geometry)">
-                    {{ geometry.name }}
+                <option v-for="fn in geometryFunctions" :value="fn" @change="selectEffect(fn)">
+                    {{ fn.name }}
                 </option>
             </select>
             <select v-model="selectedEffect">
                 <option disabled value="">color functions</option>
-                <option v-for="color in colorFunctions" :value="color" @change="selectEffect(color)">
-                    {{ color.name }}
+                <option v-for="fn in colorFunctions" :value="fn" @change="selectEffect(fn)">
+                    {{ fn.name }}
+                </option>
+            </select>
+            <select v-model="selectedEffect">
+                <option disabled value="">modulate functions</option>
+                <option v-for="fn in modulateFunctions" :value="fn" @change="selectModulation(fn)">
+                    {{ fn.name }}
                 </option>
             </select>
             <button @click="addEffect">add effect</button>
@@ -38,10 +44,9 @@
     </div>
 
     <!-- playground -->
-    <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source" @click="onFocus(index)"
-        @mousedown="(e) => moveSource(e, index)">
-        <div>
-            <strong class="output-header">
+    <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source">
+        <div @click="onFocus(index)">
+            <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
                 <span>o{{ index }} - {{ block.name }}</span>
                 <span class="delete" @click="deleteSource(index)" />
             </strong>
@@ -51,7 +56,7 @@
             </div>
         </div>
 
-        <nested-draggable :blocks="block.blocks" />
+        <nested-draggable :blocks="block.blocks" @onFocus="onFocus" />
     </div>
 
     <!-- settings modal -->
@@ -81,7 +86,8 @@ import { deepCopy, flatten } from '../utils/object-utils';
 
 import {
     TYPE_SRC,
-    TYPE_EFFECT,
+    TYPE_SIMPLE,
+    TYPE_MODULATION,
     SOURCE_FUNCTIONS,
     GEOMETRY_FUNCTIONS,
     COLOR_FUNCTIONS,
@@ -102,10 +108,6 @@ export default {
             blocks: [],
             error: null,
             focus: null,
-            sources: SOURCE_FUNCTIONS,
-            geometryFunctions: GEOMETRY_FUNCTIONS,
-            colorFunctions: COLOR_FUNCTIONS,
-            modulateFunctions: MODULATE_FUNCTIONS,
             selectedSource: "",
             selectedEffect: {
                 name: "",
@@ -122,25 +124,53 @@ export default {
     computed: {
         outputName() {
             return `o${this.blocks.findIndex((block) => block === this.focus)}`;
-        }
+        },
+
+        isSourceSelectVisible() {
+            return (this.focus?.type !== TYPE_SRC && this.focus?.type !== TYPE_SIMPLE);
+        },
+
+        sources() {
+            return SOURCE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SRC }));
+        },
+
+        geometryFunctions() {
+            return GEOMETRY_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE }));
+        },
+
+        colorFunctions() {
+            return COLOR_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE }));
+        },
+
+        modulateFunctions() {
+            return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_MODULATION }));
+        },
     },
 
     methods: {
         /**
-         * Adds source to the main code block. Deep copy is needed because we want
-         * to handle the input parameters differently for different sources.
+         * Adds source to the main code block or to a child block.
+         * Deep copy is needed because we want to handle the input parameters
+         * differently for different sources.
          */
         addSource() {
-            if (this.blocks.length < 4 && this.selectedSource) {
-                this.blocks.push(
-                    deepCopy(
-                        { ...this.selectedSource, type: TYPE_SRC, blocks: [] }
-                    )
-                );
-
-                this.focus = this.blocks[-1];
-                this.selectedSource = "";
+            if (!this.selectedSource) {
+                return;
             }
+
+            const copiedObject = deepCopy(
+                { ...this.selectedSource, type: TYPE_SRC, blocks: [] }
+            );
+
+            if (!this.focus && this.blocks.length < 4) {
+                this.blocks.push(copiedObject);
+
+                this.focus = this.blocks[this.blocks.length - 1];
+                this.selectedSource = "";
+            } else if (this.focus) {
+                this.focus.blocks.push(copiedObject);
+            }
+
         },
 
         moveSource(e, index) {
@@ -170,18 +200,20 @@ export default {
             this.blocks.splice(index, 1);
         },
 
-        selectEffect(effect) {
-            this.selectedEffect = { ...effect, type: TYPE_EFFECT };
-        },
-
         /**
          * Adds geometry block to the block that is in focus.
          */
         addEffect() {
-            if (this.selectedEffect && this.focus) {
-                this.focus.blocks.push(
-                    deepCopy(this.selectedEffect)
+            const { focus, selectedEffect } = this;
+
+            if (selectedEffect.name && focus) {
+                focus.blocks.push(
+                    deepCopy(selectedEffect)
                 );
+            }
+
+            if (selectedEffect.type === TYPE_MODULATION) {
+                this.focus = focus.blocks[focus.blocks.length - 1];
             }
 
             this.selectedEffect = {
@@ -190,9 +222,14 @@ export default {
             };
         },
 
-        onFocus(index) {
-            this.focus = this.blocks[index];
-            // console.log('focus in', this.focus);
+        onFocus(index, fromChildComponent) {
+            if (fromChildComponent) {
+                this.focus = index;
+            } else {
+                this.focus = this.blocks[index];
+            }
+
+            console.log('focus in', this.focus);
         },
 
         removeFocus() {
@@ -227,7 +264,7 @@ export default {
         update() {
             const codeString = flatten(this.blocks[0]);
 
-            // console.log(this.blocks, codeString);
+            console.log(this.blocks, codeString);
 
             try {
                 eval(`${codeString}.out()`);
@@ -313,7 +350,8 @@ $darkblue: #02042c;
     flex-direction: column;
     width: fit-content;
     min-width: 300px;
-    padding: 1rem 1rem 0;
+    padding: 1rem 1rem 0.5rem;
+    border-radius: 10px;
     background: #22222260;
     backdrop-filter: blur(5px);
     transform: translate(20px, 60px);
@@ -361,6 +399,7 @@ $darkblue: #02042c;
 
         label {
             margin-right: 1rem;
+            user-select: none;
         }
 
         input {

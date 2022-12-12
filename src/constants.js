@@ -4,7 +4,8 @@ export const BACKGROUND_CODES = [
 ];
 
 export const TYPE_SRC = "source";
-export const TYPE_EFFECT = "effect";
+export const TYPE_SIMPLE = "effect";
+export const TYPE_MODULATION = "modulation";
 
 export const SOURCE_FUNCTIONS = [
   {
@@ -177,7 +178,7 @@ export const GEOMETRY_FUNCTIONS = [
       },
       {
         name: "offsetX",
-        value: 0,
+        value: 0.5,
       },
       {
         name: "offsetY",
@@ -194,7 +195,7 @@ export const GEOMETRY_FUNCTIONS = [
       },
       {
         name: "offset",
-        value: 0,
+        value: 0.5,
       },
     ],
   },
@@ -207,7 +208,7 @@ export const GEOMETRY_FUNCTIONS = [
       },
       {
         name: "offset",
-        value: 0,
+        value: 0.5,
       },
     ],
   },
@@ -233,7 +234,7 @@ export const GEOMETRY_FUNCTIONS = [
       },
       {
         name: "speedX",
-        value: 0,
+        value: 0.5,
       },
       {
         name: "speedY",
@@ -250,7 +251,7 @@ export const GEOMETRY_FUNCTIONS = [
       },
       {
         name: "speed",
-        value: 0,
+        value: 0.5,
       },
     ],
   },
@@ -263,7 +264,7 @@ export const GEOMETRY_FUNCTIONS = [
       },
       {
         name: "speed",
-        value: 0,
+        value: 0.5,
       },
     ],
   },
@@ -446,4 +447,97 @@ export const COLOR_FUNCTIONS = [
   },
 ];
 
-export const MODULATE_FUNCTIONS = [];
+export const MODULATE_FUNCTIONS = [
+  {
+    name: "modulateRepeat",
+    blocks: [],
+    params: GEOMETRY_FUNCTIONS[3].params,
+  },
+  {
+    name: "modulateRepeatX",
+    blocks: [],
+    params: GEOMETRY_FUNCTIONS[4].params,
+  },
+  {
+    name: "modulateRepeatY",
+    blocks: [],
+    params: GEOMETRY_FUNCTIONS[5].params,
+  },
+  {
+    name: "modulateKaleid",
+    blocks: [],
+    params: GEOMETRY_FUNCTIONS[6].params,
+  },
+  {
+    name: "modulateScrollX",
+    blocks: [],
+    params: GEOMETRY_FUNCTIONS[7].params,
+  },
+  {
+    name: "modulateScrollY",
+    blocks: [],
+    params: GEOMETRY_FUNCTIONS[8].params,
+  },
+  {
+    name: "modulate",
+    blocks: [],
+    params: [
+      {
+        name: "amount",
+        value: 0.1,
+      },
+    ],
+  },
+  {
+    name: "modulateScale",
+    blocks: [],
+    params: [
+      {
+        name: "multiple",
+        value: 1,
+      },
+      {
+        name: "offset",
+        value: 1,
+      },
+    ],
+  },
+  {
+    name: "modulatePixelate",
+    blocks: [],
+    params: [
+      {
+        name: "multiple",
+        value: 10,
+      },
+      {
+        name: "offset",
+        value: 3,
+      },
+    ],
+  },
+  {
+    name: "modulateRotate",
+    blocks: [],
+    params: [
+      {
+        name: "multiple",
+        value: 1,
+      },
+      {
+        name: "offset",
+        value: 0,
+      },
+    ],
+  },
+  {
+    name: "modulateHue",
+    blocks: [],
+    params: [
+      {
+        name: "amount",
+        value: 1,
+      },
+    ],
+  },
+];

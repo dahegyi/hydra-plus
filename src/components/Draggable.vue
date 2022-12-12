@@ -2,16 +2,19 @@
     <draggable class="dragArea" tag="ul" :list="blocks" :group="{ name: 'g1' }" item-key="name">
         <template #item="{ element }">
             <li>
-                <strong>
-                    <span>{{ element.name }}</span>
-                    <span class="delete" @click="deleteEffect(index)" />
-                </strong>
-                <div v-for="(param, index) in element.params" :key="index" class="param-input-container">
-                    <label :for="param.name">{{ param.name }}</label>
-                    <input :id="param.name" v-model="param.value" />
+                <div>
+                    <strong>
+                        <span>{{ element.name }}</span>
+                        <span class="delete" @click="deleteEffect(element)" />
+                    </strong>
+                    <div v-for="(param, index) in element.params" :key="index" class="param-input-container"
+                        @click="onFocus(element)">
+                        <label :for="param.name">{{ param.name }}</label>
+                        <input :id="param.name" v-model="param.value" />
+                    </div>
                 </div>
 
-                <nested-draggable v-if="element.type === TYPE_SRC" :blocks="element.blocks" />
+                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" @onFocus="onFocus" />
             </li>
         </template>
     </draggable>
@@ -19,16 +22,10 @@
 <script>
 import draggable from "vuedraggable";
 
-import { TYPE_SRC } from "../constants";
+import { TYPE_SRC, TYPE_MODULATION } from "../constants";
 
 export default {
     name: "NestedDraggable",
-
-    data() {
-        return {
-            TYPE_SRC
-        }
-    },
 
     props: {
         params: {
@@ -43,9 +40,21 @@ export default {
     },
 
     methods: {
-        deleteEffect(index) {
-            this.blocks.splice(index, 1);
-        }
+        deleteEffect(element) {
+            for (const block of this.blocks) {
+                if (block === element) {
+                    return this.blocks.splice(this.blocks.indexOf(block), 1);
+                }
+            }
+        },
+
+        hasDraggableChild(type) {
+            return type === TYPE_MODULATION || type === TYPE_SRC;
+        },
+
+        onFocus(element) {
+            this.$emit("onFocus", element, true);
+        },
     },
 
     components: {
@@ -61,54 +70,46 @@ $darkblue: #02042c;
     min-height: 50px;
     outline: 1px dashed;
     list-style: none;
-    padding: 0.1rem 0.5rem;
+    padding: 0.4rem;
+    margin: 0.5rem 0;
     background: #00000040;
-
-
 
     li {
         background: #ffffff40;
-        margin: 0.5rem 0;
         padding: 0.2rem 0.6rem;
-
-        &:first-child() {
-            margin-top: 0;
-        }
-
-        &:last-child() {
-            margin-bottom: 0;
-        }
 
         strong {
             display: flex;
             justify-content: space-between;
-        }
-
-        .delete {
-            height: 24px;
-            width: 24px;
             cursor: pointer;
-            position: relative;
+            user-select: none;
 
-            &:before,
-            &:after {
-                content: "";
-                position: absolute;
-                border-top: 3px solid $darkblue;
-                width: 16px;
-                top: 10px;
-                left: 5px;
-            }
+            .delete {
+                height: 24px;
+                width: 24px;
+                position: relative;
 
-            &:before {
-                transform: rotate(45deg);
-            }
+                &:before,
+                &:after {
+                    content: "";
+                    position: absolute;
+                    border-top: 3px solid $darkblue;
+                    width: 16px;
+                    top: 10px;
+                    left: 5px;
+                }
 
-            &:after {
-                transform: rotate(-45deg);
+                &:before {
+                    transform: rotate(45deg);
+                }
 
+                &:after {
+                    transform: rotate(-45deg);
+
+                }
             }
         }
+
 
         .param-input-container {
             display: flex;
@@ -118,6 +119,7 @@ $darkblue: #02042c;
 
             label {
                 margin-right: 1rem;
+                user-select: none;
             }
 
             input {

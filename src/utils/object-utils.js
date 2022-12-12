@@ -1,4 +1,4 @@
-import { TYPE_SRC } from "../constants";
+import { TYPE_SRC, TYPE_MODULATION } from "../constants";
 
 export const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
@@ -22,7 +22,18 @@ export const flatten = (obj) => {
 
     source += `${obj.name}(`;
 
-    for (let param of obj.params) {
+    // Modulation requires a source as a parameter
+    if (obj.type === TYPE_MODULATION) {
+      if (obj.blocks.length > 0) {
+        source += flatten(obj.blocks[0]);
+        source += ",";
+      } else {
+        // fallback to osc
+        source += "osc(10, 0.1, 0),";
+      }
+    }
+
+    for (const param of obj.params) {
       source += param.value;
 
       if (param !== obj.params[obj.params.length - 1]) {
@@ -32,7 +43,7 @@ export const flatten = (obj) => {
 
     source += ")";
 
-    if (obj.blocks?.length > 0) {
+    if (obj.type !== TYPE_MODULATION && obj.blocks?.length > 0) {
       source += flatten(obj.blocks);
     }
   }
