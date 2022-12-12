@@ -1,4 +1,5 @@
 <template>
+    <div class="background" @click="removeFocus" />
     <!-- navigation -->
     <div class="navigation">
         <div v-if="isSourceSelectVisible">
@@ -198,6 +199,7 @@ export default {
 
         deleteSource(index) {
             this.blocks.splice(index, 1);
+            this.focus = null;
         },
 
         /**
@@ -262,7 +264,13 @@ export default {
         },
 
         update() {
-            const codeString = flatten(this.blocks[0]);
+            let codeString;
+
+            if (this.blocks.length === 0) {
+                codeString = "hush()";
+            } else {
+                codeString = flatten(this.blocks[0]);
+            }
 
             console.log(this.blocks, codeString);
 
@@ -289,6 +297,14 @@ export default {
 <style lang="scss" scoped>
 $darkblue: #02042c;
 
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
 .navigation {
     position: fixed;
     width: calc(100% - 12px);
@@ -298,6 +314,7 @@ $darkblue: #02042c;
     align-items: center;
     padding: 6px;
     background: #222222bb;
+    backdrop-filter: blur(5px);
 
     div {
         display: flex;
