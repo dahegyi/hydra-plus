@@ -39,8 +39,8 @@
 
         <div>
             <button @click="isSettingsModalOpen = true" class="settings">synth settings</button>
-            <button @click="update" class="green">update</button>
-            <button @click="updateAndSend" class="red">send</button>
+            <button @click="update" :disabled="isSettingsModalOpen" class="green">update</button>
+            <button @click="updateAndSend" :disabled="isSettingsModalOpen" class="red">send</button>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
 
     <!-- settings modal -->
     <div class="settings-modal" v-if="isSettingsModalOpen">
-        <h1>settings</h1>
+        <h2>settings</h2>
         <div class="row">
             <label for="speed">speed</label>
             <input type="text" id="speed" v-model="synthSettings.speed.current" />
@@ -70,6 +70,15 @@
         <div class="row">
             <label for="bpm">bpm</label>
             <input type="text" id="bpm" v-model="synthSettings.bpm.current" />
+        </div>
+        <div class="row">
+            <label for="output">output</label>
+            <select id="output" v-model="synthSettings.output.current">
+                <option value="">select output</option>
+                <option v-for="block, index in blocks" :value="index">
+                    o{{ index }} - {{ block.name }}
+                </option>
+            </select>
         </div>
 
         <div>
@@ -115,9 +124,10 @@ export default {
                 type: ""
             },
             isSettingsModalOpen: false,
-            synthSettings: {
+            synthSettings: { // @TODO fix this
                 bpm: { current: 30, previous: 30 },
                 speed: { current: 1, previous: 1 },
+                output: { current: null, previous: null },
             }
         }
     },
@@ -167,6 +177,9 @@ export default {
                 this.blocks.push(copiedObject);
 
                 this.focus = this.blocks[this.blocks.length - 1];
+
+                this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
+
                 this.selectedSource = "";
             } else if (this.focus) {
                 this.focus.blocks.push(copiedObject);
@@ -199,6 +212,13 @@ export default {
 
         deleteSource(index) {
             this.blocks.splice(index, 1);
+
+            if (this.blocks.length === 0) {
+                this.synthSettings.output = { current: null, previous: null };
+            } else {
+                this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
+            }
+
             this.focus = null;
         },
 
@@ -231,7 +251,7 @@ export default {
                 this.focus = this.blocks[index];
             }
 
-            console.log('focus in', this.focus);
+            // console.log('focus in', this.focus);
         },
 
         removeFocus() {
@@ -241,6 +261,10 @@ export default {
 
         closeSettingsModal() {
             // @TODO ask user if they want to save changes
+            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
+            this.synthSettings.speed.current = this.synthSettings.speed.previous;
+            this.synthSettings.output.current = this.synthSettings.output.previous;
+
             this.isSettingsModalOpen = false;
         },
 
@@ -269,10 +293,10 @@ export default {
             if (this.blocks.length === 0) {
                 codeString = "hush()";
             } else {
-                codeString = flatten(this.blocks[0]);
+                codeString = flatten(this.blocks[this.synthSettings.output.current]);
             }
 
-            console.log(this.blocks, codeString);
+            // console.log(this.blocks, codeString);
 
             try {
                 eval(`${codeString}.out()`);
@@ -286,7 +310,7 @@ export default {
             this.update();
 
             if (!this.error) {
-                const codeString = flatten(this.blocks[0]);
+                const codeString = flatten(this.synthSettings.output.current);
                 post(`${codeString}.out()`);
             }
         }
@@ -465,6 +489,11 @@ $darkblue: #02042c;
     background: #222222bb;
     backdrop-filter: blur(5px);
     padding: 20px;
+    border-radius: 10px;
+
+    h2 {
+        margin-top: 0.5rem;
+    }
 
     button {
         margin: 5px;
@@ -481,7 +510,8 @@ $darkblue: #02042c;
             margin-right: 1rem;
         }
 
-        input {
+        input,
+        select {
             width: 60%;
             padding: 0.2rem;
             border: 1px solid #00000040;
