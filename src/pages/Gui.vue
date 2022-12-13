@@ -8,7 +8,11 @@
         <div @click="onFocus(index)">
             <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
                 <span>o{{ index }} - {{ block.name }}</span>
-                <span class="delete" @click="deleteSource(index)" />
+                <div>
+                    <span :class="['activate', { active: synthSettings.output.current === index }]"
+                        @click="setActiveOutput(index)" />
+                    <span class="delete" @click="deleteSource(index)" />
+                </div>
             </strong>
             <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
                 <label :for="paramIndex">{{ param.name }}</label>
@@ -91,6 +95,11 @@ export default {
             document.addEventListener('mouseup', up);
         },
 
+        setActiveOutput(index) {
+            console.log(index)
+            this.synthSettings.output = { current: index, previous: index };
+        },
+
         deleteSource(index) {
             this.blocks.splice(index, 1);
 
@@ -150,11 +159,39 @@ $darkblue: #02042c;
         margin-bottom: 0.5rem;
         cursor: move;
 
+        $iconSize: 24px;
+
+        .activate,
         .delete {
-            height: 24px;
-            width: 24px;
+            position: absolute;
+            height: $iconSize;
+            width: $iconSize;
             cursor: pointer;
-            position: relative;
+        }
+
+        .activate {
+            right: calc(2 * $iconSize);
+
+            &:after {
+                content: "";
+                position: absolute;
+                border: 4px solid $darkblue;
+                height: 8px;
+                width: 8px;
+                border-radius: 50%;
+                top: 4px;
+                left: 4px;
+            }
+
+            &.active {
+                &:after {
+                    border-color: #f54646;
+                }
+            }
+        }
+
+        .delete {
+            right: $iconSize;
 
             &:before,
             &:after {
