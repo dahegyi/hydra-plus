@@ -1,14 +1,18 @@
 <template>
     <div class="background" @click="removeFocus" />
 
-    <navigation :blocks="blocks" :focus="focus" @onFocus="onFocus" />
+    <navigation :blocks="blocks" :focus="focus" :synthSettings="synthSettings" @onFocus="onFocus" />
 
     <!-- playground -->
     <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source">
         <div @click="onFocus(index)">
             <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
                 <span>o{{ index }} - {{ block.name }}</span>
-                <span class="delete" @click="deleteSource(index)" />
+                <div>
+                    <span :class="['activate', { active: synthSettings.output.current === index }]"
+                        @click="setActiveOutput(index)" />
+                    <span class="delete" @click="deleteSource(index)" />
+                </div>
             </strong>
             <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
                 <label :for="paramIndex">{{ param.name }}</label>
@@ -37,24 +41,53 @@ export default {
             blocks: [],
             error: null,
             focus: null,
+            synthSettings: { // @TODO fix this
+                bpm: { current: 30, previous: 30 },
+                speed: { current: 1, previous: 1 },
+                output: { current: null, previous: null },
+            }
         }
+    },
+
+    mounted() {
+        // load blocks from local storage
+        if (localStorage.getItem("blocks")) {
+            this.blocks = JSON.parse(localStorage.getItem("blocks"));
+        }
+
+        if (localStorage.getItem("synthSettings")) {
+            this.synthSettings = JSON.parse(localStorage.getItem("synthSettings"));
+        }
+    },
+
+    updated() {
+        // move parent blocks to their position
+        this.blocks.map((block, index) => {
+            this.moveSource(block, index, block.position);
+        });
     },
 
     computed: {},
 
     methods: {
-        moveSource(e, index) {
+        moveSource(e, index, position) {
             const div = document.getElementById("block" + index);
             const divRect = div.getBoundingClientRect();
 
             const offsetX = e.clientX - divRect.left;
             const offsetY = e.clientY - divRect.top;
 
+            if (position) {
+                return div.style.transform = `translate(${position.x}px, ${position.y}px)`;
+            }
+
             const move = (e) => {
                 const x = e.clientX - offsetX;
                 const y = e.clientY - offsetY;
 
                 div.style.transform = `translate(${x}px, ${y}px)`;
+
+                this.blocks[index].position = { x, y };
             }
 
             const up = () => {
@@ -66,6 +99,10 @@ export default {
             document.addEventListener('mouseup', up);
         },
 
+        setActiveOutput(index) {
+            this.synthSettings.output = { current: index, previous: index };
+        },
+
         deleteSource(index) {
             this.blocks.splice(index, 1);
 
@@ -74,8 +111,6 @@ export default {
             } else {
                 this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
             }
-
-            this.focus = null;
         },
 
         onFocus(index, fromChildComponent) {
@@ -117,7 +152,6 @@ $darkblue: #02042c;
     border-radius: 10px;
     background: #22222260;
     backdrop-filter: blur(5px);
-    transform: translate(20px, 60px);
 
     .output-header {
         color: $darkblue;
@@ -128,11 +162,39 @@ $darkblue: #02042c;
         margin-bottom: 0.5rem;
         cursor: move;
 
+        $iconSize: 24px;
+
+        .activate,
         .delete {
-            height: 24px;
-            width: 24px;
+            position: absolute;
+            height: $iconSize;
+            width: $iconSize;
             cursor: pointer;
-            position: relative;
+        }
+
+        .activate {
+            right: calc(2 * $iconSize);
+
+            &:after {
+                content: "";
+                position: absolute;
+                border: 4px solid $darkblue;
+                height: 8px;
+                width: 8px;
+                border-radius: 50%;
+                top: 4px;
+                left: 4px;
+            }
+
+            &.active {
+                &:after {
+                    border-color: #f54646;
+                }
+            }
+        }
+
+        .delete {
+            right: $iconSize;
 
             &:before,
             &:after {

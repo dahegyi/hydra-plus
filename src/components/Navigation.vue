@@ -16,19 +16,25 @@
             </strong>
             <select v-model="selectedEffect">
                 <option disabled value="">geometry functions</option>
-                <option v-for="fn in geometryFunctions" :value="fn" @change="selectEffect(fn)">
+                <option v-for="fn in geometryFunctions" :value="fn">
                     {{ fn.name }}
                 </option>
             </select>
             <select v-model="selectedEffect">
                 <option disabled value="">color functions</option>
-                <option v-for="fn in colorFunctions" :value="fn" @change="selectEffect(fn)">
+                <option v-for="fn in colorFunctions" :value="fn">
                     {{ fn.name }}
                 </option>
             </select>
             <select v-model="selectedEffect">
                 <option disabled value="">modulate functions</option>
-                <option v-for="fn in modulateFunctions" :value="fn" @change="selectModulation(fn)">
+                <option v-for="fn in blendFunctions" :value="fn">
+                    {{ fn.name }}
+                </option>
+            </select>
+            <select v-model="selectedEffect">
+                <option disabled value="">modulate functions</option>
+                <option v-for="fn in modulateFunctions" :value="fn">
                     {{ fn.name }}
                 </option>
             </select>
@@ -54,11 +60,12 @@ import { deepCopy, flatten } from '../utils/object-utils';
 import {
     TYPE_SRC,
     TYPE_SIMPLE,
-    TYPE_MODULATION,
+    TYPE_COMPLEX,
     SOURCE_FUNCTIONS,
     GEOMETRY_FUNCTIONS,
     COLOR_FUNCTIONS,
-    MODULATE_FUNCTIONS
+    BLEND_FUNCTIONS,
+    MODULATE_FUNCTIONS,
 } from "../constants";
 
 import SettingsModal from "../components/SettingsModal.vue";
@@ -80,11 +87,6 @@ export default {
                 type: ""
             },
             isSettingsModalOpen: false,
-            synthSettings: { // @TODO fix this
-                bpm: { current: 30, previous: 30 },
-                speed: { current: 1, previous: 1 },
-                output: { current: null, previous: null },
-            }
         }
     },
 
@@ -95,9 +97,14 @@ export default {
         },
 
         focus: {
-            required: true,
-            type: [null, Object]
+            type: Object,
+            default: null
         },
+
+        synthSettings: {
+            required: true,
+            type: Object
+        }
     },
 
     computed: {
@@ -121,8 +128,12 @@ export default {
             return COLOR_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE }));
         },
 
+        blendFunctions() {
+            return BLEND_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
+        },
+
         modulateFunctions() {
-            return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_MODULATION }));
+            return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
         },
     },
 
@@ -142,7 +153,7 @@ export default {
             }
 
             const copiedObject = deepCopy(
-                { ...this.selectedSource, type: TYPE_SRC, blocks: [] }
+                { ...this.selectedSource, type: TYPE_SRC, blocks: [], position: { x: 20, y: 60 } }
             );
 
             if (!this.focus && this.blocks.length < 4) {
@@ -159,7 +170,7 @@ export default {
         },
 
         /**
-         * Adds geometry block to the block that is in focus.
+         * Adds effect block to the focused block as a child.
         */
         addEffect() {
             const { focus, selectedEffect } = this;
@@ -170,7 +181,7 @@ export default {
                 );
             }
 
-            if (selectedEffect.type === TYPE_MODULATION) {
+            if (selectedEffect.type === TYPE_COMPLEX) {
                 this.onFocus(this.focus.blocks[focus.blocks.length - 1]);
             }
 
@@ -231,9 +242,12 @@ export default {
             this.update();
 
             if (!this.error) {
-                const codeString = flatten(this.synthSettings.output.current);
+                const codeString = flatten(this.blocks[this.synthSettings.output.current]);
                 post(`${codeString}.out()`);
             }
+
+            localStorage.setItem("blocks", JSON.stringify(this.blocks));
+            localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
         }
     },
 };
