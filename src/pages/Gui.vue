@@ -100,7 +100,6 @@ export default {
         },
 
         setActiveOutput(index) {
-            console.log(index)
             this.synthSettings.output = { current: index, previous: index };
         },
 

@@ -53,8 +53,6 @@ export default {
         },
 
         onFocus(element) {
-
-            console.log(element)
             if (this.hasDraggableChild(element.type)) {
                 this.$emit("onFocus", element, true);
             }
