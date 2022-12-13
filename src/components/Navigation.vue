@@ -236,6 +236,7 @@ export default {
             }
 
             localStorage.setItem("blocks", JSON.stringify(this.blocks));
+            localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
         }
     },
 };

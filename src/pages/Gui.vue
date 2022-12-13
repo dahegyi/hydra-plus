@@ -54,6 +54,10 @@ export default {
         if (localStorage.getItem("blocks")) {
             this.blocks = JSON.parse(localStorage.getItem("blocks"));
         }
+
+        if (localStorage.getItem("synthSettings")) {
+            this.synthSettings = JSON.parse(localStorage.getItem("synthSettings"));
+        }
     },
 
     updated() {
