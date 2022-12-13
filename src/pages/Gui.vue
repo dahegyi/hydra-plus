@@ -46,26 +46,40 @@ export default {
     },
 
     mounted() {
+        // load blocks from local storage
         if (localStorage.getItem("blocks")) {
             this.blocks = JSON.parse(localStorage.getItem("blocks"));
         }
     },
 
+    updated() {
+        // move parent blocks to their position
+        this.blocks.map((block, index) => {
+            this.moveSource(block, index, block.position);
+        });
+    },
+
     computed: {},
 
     methods: {
-        moveSource(e, index) {
+        moveSource(e, index, position) {
             const div = document.getElementById("block" + index);
             const divRect = div.getBoundingClientRect();
 
             const offsetX = e.clientX - divRect.left;
             const offsetY = e.clientY - divRect.top;
 
+            if (position) {
+                return div.style.transform = `translate(${position.x}px, ${position.y}px)`;
+            }
+
             const move = (e) => {
                 const x = e.clientX - offsetX;
                 const y = e.clientY - offsetY;
 
                 div.style.transform = `translate(${x}px, ${y}px)`;
+
+                this.blocks[index].position = { x, y };
             }
 
             const up = () => {
@@ -126,7 +140,6 @@ $darkblue: #02042c;
     border-radius: 10px;
     background: #22222260;
     backdrop-filter: blur(5px);
-    transform: translate(20px, 60px);
 
     .output-header {
         color: $darkblue;

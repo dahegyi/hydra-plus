@@ -142,7 +142,7 @@ export default {
             }
 
             const copiedObject = deepCopy(
-                { ...this.selectedSource, type: TYPE_SRC, blocks: [] }
+                { ...this.selectedSource, type: TYPE_SRC, blocks: [], position: { x: 20, y: 60 } }
             );
 
             if (!this.focus && this.blocks.length < 4) {
@@ -159,7 +159,7 @@ export default {
         },
 
         /**
-         * Adds geometry block to the block that is in focus.
+         * Adds effect block to the focused block as a child.
         */
         addEffect() {
             const { focus, selectedEffect } = this;
