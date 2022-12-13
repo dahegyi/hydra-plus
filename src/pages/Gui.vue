@@ -1,7 +1,7 @@
 <template>
     <div class="background" @click="removeFocus" />
 
-    <navigation :blocks="blocks" :focus="focus" @onFocus="onFocus" />
+    <navigation :blocks="blocks" :focus="focus" :synthSettings="synthSettings" @onFocus="onFocus" />
 
     <!-- playground -->
     <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source">
@@ -37,6 +37,11 @@ export default {
             blocks: [],
             error: null,
             focus: null,
+            synthSettings: { // @TODO fix this
+                bpm: { current: 30, previous: 30 },
+                speed: { current: 1, previous: 1 },
+                output: { current: null, previous: null },
+            }
         }
     },
 
@@ -80,8 +85,6 @@ export default {
             } else {
                 this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
             }
-
-            this.focus = null;
         },
 
         onFocus(index, fromChildComponent) {

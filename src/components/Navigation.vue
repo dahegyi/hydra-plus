@@ -80,11 +80,6 @@ export default {
                 type: ""
             },
             isSettingsModalOpen: false,
-            synthSettings: { // @TODO fix this
-                bpm: { current: 30, previous: 30 },
-                speed: { current: 1, previous: 1 },
-                output: { current: null, previous: null },
-            }
         }
     },
 
@@ -95,9 +90,14 @@ export default {
         },
 
         focus: {
-            required: true,
-            type: [null, Object]
+            type: Object,
+            default: null
         },
+
+        synthSettings: {
+            required: true,
+            type: Object
+        }
     },
 
     computed: {
