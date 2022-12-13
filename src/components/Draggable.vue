@@ -53,7 +53,9 @@ export default {
         },
 
         onFocus(element) {
-            this.$emit("onFocus", element, true);
+            if (this.hasDraggableChild(element.type)) {
+                this.$emit("onFocus", element, true);
+            }
         },
     },
 

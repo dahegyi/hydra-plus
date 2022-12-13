@@ -4,10 +4,10 @@ import { createRouter, createWebHistory } from "vue-router";
 import "./style.css";
 import App from "./App.vue";
 
-const Home = () => import("./components/Home.vue");
-const Visualizer = () => import("./components/Visualizer.vue");
-const Code = () => import("./components/Code.vue");
-const Gui = () => import("./components/Gui.vue");
+const Home = () => import("./pages/Home.vue");
+const Visualizer = () => import("./pages/Visualizer.vue");
+const Code = () => import("./pages/Code.vue");
+const Gui = () => import("./pages/Gui.vue");
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
