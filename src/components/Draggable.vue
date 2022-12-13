@@ -22,7 +22,7 @@
 <script>
 import draggable from "vuedraggable";
 
-import { TYPE_SRC, TYPE_MODULATION } from "../constants";
+import { TYPE_SRC, TYPE_COMPLEX } from "../constants";
 
 export default {
     name: "NestedDraggable",
@@ -49,10 +49,12 @@ export default {
         },
 
         hasDraggableChild(type) {
-            return type === TYPE_MODULATION || type === TYPE_SRC;
+            return type === TYPE_SRC || type === TYPE_COMPLEX;
         },
 
         onFocus(element) {
+
+            console.log(element)
             if (this.hasDraggableChild(element.type)) {
                 this.$emit("onFocus", element, true);
             }

@@ -4,8 +4,8 @@ export const BACKGROUND_CODES = [
 ];
 
 export const TYPE_SRC = "source";
-export const TYPE_SIMPLE = "effect";
-export const TYPE_MODULATION = "modulation";
+export const TYPE_SIMPLE = "simple";
+export const TYPE_COMPLEX = "complex";
 
 export const SOURCE_FUNCTIONS = [
   {
@@ -539,5 +539,63 @@ export const MODULATE_FUNCTIONS = [
         value: 1,
       },
     ],
+  },
+];
+
+export const BLEND_FUNCTIONS = [
+  {
+    name: "add",
+    blocks: [],
+    params: [
+      {
+        name: "amount",
+        value: 1,
+      },
+    ],
+  },
+  {
+    name: "sub",
+    blocks: [],
+    params: [
+      {
+        name: "amount",
+        value: 1,
+      },
+    ],
+  },
+  {
+    name: "layer",
+    blocks: [],
+    params: [],
+  },
+  {
+    name: "blend",
+    blocks: [],
+    params: [
+      {
+        name: "amount",
+        value: 0.5,
+      },
+    ],
+  },
+  {
+    name: "mult",
+    blocks: [],
+    params: [
+      {
+        name: "amount",
+        value: 1,
+      },
+    ],
+  },
+  {
+    name: "diff",
+    blocks: [],
+    params: [],
+  },
+  {
+    name: "mask",
+    blocks: [],
+    params: [],
   },
 ];

@@ -16,19 +16,25 @@
             </strong>
             <select v-model="selectedEffect">
                 <option disabled value="">geometry functions</option>
-                <option v-for="fn in geometryFunctions" :value="fn" @change="selectEffect(fn)">
+                <option v-for="fn in geometryFunctions" :value="fn">
                     {{ fn.name }}
                 </option>
             </select>
             <select v-model="selectedEffect">
                 <option disabled value="">color functions</option>
-                <option v-for="fn in colorFunctions" :value="fn" @change="selectEffect(fn)">
+                <option v-for="fn in colorFunctions" :value="fn">
                     {{ fn.name }}
                 </option>
             </select>
             <select v-model="selectedEffect">
                 <option disabled value="">modulate functions</option>
-                <option v-for="fn in modulateFunctions" :value="fn" @change="selectModulation(fn)">
+                <option v-for="fn in blendFunctions" :value="fn">
+                    {{ fn.name }}
+                </option>
+            </select>
+            <select v-model="selectedEffect">
+                <option disabled value="">modulate functions</option>
+                <option v-for="fn in modulateFunctions" :value="fn">
                     {{ fn.name }}
                 </option>
             </select>
@@ -54,11 +60,12 @@ import { deepCopy, flatten } from '../utils/object-utils';
 import {
     TYPE_SRC,
     TYPE_SIMPLE,
-    TYPE_MODULATION,
+    TYPE_COMPLEX,
     SOURCE_FUNCTIONS,
     GEOMETRY_FUNCTIONS,
     COLOR_FUNCTIONS,
-    MODULATE_FUNCTIONS
+    BLEND_FUNCTIONS,
+    MODULATE_FUNCTIONS,
 } from "../constants";
 
 import SettingsModal from "../components/SettingsModal.vue";
@@ -121,8 +128,12 @@ export default {
             return COLOR_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE }));
         },
 
+        blendFunctions() {
+            return BLEND_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
+        },
+
         modulateFunctions() {
-            return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_MODULATION }));
+            return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
         },
     },
 
@@ -170,7 +181,7 @@ export default {
                 );
             }
 
-            if (selectedEffect.type === TYPE_MODULATION) {
+            if (selectedEffect.type === TYPE_COMPLEX) {
                 this.onFocus(this.focus.blocks[focus.blocks.length - 1]);
             }
 
