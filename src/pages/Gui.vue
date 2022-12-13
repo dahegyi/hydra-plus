@@ -40,6 +40,12 @@ export default {
         }
     },
 
+    mounted() {
+        if (localStorage.getItem("blocks")) {
+            this.blocks = JSON.parse(localStorage.getItem("blocks"));
+        }
+    },
+
     computed: {},
 
     methods: {

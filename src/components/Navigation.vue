@@ -231,9 +231,11 @@ export default {
             this.update();
 
             if (!this.error) {
-                const codeString = flatten(this.synthSettings.output.current);
+                const codeString = flatten(this.blocks[this.synthSettings.output.current]);
                 post(`${codeString}.out()`);
             }
+
+            localStorage.setItem("blocks", JSON.stringify(this.blocks));
         }
     },
 };
