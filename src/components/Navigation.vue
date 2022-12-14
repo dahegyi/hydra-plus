@@ -1,44 +1,45 @@
 <template>
     <div class="navigation">
-        <div v-if="isSourceSelectVisible">
-            <select v-model="selectedSource">
-                <option value="">select source</option>
-                <option v-for="source in sources" :value="source" @change="selectedSource = source">
-                    {{ source.name }}
-                </option>
-            </select>
-            <button @click="addSource">add source</button>
-        </div>
+        <div>
+            <strong v-if="focused">{{ outputName }}</strong>
 
-        <div v-else>
-            <strong>
-                {{ outputName }} - {{ focus.name }}
-            </strong>
-            <select v-model="selectedEffect">
-                <option disabled value="">geometry functions</option>
-                <option v-for="fn in geometryFunctions" :value="fn">
-                    {{ fn.name }}
-                </option>
-            </select>
-            <select v-model="selectedEffect">
-                <option disabled value="">color functions</option>
-                <option v-for="fn in colorFunctions" :value="fn">
-                    {{ fn.name }}
-                </option>
-            </select>
-            <select v-model="selectedEffect">
-                <option disabled value="">modulate functions</option>
-                <option v-for="fn in blendFunctions" :value="fn">
-                    {{ fn.name }}
-                </option>
-            </select>
-            <select v-model="selectedEffect">
-                <option disabled value="">modulate functions</option>
-                <option v-for="fn in modulateFunctions" :value="fn">
-                    {{ fn.name }}
-                </option>
-            </select>
-            <button @click="addEffect">add effect</button>
+            <div v-if="isSourceSelectVisible">
+                <select v-model="selectedSource">
+                    <option value="">select source</option>
+                    <option v-for="source in sources" :value="source" @change="selectedSource = source">
+                        {{ source.name }}
+                    </option>
+                </select>
+                <button @click="addSource">add source</button>
+            </div>
+
+            <div v-else>
+                <select v-model="selectedEffect">
+                    <option disabled value="">geometry functions</option>
+                    <option v-for="fn in geometryFunctions" :value="fn">
+                        {{ fn.name }}
+                    </option>
+                </select>
+                <select v-model="selectedEffect">
+                    <option disabled value="">color functions</option>
+                    <option v-for="fn in colorFunctions" :value="fn">
+                        {{ fn.name }}
+                    </option>
+                </select>
+                <select v-model="selectedEffect">
+                    <option disabled value="">modulate functions</option>
+                    <option v-for="fn in blendFunctions" :value="fn">
+                        {{ fn.name }}
+                    </option>
+                </select>
+                <select v-model="selectedEffect">
+                    <option disabled value="">modulate functions</option>
+                    <option v-for="fn in modulateFunctions" :value="fn">
+                        {{ fn.name }}
+                    </option>
+                </select>
+                <button @click="addEffect">add effect</button>
+            </div>
         </div>
 
         <div>
@@ -96,7 +97,7 @@ export default {
             type: Array
         },
 
-        focus: {
+        focused: {
             type: Object,
             default: null
         },
@@ -109,11 +110,21 @@ export default {
 
     computed: {
         outputName() {
-            return `o${this.blocks.findIndex((block) => block === this.focus)}`;
+            const blockIndex = this.blocks.findIndex((block) => block === this.focused);
+
+            if (blockIndex >= 0) {
+                return `o${blockIndex} - ${this.focused.name}`;
+            }
+
+            return this.focused.name;
+        },
+
+        isFocusNameVisible() {
+            return this.outputName && this.focused?.name;
         },
 
         isSourceSelectVisible() {
-            return (this.focus?.type !== TYPE_SRC && this.focus?.type !== TYPE_SIMPLE);
+            return (this.focused?.type !== TYPE_SRC && this.focused?.type !== TYPE_SIMPLE);
         },
 
         sources() {
@@ -156,7 +167,7 @@ export default {
                 { ...this.selectedSource, type: TYPE_SRC, blocks: [], position: { x: 20, y: 60 } }
             );
 
-            if (!this.focus && this.blocks.length < 4) {
+            if (!this.focused && this.blocks.length < 4) {
                 this.blocks.push(copiedObject);
 
                 this.onFocus(this.blocks[this.blocks.length - 1]);
@@ -164,8 +175,8 @@ export default {
                 this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
 
                 this.selectedSource = "";
-            } else if (this.focus) {
-                this.focus.blocks.push(copiedObject);
+            } else if (this.focused) {
+                this.focused.blocks.push(copiedObject);
             }
         },
 
@@ -173,16 +184,16 @@ export default {
          * Adds effect block to the focused block as a child.
         */
         addEffect() {
-            const { focus, selectedEffect } = this;
+            const { focused, selectedEffect } = this;
 
             if (selectedEffect.name && focus) {
-                focus.blocks.push(
+                this.focused.blocks.push(
                     deepCopy(selectedEffect)
                 );
             }
 
             if (selectedEffect.type === TYPE_COMPLEX) {
-                this.onFocus(this.focus.blocks[focus.blocks.length - 1]);
+                this.onFocus(focused.blocks[focused.blocks.length - 1]);
             }
 
             this.selectedEffect = {

@@ -1,8 +1,11 @@
 <template>
-    <navigation :blocks="blocks" :focus="focus" :synthSettings="synthSettings" @onFocus="onFocus" />
+    <div class="playground" @click="removeFocus" />
 
-    <div class="playground" @click="removeFocus">
-        <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source">
+    <navigation :blocks="blocks" :focused="focused" :synthSettings="synthSettings" @onFocus="onFocus" />
+
+    <div>
+        <div v-for="(block, index) in blocks" :key="index" :id="'block' + index"
+            :class="['source', { focused: focused === block }]">
             <div @click="onFocus(index)">
                 <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
                     <span>o{{ index }} - {{ block.name }}</span>
@@ -18,7 +21,7 @@
                 </div>
             </div>
 
-            <nested-draggable :blocks="block.blocks" @onFocus="onFocus" />
+            <nested-draggable :blocks="block.blocks" :focused="focused" :parent="block" @onFocus="onFocus" />
         </div>
     </div>
 </template>
@@ -39,7 +42,7 @@ export default {
         return {
             blocks: [],
             error: null,
-            focus: null,
+            focused: null,
             synthSettings: { // @TODO fix this
                 bpm: { current: 30, previous: 30 },
                 speed: { current: 1, previous: 1 },
@@ -100,6 +103,8 @@ export default {
 
         setActiveOutput(index) {
             this.synthSettings.output = { current: index, previous: index };
+
+            this.onFocus(this.blocks.index);
         },
 
         deleteSource(index) {
@@ -114,17 +119,17 @@ export default {
 
         onFocus(index, fromChildComponent) {
             if (fromChildComponent) {
-                this.focus = index;
+                this.focused = index;
             } else {
-                this.focus = this.blocks[index];
+                this.focused = this.blocks[index];
             }
 
-            // console.log('focus in', this.focus);
+            // console.log('focus in', this.focused);
         },
 
         removeFocus() {
-            this.focus = null;
-            // console.log('focus out', this.focus);
+            this.focused = null;
+            // console.log('focus out', this.focused);
         },
     }
 }
@@ -152,6 +157,10 @@ $darkblue: #02042c;
     border-radius: 10px;
     background: #22222260;
     backdrop-filter: blur(5px);
+
+    &.focused {
+        background: #11111180;
+    }
 
     .output-header {
         color: $darkblue;

@@ -1,20 +1,19 @@
 <template>
     <draggable class="dragArea" tag="ul" :list="blocks" :group="{ name: 'g1' }" item-key="name">
         <template #item="{ element }">
-            <li>
-                <div @click="onFocus(element)">
-                    <strong>
-                        <span>{{ element.name }}</span>
-                        <span class="delete" @click="deleteEffect(element)" />
-                    </strong>
-                    <div v-for="(param, index) in element.params" :key="index" class="param-input-container">
-                        <label :for="param.name">{{ param.name }}</label>
-                        <input :id="param.name" v-model="param.value" />
-                    </div>
+            <li :class="{ focused: focused === element }">
+                <strong>
+                    <span class="name" @click="onFocus(element)">{{ element.name }}</span>
+                    <span class="delete" @click="deleteEffect(element)" />
+                </strong>
+                <div v-for="(param, index) in element.params" :key="index" class="param-input-container"
+                    @click="onFocus(element)">
+                    <label>{{ param.name }}</label>
+                    <input v-model="param.value" />
                 </div>
 
-                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" :parent="element"
-                    @onFocus="onFocus" />
+                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" :focused="focused"
+                    :parent="element" @onFocus="onFocus" />
             </li>
         </template>
     </draggable>
@@ -28,28 +27,31 @@ export default {
     name: "NestedDraggable",
 
     props: {
-        params: {
-            default: [],
-            type: Array
-        },
-
         blocks: {
             required: true,
             type: Array
         },
 
-        parent: {
+        focused: {
             type: Object,
             default: null
+        },
+
+        parent: {
+            required: true,
+            type: Object
         },
     },
 
     methods: {
         deleteEffect(element) {
-            for (const block of this.blocks) {
+            const { blocks, parent } = this;
+
+            for (const block of blocks) {
                 if (block === element) {
-                    this.onFocus(this.parent);
-                    return this.blocks.splice(this.blocks.indexOf(block), 1);
+                    this.onFocus(parent);
+
+                    return blocks.splice(blocks.indexOf(block), 1);
                 }
             }
 
@@ -79,7 +81,7 @@ export default {
 $darkblue: #02042c;
 
 .dragArea {
-    min-height: 50px;
+    min-height: 30px;
     outline: 1px dashed;
     list-style: none;
     padding: 0.4rem;
@@ -90,11 +92,18 @@ $darkblue: #02042c;
         background: #ffffff40;
         padding: 0.2rem 0.6rem;
 
+        &.focused {
+            background: #ffffff80;
+        }
+
         strong {
             display: flex;
-            justify-content: space-between;
             cursor: pointer;
             user-select: none;
+
+            .name {
+                width: 100%;
+            }
 
             .delete {
                 height: 24px;
