@@ -19,6 +19,8 @@
             </select>
         </div>
 
+        <a href="#" @click="openVisualizer">open visualizer</a>
+
         <div>
             <button @click="closeSettingsModal">cancel</button>
             <button @click="saveAndCloseSettingsModal">save and close</button>
@@ -42,6 +44,10 @@ export default {
     },
 
     methods: {
+        openVisualizer() {
+            window.open('/visualizer', '_blank');
+        },
+
         closeSettingsModal() {
             this.$emit("closeSettingsModal");
         },
@@ -95,6 +101,10 @@ export default {
             border-radius: 0;
             background: #000000aa;
         }
+    }
+
+    a {
+        margin-bottom: 1rem;
     }
 }
 </style>
