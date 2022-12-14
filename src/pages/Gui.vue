@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { INITIAL_BLOCKS } from "../constants";
+
 import Navigation from "../components/Navigation.vue";
 import NestedDraggable from "../components/Draggable.vue";
 
@@ -55,6 +57,8 @@ export default {
         // load blocks from local storage
         if (localStorage.getItem("blocks")) {
             this.blocks = JSON.parse(localStorage.getItem("blocks"));
+        } else {
+            this.blocks = JSON.parse(INITIAL_BLOCKS);
         }
 
         if (localStorage.getItem("synthSettings")) {
@@ -253,13 +257,13 @@ $darkblue: #02042c;
 
     &:nth-child(2) {
         .output-header {
-            background: #ee6060;
+            background: #f7a06d;
         }
     }
 
     &:nth-child(3) {
         .output-header {
-            background: #84ff84;
+            background: #74eb74;
         }
     }
 

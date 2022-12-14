@@ -105,6 +105,11 @@ export default {
 
     a {
         margin-bottom: 1rem;
+        color: #fff;
+
+        &:hover {
+            color: #fff;
+        }
     }
 }
 </style>

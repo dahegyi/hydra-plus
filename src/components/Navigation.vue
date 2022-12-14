@@ -123,10 +123,10 @@ export default {
 
         functionGroups() {
             return [
-                { name: "geometry", fns: GEOMETRY_FUNCTIONS, type: TYPE_SIMPLE },
-                { name: "color", fns: COLOR_FUNCTIONS, type: TYPE_SIMPLE },
-                { name: "blend", fns: BLEND_FUNCTIONS, type: TYPE_COMPLEX },
-                { name: "modulate", fns: MODULATE_FUNCTIONS, type: TYPE_COMPLEX },
+                { name: "geometry", fns: this.geometryFunctions },
+                { name: "color", fns: this.colorFunctions },
+                { name: "blend", fns: this.blendFunctions },
+                { name: "modulate", fns: this.modulateFunctions },
             ];
         },
     },
@@ -147,13 +147,13 @@ export default {
                 ;
 
             if (!this.focused && this.blocks.length < 4) {
-                this.blocks.push(copiedObject);
+                this.blocks.push(deepCopy(copiedObject));
 
                 this.onFocus(this.blocks[this.blocks.length - 1]);
 
                 this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
             } else if (this.focused) {
-                this.focused.blocks.push(copiedObject);
+                this.focused.blocks.push(deepCopy(copiedObject));
             }
         },
 
@@ -168,7 +168,7 @@ export default {
             this.focused.blocks.push(effect);
 
             if (effect.type === TYPE_COMPLEX) {
-                this.onFocus(focused.blocks[focused.blocks.length - 1]);
+                this.onFocus(this.focused.blocks[focused.blocks.length - 1]);
             }
         },
 
@@ -206,7 +206,11 @@ export default {
             if (this.blocks.length === 0) {
                 codeString = "hush()";
             } else {
-                codeString = flatten(this.blocks[this.synthSettings.output.current]);
+                if (!this.synthSettings.output.current) {
+                    this.synthSettings.output.current = 0;
+                    this.synthSettings.output.previous = 0;
+                }
+                codeString = flatten(this.blocks[this.synthSettings.output.current || 0]);
             }
 
             // console.log(this.blocks, codeString);
