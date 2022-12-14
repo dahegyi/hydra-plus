@@ -2,19 +2,19 @@
     <draggable class="dragArea" tag="ul" :list="blocks" :group="{ name: 'g1' }" item-key="name">
         <template #item="{ element }">
             <li>
-                <div>
+                <div @click="onFocus(element)">
                     <strong>
                         <span>{{ element.name }}</span>
                         <span class="delete" @click="deleteEffect(element)" />
                     </strong>
-                    <div v-for="(param, index) in element.params" :key="index" class="param-input-container"
-                        @click="onFocus(element)">
+                    <div v-for="(param, index) in element.params" :key="index" class="param-input-container">
                         <label :for="param.name">{{ param.name }}</label>
                         <input :id="param.name" v-model="param.value" />
                     </div>
                 </div>
 
-                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" @onFocus="onFocus" />
+                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" :parent="element"
+                    @onFocus="onFocus" />
             </li>
         </template>
     </draggable>
@@ -36,16 +36,24 @@ export default {
         blocks: {
             required: true,
             type: Array
-        }
+        },
+
+        parent: {
+            type: Object,
+            default: null
+        },
     },
 
     methods: {
         deleteEffect(element) {
             for (const block of this.blocks) {
                 if (block === element) {
+                    this.onFocus(this.parent);
                     return this.blocks.splice(this.blocks.indexOf(block), 1);
                 }
             }
+
+
         },
 
         hasDraggableChild(type) {
@@ -55,6 +63,8 @@ export default {
         onFocus(element) {
             if (this.hasDraggableChild(element.type)) {
                 this.$emit("onFocus", element, true);
+            } else {
+                this.$emit("onFocus", this.parent, true);
             }
         },
     },
