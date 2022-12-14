@@ -85,12 +85,12 @@ $darkblue: #02042c;
     outline: 1px dashed;
     list-style: none;
     padding: 0.4rem;
-    margin: 0.5rem 0;
+    margin-top: 0.5rem;
     background: #00000040;
 
     li {
         background: #ffffff40;
-        padding: 0.2rem 0.6rem;
+        padding: 0.25rem 0.5rem 0.5rem;
 
         &.focused {
             background: #ffffff80;
