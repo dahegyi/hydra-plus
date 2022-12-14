@@ -1,26 +1,25 @@
 <template>
-    <div class="background" @click="removeFocus" />
-
     <navigation :blocks="blocks" :focus="focus" :synthSettings="synthSettings" @onFocus="onFocus" />
 
-    <!-- playground -->
-    <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source">
-        <div @click="onFocus(index)">
-            <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
-                <span>o{{ index }} - {{ block.name }}</span>
-                <div>
-                    <span :class="['activate', { active: synthSettings.output.current === index }]"
-                        @click="setActiveOutput(index)" />
-                    <span class="delete" @click="deleteSource(index)" />
+    <div class="playground" @click="removeFocus">
+        <div v-for="(block, index) in blocks" :key="index" :id="'block' + index" class="source">
+            <div @click="onFocus(index)">
+                <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
+                    <span>o{{ index }} - {{ block.name }}</span>
+                    <div>
+                        <span :class="['activate', { active: synthSettings.output.current === index }]"
+                            @click="setActiveOutput(index)" />
+                        <span class="delete" @click="deleteSource(index)" />
+                    </div>
+                </strong>
+                <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
+                    <label :for="paramIndex">{{ param.name }}</label>
+                    <input :id="index + param.name + paramIndex" type="text" v-model="param.value" />
                 </div>
-            </strong>
-            <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
-                <label :for="paramIndex">{{ param.name }}</label>
-                <input :id="index + param.name + paramIndex" type="text" v-model="param.value" />
             </div>
-        </div>
 
-        <nested-draggable :blocks="block.blocks" @onFocus="onFocus" />
+            <nested-draggable :blocks="block.blocks" @onFocus="onFocus" />
+        </div>
     </div>
 </template>
 
@@ -134,12 +133,13 @@ export default {
 <style lang="scss" scoped>
 $darkblue: #02042c;
 
-.background {
-    position: fixed;
+.playground {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 0;
 }
 
 .source {

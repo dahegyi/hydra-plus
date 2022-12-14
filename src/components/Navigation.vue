@@ -264,6 +264,7 @@ export default {
     padding: 6px;
     background: #222222bb;
     backdrop-filter: blur(5px);
+    z-index: 1;
 
     div {
         display: flex;
