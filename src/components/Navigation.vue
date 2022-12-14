@@ -3,42 +3,21 @@
         <div>
             <strong v-if="focused">{{ outputName }}</strong>
 
-            <div v-if="isSourceSelectVisible">
-                <select v-model="selectedSource">
-                    <option value="">select source</option>
-                    <option v-for="source in sources" :value="source" @change="selectedSource = source">
+            <div class="dropdown">
+                <button>new {{ isSourceSelectVisible ? 'source' : 'effect' }}</button>
+                <ul class="dropdown-content">
+                    <li v-if="isSourceSelectVisible" v-for="source in sources" @click="addSource(source)">
                         {{ source.name }}
-                    </option>
-                </select>
-                <button @click="addSource">add source</button>
-            </div>
-
-            <div v-else>
-                <select v-model="selectedEffect">
-                    <option disabled value="">geometry functions</option>
-                    <option v-for="fn in geometryFunctions" :value="fn">
-                        {{ fn.name }}
-                    </option>
-                </select>
-                <select v-model="selectedEffect">
-                    <option disabled value="">color functions</option>
-                    <option v-for="fn in colorFunctions" :value="fn">
-                        {{ fn.name }}
-                    </option>
-                </select>
-                <select v-model="selectedEffect">
-                    <option disabled value="">modulate functions</option>
-                    <option v-for="fn in blendFunctions" :value="fn">
-                        {{ fn.name }}
-                    </option>
-                </select>
-                <select v-model="selectedEffect">
-                    <option disabled value="">modulate functions</option>
-                    <option v-for="fn in modulateFunctions" :value="fn">
-                        {{ fn.name }}
-                    </option>
-                </select>
-                <button @click="addEffect">add effect</button>
+                    </li>
+                    <li v-else v-for="functions in functionGroups" :key="functions.name" class="dropdown">
+                        {{ functions.name }}
+                        <ul class="dropdown-content">
+                            <li v-for="fn in functions.fns" :key="fn.name" @click="addEffect(fn)">
+                                {{ fn.name }}
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
 
@@ -82,11 +61,6 @@ export default {
 
     data() {
         return {
-            selectedSource: "",
-            selectedEffect: {
-                name: "",
-                type: ""
-            },
             isSettingsModalOpen: false,
         }
     },
@@ -146,6 +120,15 @@ export default {
         modulateFunctions() {
             return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
         },
+
+        functionGroups() {
+            return [
+                { name: "geometry", fns: GEOMETRY_FUNCTIONS, type: TYPE_SIMPLE },
+                { name: "color", fns: COLOR_FUNCTIONS, type: TYPE_SIMPLE },
+                { name: "blend", fns: BLEND_FUNCTIONS, type: TYPE_COMPLEX },
+                { name: "modulate", fns: MODULATE_FUNCTIONS, type: TYPE_COMPLEX },
+            ];
+        },
     },
 
     methods: {
@@ -158,14 +141,10 @@ export default {
          * Deep copy is needed because we want to handle the input parameters
          * differently for different sources.
          */
-        addSource() {
-            if (!this.selectedSource) {
-                return;
-            }
-
-            const copiedObject = deepCopy(
-                { ...this.selectedSource, type: TYPE_SRC, blocks: [], position: { x: 20, y: 60 } }
-            );
+        addSource(source) {
+            const copiedObject =
+                { ...source, type: TYPE_SRC, blocks: [], position: { x: 20, y: 60 } }
+                ;
 
             if (!this.focused && this.blocks.length < 4) {
                 this.blocks.push(copiedObject);
@@ -173,8 +152,6 @@ export default {
                 this.onFocus(this.blocks[this.blocks.length - 1]);
 
                 this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
-
-                this.selectedSource = "";
             } else if (this.focused) {
                 this.focused.blocks.push(copiedObject);
             }
@@ -183,23 +160,16 @@ export default {
         /**
          * Adds effect block to the focused block as a child.
         */
-        addEffect() {
-            const { focused, selectedEffect } = this;
-
-            if (selectedEffect.name && focus) {
-                this.focused.blocks.push(
-                    deepCopy(selectedEffect)
-                );
+        addEffect(effect) {
+            if (!this.focused) {
+                return;
             }
 
-            if (selectedEffect.type === TYPE_COMPLEX) {
+            this.focused.blocks.push(effect);
+
+            if (effect.type === TYPE_COMPLEX) {
                 this.onFocus(focused.blocks[focused.blocks.length - 1]);
             }
-
-            this.selectedEffect = {
-                effect: "",
-                type: ""
-            };
         },
 
         closeSettingsModal() {
@@ -283,10 +253,56 @@ export default {
 
         * {
             margin-right: 0.5rem;
+        }
+    }
 
-            &:last-child {
-                margin-right: 0;
+    @mixin dropdown {
+        display: none;
+
+        button {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        >.dropdown-content {
+            display: none;
+            position: absolute;
+            flex-direction: column;
+            list-style: none;
+            top: 0;
+            left: 0;
+            margin: 0 100% 0;
+            padding: 0;
+            background-color: #222222;
+            backdrop-filter: blur(5px);
+            z-index: 1;
+
+            li {
+                margin: 0;
+                padding: 0.5rem 1rem;
+                min-width: 100px;
+                cursor: pointer;
+
+                &:hover {
+                    background: #111;
+                }
             }
+        }
+
+        &:hover>.dropdown-content {
+            display: block;
+        }
+    }
+
+    .dropdown {
+        @include dropdown;
+
+        position: relative;
+        display: flex;
+
+
+        .dropdown-content {
+            @include dropdown;
         }
     }
 
@@ -314,6 +330,7 @@ export default {
 
         &.red {
             border: 1px solid #ee6060;
+            margin-right: 0; // might fix this later
         }
 
         &:hover {
