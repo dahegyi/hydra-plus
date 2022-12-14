@@ -91,6 +91,11 @@ $darkblue: #02042c;
     li {
         background: #ffffff40;
         padding: 0.25rem 0.5rem 0.5rem;
+        border-bottom: 3px solid #000;
+
+        &:last-child {
+            border-bottom: none;
+        }
 
         &.focused {
             background: #ffffff80;
