@@ -1,20 +1,19 @@
 <template>
     <draggable class="dragArea" tag="ul" :list="blocks" :group="{ name: 'g1' }" item-key="name">
         <template #item="{ element }">
-            <li>
-                <div>
-                    <strong>
-                        <span>{{ element.name }}</span>
-                        <span class="delete" @click="deleteEffect(element)" />
-                    </strong>
-                    <div v-for="(param, index) in element.params" :key="index" class="param-input-container"
-                        @click="onFocus(element)">
-                        <label :for="param.name">{{ param.name }}</label>
-                        <input :id="param.name" v-model="param.value" />
-                    </div>
+            <li :class="{ focused: focused === element }">
+                <strong>
+                    <span class="name" @click="onFocus(element)">{{ element.name }}</span>
+                    <span class="delete" @click="deleteEffect(element)" />
+                </strong>
+                <div v-for="(param, index) in element.params" :key="index" class="param-input-container"
+                    @click="onFocus(element)">
+                    <label>{{ param.name }}</label>
+                    <input v-model="param.value" />
                 </div>
 
-                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" @onFocus="onFocus" />
+                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" :focused="focused"
+                    :parent="element" @onFocus="onFocus" />
             </li>
         </template>
     </draggable>
@@ -28,24 +27,35 @@ export default {
     name: "NestedDraggable",
 
     props: {
-        params: {
-            default: [],
-            type: Array
-        },
-
         blocks: {
             required: true,
             type: Array
-        }
+        },
+
+        focused: {
+            type: Object,
+            default: null
+        },
+
+        parent: {
+            required: true,
+            type: Object
+        },
     },
 
     methods: {
         deleteEffect(element) {
-            for (const block of this.blocks) {
+            const { blocks, parent } = this;
+
+            for (const block of blocks) {
                 if (block === element) {
-                    return this.blocks.splice(this.blocks.indexOf(block), 1);
+                    this.onFocus(parent);
+
+                    return blocks.splice(blocks.indexOf(block), 1);
                 }
             }
+
+
         },
 
         hasDraggableChild(type) {
@@ -55,6 +65,8 @@ export default {
         onFocus(element) {
             if (this.hasDraggableChild(element.type)) {
                 this.$emit("onFocus", element, true);
+            } else {
+                this.$emit("onFocus", this.parent, true);
             }
         },
     },
@@ -69,22 +81,34 @@ export default {
 $darkblue: #02042c;
 
 .dragArea {
-    min-height: 50px;
+    min-height: 30px;
     outline: 1px dashed;
     list-style: none;
     padding: 0.4rem;
-    margin: 0.5rem 0;
+    margin: 0.5rem 0 0;
     background: #00000040;
 
     li {
         background: #ffffff40;
-        padding: 0.2rem 0.6rem;
+        padding: 0.25rem 0.5rem 0.5rem;
+        border-bottom: 3px solid #000;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &.focused {
+            background: #ffffff60;
+        }
 
         strong {
             display: flex;
-            justify-content: space-between;
             cursor: pointer;
             user-select: none;
+
+            .name {
+                width: 100%;
+            }
 
             .delete {
                 height: 24px;
@@ -127,9 +151,6 @@ $darkblue: #02042c;
             input {
                 width: 60%;
                 padding: 0.2rem;
-                border: 1px solid #00000040;
-                border-radius: 0;
-                background: #00000040;
             }
         }
     }
