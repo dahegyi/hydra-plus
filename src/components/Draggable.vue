@@ -85,7 +85,7 @@ $darkblue: #02042c;
     outline: 1px dashed;
     list-style: none;
     padding: 0.4rem;
-    margin-top: 0.5rem;
+    margin: 0.5rem 0 0;
     background: #00000040;
 
     li {
@@ -98,7 +98,7 @@ $darkblue: #02042c;
         }
 
         &.focused {
-            background: #ffffff80;
+            background: #ffffff60;
         }
 
         strong {
@@ -151,9 +151,6 @@ $darkblue: #02042c;
             input {
                 width: 60%;
                 padding: 0.2rem;
-                border: 1px solid #00000040;
-                border-radius: 0;
-                background: #00000040;
             }
         }
     }

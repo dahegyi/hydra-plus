@@ -253,6 +253,10 @@ export default {
 
         * {
             margin-right: 0.5rem;
+
+            &:last-child {
+                margin-right: 0;
+            }
         }
     }
 
@@ -306,20 +310,7 @@ export default {
         }
     }
 
-    select {
-        padding: 0.4rem 0.25rem;
-        background: #74757a;
-    }
-
     button {
-        padding: 0.5rem 1rem;
-        background: #444;
-        border: 1px solid #22222240;
-        border-radius: 0;
-        color: #fff;
-        cursor: pointer;
-        transition: all 0.1s ease-in-out;
-
         &.settings {
             margin-right: 2rem;
         }
@@ -330,11 +321,6 @@ export default {
 
         &.red {
             border: 1px solid #ee6060;
-            margin-right: 0; // might fix this later
-        }
-
-        &:hover {
-            background: #333;
         }
     }
 }

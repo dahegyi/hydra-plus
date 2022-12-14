@@ -16,3 +16,31 @@
 body {
   margin: 0;
 }
+
+button {
+  padding: 0.5rem 1rem;
+  background: #444;
+  border: 1px solid #111;
+  border-radius: 0;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background: #333;
+  }
+}
+
+input {
+  background: #666;
+  border: 1px solid #111;
+  border-radius: 0;
+  color: #fff;
+  padding: 0.5rem 1rem;
+
+  &:focus {
+    outline: 1px solid #fff;
+  }
+}

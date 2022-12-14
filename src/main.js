@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
-import "./style.css";
+import "./style.scss";
 import App from "./App.vue";
 
 const Visualizer = () => import("./pages/Visualizer.vue");

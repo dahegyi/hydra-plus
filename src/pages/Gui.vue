@@ -153,7 +153,7 @@ $darkblue: #02042c;
     flex-direction: column;
     width: fit-content;
     min-width: 300px;
-    padding: 1rem 1rem 0.5rem;
+    padding: 1rem;
     border-radius: 10px;
     background: #22222260;
     backdrop-filter: blur(5px);
