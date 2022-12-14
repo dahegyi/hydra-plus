@@ -139,7 +139,7 @@ export default {
 $darkblue: #02042c;
 
 .playground {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
