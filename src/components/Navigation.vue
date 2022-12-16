@@ -158,7 +158,9 @@ export default {
             this.focused.blocks.push(effect);
 
             if (effect.type === TYPE_COMPLEX) {
-                this.onFocus(this.focused.blocks[focused.blocks.length - 1]);
+                this.onFocus(
+                    this.focused.blocks[this.focused.blocks.length - 1]
+                );
             }
         },
 
