@@ -1,7 +1,13 @@
 <template>
+    <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
+
+    <settings-modal v-if="isSettingsModalOpen" :blocks="blocks" :synthSettings="synthSettings"
+        @close="closeSettingsModal" @closeAndSave="saveAndCloseSettingsModal" />
+
     <div class="playground" @click="removeFocus" />
 
-    <navigation :blocks="blocks" :focused="focused" :synthSettings="synthSettings" @onFocus="onFocus" />
+    <navigation :blocks="blocks" :focused="focused" :isSettingsModalOpen="isSettingsModalOpen"
+        :synthSettings="synthSettings" @openSettingsModal="openSettingsModal" @onFocus="onFocus" />
 
     <div>
         <div v-for="(block, index) in blocks" :key="index" :id="'block' + index"
@@ -27,8 +33,13 @@
 </template>
 
 <script>
+import { useBroadcastChannel } from '@vueuse/core';
+const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' });
+
 import { INITIAL_BLOCKS } from "../constants";
 
+import WelcomeModal from "../components/WelcomeModal.vue";
+import SettingsModal from "../components/SettingsModal.vue";
 import Navigation from "../components/Navigation.vue";
 import NestedDraggable from "../components/Draggable.vue";
 
@@ -36,6 +47,8 @@ export default {
     Name: 'Gui',
 
     components: {
+        WelcomeModal,
+        SettingsModal,
         Navigation,
         NestedDraggable
     },
@@ -49,11 +62,20 @@ export default {
                 bpm: { current: 30, previous: 30 },
                 speed: { current: 1, previous: 1 },
                 output: { current: null, previous: null },
-            }
+            },
+            isWelcomeModalOpen: false,
+            isSettingsModalOpen: false,
         }
     },
 
     mounted() {
+        // show welcome modal
+        if (localStorage.getItem("welcomeModalClosed")) {
+            this.isWelcomeModalOpen = false;
+        } else {
+            this.isWelcomeModalOpen = true;
+        }
+
         // load blocks from local storage
         if (localStorage.getItem("blocks")) {
             this.blocks = JSON.parse(localStorage.getItem("blocks"));
@@ -134,6 +156,42 @@ export default {
         removeFocus() {
             this.focused = null;
             // console.log('focus out', this.focused);
+        },
+
+        closeWelcomeModal() {
+            this.isWelcomeModalOpen = false;
+            localStorage.setItem("welcomeModalClosed", true);
+        },
+
+        openSettingsModal() {
+            this.isSettingsModalOpen = true;
+        },
+
+        closeSettingsModal() {
+            // @TODO ask user if they want to save changes
+            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
+            this.synthSettings.speed.current = this.synthSettings.speed.previous;
+            this.synthSettings.output.current = this.synthSettings.output.previous;
+
+            this.isSettingsModalOpen = false;
+        },
+
+        saveAndCloseSettingsModal() {
+            if (this.synthSettings.bpm.current !== this.synthSettings.bpm.previous) {
+                eval(`bpm = ${this.synthSettings.bpm.current}`)
+                post(`bpm = ${this.synthSettings.bpm.current}`);
+
+                this.synthSettings.bpm.previous = bpm.current;
+            }
+
+            if (this.synthSettings.speed.current !== this.synthSettings.speed.previous) {
+                eval(`speed = ${this.synthSettings.speed.current}`)
+                post(`speed = ${this.synthSettings.speed.current}`);
+
+                this.synthSettings.speed.previous = speed.current;
+            }
+
+            this.isSettingsModalOpen = false;
         },
     }
 }

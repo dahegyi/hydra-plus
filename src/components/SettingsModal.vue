@@ -1,5 +1,5 @@
 <template>
-    <div class="settings-modal">
+    <div class="modal">
         <h2>settings</h2>
         <div class="row">
             <label for="speed">speed</label>
@@ -22,14 +22,16 @@
         <a href="#" @click="openVisualizer">open visualizer</a>
 
         <div>
-            <button @click="closeSettingsModal">cancel</button>
-            <button @click="saveAndCloseSettingsModal">save and close</button>
+            <button @click="close">cancel</button>
+            <button @click="closeAndSave">save and close</button>
         </div>
     </div>
 </template>
 <script>
 export default {
     name: "SettingsModal",
+
+    emits: ["close", "closeAndSave"],
 
     props: {
         blocks: {
@@ -48,68 +50,44 @@ export default {
             window.open('/visualizer', '_blank');
         },
 
-        closeSettingsModal() {
-            this.$emit("closeSettingsModal");
+        close() {
+            this.$emit("close");
         },
 
-        saveAndCloseSettingsModal() {
-            this.$emit("saveAndCloseSettingsModal");
+        closeAndSave() {
+            this.$emit("closeAndSave");
         },
     },
 };
 </script>
     
 <style lang="scss" scoped>
-.settings-modal {
-    position: fixed;
+h2 {
+    margin-top: 0.5rem;
+}
+
+button {
+    margin: 5px;
+}
+
+.row {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    flex-direction: column;
-    z-index: 999;
-    top: 20%;
-    left: calc(50% - 150px);
-    width: 300px;
-    background: #222222bb;
-    backdrop-filter: blur(5px);
-    padding: 20px;
-    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 1rem;
 
-    h2 {
-        margin-top: 0.5rem;
+    label {
+        margin-right: 1rem;
     }
 
-    button {
-        margin: 5px;
-    }
-
-    .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 1rem;
-
-        label {
-            margin-right: 1rem;
-        }
-
-        input,
-        select {
-            width: 60%;
-            padding: 0.2rem;
-            border: 1px solid #00000040;
-            border-radius: 0;
-            background: #000000aa;
-        }
-    }
-
-    a {
-        margin-bottom: 1rem;
-        color: #fff;
-
-        &:hover {
-            color: #fff;
-        }
+    input,
+    select {
+        width: 60%;
+        padding: 0.2rem;
+        border: 1px solid #00000040;
+        border-radius: 0;
+        background: #000000aa;
     }
 }
 </style>

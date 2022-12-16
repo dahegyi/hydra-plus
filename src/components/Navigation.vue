@@ -22,14 +22,11 @@
         </div>
 
         <div>
-            <button @click="isSettingsModalOpen = true" class="settings">synth settings</button>
+            <button @click="openSettingsModal" class="settings">synth settings</button>
             <button @click="update" :disabled="isSettingsModalOpen" class="green">update</button>
             <button @click="updateAndSend" :disabled="isSettingsModalOpen" class="red">send</button>
         </div>
     </div>
-
-    <settings-modal v-if="isSettingsModalOpen" :blocks="blocks" :synthSettings="synthSettings"
-        @closeSettingsModal="closeSettingsModal" @saveAndCloseSettingsModal="saveAndCloseSettingsModal" />
 </template>
 <script>
 import { useBroadcastChannel } from '@vueuse/core';
@@ -48,27 +45,15 @@ import {
     MODULATE_FUNCTIONS,
 } from "../constants";
 
-import SettingsModal from "../components/SettingsModal.vue";
-
 export default {
     name: "Navigation",
 
-    emits: ["onFocus"],
-
-    components: {
-        SettingsModal
-    },
-
-    data() {
-        return {
-            isSettingsModalOpen: false,
-        }
-    },
+    emits: ["openSettingsModal", "onFocus"],
 
     props: {
         blocks: {
-            required: true,
-            type: Array
+            type: Array,
+            default: []
         },
 
         focused: {
@@ -76,9 +61,14 @@ export default {
             default: null
         },
 
+        isSettingsModalOpen: {
+            type: Boolean,
+            default: false
+        },
+
         synthSettings: {
-            required: true,
-            type: Object
+            type: Object,
+            default: {}
         }
     },
 
@@ -172,32 +162,8 @@ export default {
             }
         },
 
-        closeSettingsModal() {
-            // @TODO ask user if they want to save changes
-            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
-            this.synthSettings.speed.current = this.synthSettings.speed.previous;
-            this.synthSettings.output.current = this.synthSettings.output.previous;
-
-            this.isSettingsModalOpen = false;
-        },
-
-        saveAndCloseSettingsModal() {
-            const synthBpm = this.synthSettings.bpm;
-            const synthSpeed = this.synthSettings.speed;
-
-            if (synthBpm.current !== synthBpm.previous) {
-                eval(`bpm = ${synthBpm.current}`)
-                post(`bpm = ${synthBpm.current}`);
-                synthBpm.previous = synthBpm.current;
-            }
-
-            if (synthSpeed.current !== synthSpeed.previous) {
-                eval(`speed = ${synthSpeed.current}`)
-                post(`speed = ${synthSpeed.current}`);
-                synthSpeed.previous = synthSpeed.current;
-            }
-
-            this.isSettingsModalOpen = false;
+        openSettingsModal() {
+            this.$emit("openSettingsModal");
         },
 
         update() {
@@ -220,6 +186,7 @@ export default {
                 this.error = null;
             } catch (error) {
                 this.error = error;
+                console.error(error);
             }
         },
 
@@ -229,10 +196,10 @@ export default {
             if (!this.error) {
                 const codeString = flatten(this.blocks[this.synthSettings.output.current]);
                 post(`${codeString}.out()`);
-            }
 
-            localStorage.setItem("blocks", JSON.stringify(this.blocks));
-            localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
+                localStorage.setItem("blocks", JSON.stringify(this.blocks));
+                localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
+            }
         }
     },
 };
