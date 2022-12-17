@@ -169,7 +169,7 @@ export default {
         },
 
         update() {
-            let codeString;
+            let codeString = "";
 
             if (this.blocks.length === 0) {
                 codeString = "hush()";
@@ -178,14 +178,22 @@ export default {
                     this.synthSettings.output.current = 0;
                     this.synthSettings.output.previous = 0;
                 }
-                codeString = flatten(this.blocks[this.synthSettings.output.current || 0]);
+
+                for (let i = 0; i < this.blocks.length; i++) {
+                    codeString += `${flatten(this.blocks[i])}.out(o${i})\n`;
+                }
+
+                codeString += `render(o${this.synthSettings.output.current})`;
+
             }
 
             // console.log(this.blocks, codeString);
 
             try {
-                eval(`${codeString}.out()`);
+                eval(codeString);
                 this.error = null;
+
+                return codeString;
             } catch (error) {
                 this.error = error;
                 console.error(error);
@@ -193,11 +201,10 @@ export default {
         },
 
         updateAndSend() {
-            this.update();
+            const codeString = this.update();
 
-            if (!this.error) {
-                const codeString = flatten(this.blocks[this.synthSettings.output.current]);
-                post(`${codeString}.out()`);
+            if (codeString) {
+                post(codeString);
 
                 localStorage.setItem("blocks", JSON.stringify(this.blocks));
                 localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
