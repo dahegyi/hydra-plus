@@ -4,11 +4,12 @@
             <strong v-if="focused">{{ outputName }}</strong>
 
             <div class="dropdown">
-                <button>new {{ isSourceSelectVisible ? 'source' : 'effect' }}</button>
+                <button>new {{ isAddSourceVisible ? 'source' : 'effect' }}</button>
                 <ul class="dropdown-content">
-                    <li v-if="isSourceSelectVisible" v-for="source in sources" @click="addSource(source)">
+                    <li v-if="isAddSourceVisible" v-for="source in sources" @click="addSource(source)">
                         {{ source.name }}
                     </li>
+
                     <li v-else v-for="functions in functionGroups" :key="functions.name" class="dropdown">
                         {{ functions.name }}
                         <ul class="dropdown-content">
@@ -16,6 +17,11 @@
                                 {{ fn.name }}
                             </li>
                         </ul>
+                    </li>
+
+                    <li v-if="isExternalSourceVisible" v-for="external in externalSources"
+                        @click="addExternal(external)">
+                        {{ external.name }}
                     </li>
                 </ul>
             </div>
@@ -32,10 +38,11 @@
 import { useBroadcastChannel } from '@vueuse/core';
 const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' });
 
-import { deepCopy, flatten } from '../utils/object-utils';
+import { deepCopy, flattenExternal, flatten } from '../utils/object-utils';
 
 import {
     TYPE_SRC,
+    TYPE_EXTERNAL,
     TYPE_SIMPLE,
     TYPE_COMPLEX,
     SOURCE_FUNCTIONS,
@@ -43,6 +50,7 @@ import {
     COLOR_FUNCTIONS,
     BLEND_FUNCTIONS,
     MODULATE_FUNCTIONS,
+    EXTERNAL_SOURCE_FUNCTIONS
 } from "../constants";
 
 export default {
@@ -52,6 +60,11 @@ export default {
 
     props: {
         blocks: {
+            type: Array,
+            default: []
+        },
+
+        externalSourceBlocks: {
             type: Array,
             default: []
         },
@@ -87,12 +100,20 @@ export default {
             return this.outputName && this.focused?.name;
         },
 
-        isSourceSelectVisible() {
+        isAddSourceVisible() {
             return (this.focused?.type !== TYPE_SRC && this.focused?.type !== TYPE_SIMPLE);
+        },
+
+        isExternalSourceVisible() {
+            return this.isAddSourceVisible && this.externalSourceBlocks.length < 4;
         },
 
         sources() {
             return SOURCE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SRC }));
+        },
+
+        externalSources() {
+            return EXTERNAL_SOURCE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_EXTERNAL }));
         },
 
         geometryFunctions() {
@@ -119,6 +140,7 @@ export default {
                 { name: "modulate", fns: this.modulateFunctions },
             ];
         },
+
     },
 
     methods: {
@@ -145,6 +167,10 @@ export default {
             } else if (this.focused) {
                 this.focused.blocks.push(deepCopy(copiedObject));
             }
+        },
+
+        addExternal(source) {
+            this.externalSourceBlocks.push(deepCopy({ ...source, type: TYPE_EXTERNAL, position: { x: 20, y: 60 } }));
         },
 
         /**
@@ -179,6 +205,10 @@ export default {
                     this.synthSettings.output.previous = 0;
                 }
 
+                for (let i = 0; i < this.externalSourceBlocks.length; i++) {
+                    codeString += flattenExternal(this.externalSourceBlocks[i], i);
+                }
+
                 for (let i = 0; i < this.blocks.length; i++) {
                     codeString += `${flatten(this.blocks[i])}.out(o${i})\n`;
                 }
@@ -206,6 +236,7 @@ export default {
             if (codeString) {
                 post(codeString);
 
+                localStorage.setItem("externalSourceBlocks", JSON.stringify(this.externalSourceBlocks));
                 localStorage.setItem("blocks", JSON.stringify(this.blocks));
                 localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
             }

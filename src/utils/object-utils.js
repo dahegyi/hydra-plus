@@ -4,6 +4,10 @@ export const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
+export const flattenExternal = (obj, index) => {
+  return `s${index}.${obj.name}("${obj.params && obj.params[0].value}")\n`;
+};
+
 /**
  * Returns hydra code from codeblox
  */

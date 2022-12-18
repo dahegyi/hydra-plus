@@ -6,14 +6,15 @@
 
     <div class="playground" @click="removeFocus" />
 
-    <navigation :blocks="blocks" :focused="focused" :isSettingsModalOpen="isSettingsModalOpen"
-        :synthSettings="synthSettings" @openSettingsModal="openSettingsModal" @onFocus="onFocus" />
+    <navigation :blocks="blocks" :externalSourceBlocks="externalSourceBlocks" :focused="focused"
+        :isSettingsModalOpen="isSettingsModalOpen" :synthSettings="synthSettings" @openSettingsModal="openSettingsModal"
+        @onFocus="onFocus" />
 
     <div>
-        <div v-for="(block, index) in blocks" :key="index" :id="'block' + index"
+        <div v-for="(block, index) in blocks" :key="'src-block-' + index" :id="'src-block-' + index"
             :class="['source', { focused: focused === block }]">
             <div @click="onFocus(index)">
-                <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
+                <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
                     <span>o{{ index }} - {{ block.name }}</span>
                     <div>
                         <span :class="['activate', { active: synthSettings.output.current === index }]"
@@ -29,6 +30,20 @@
 
             <nested-draggable :blocks="block.blocks" :focused="focused" :parent="block" @onFocus="onFocus" />
         </div>
+
+        <div v-for="(block, index) in externalSourceBlocks" :key="'ext-block-' + index" :id="'ext-block-' + index"
+            class="source">
+            <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
+                <span>s{{ index }} - {{ block.name }}</span>
+                <div>
+                    <span class="delete" @click="deleteExternal(index)" />
+                </div>
+            </strong>
+            <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
+                <label :for="paramIndex">{{ param.name }}</label>
+                <input :id="index + param.name + paramIndex" type="text" v-model="param.value" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -36,7 +51,7 @@
 import { useBroadcastChannel } from '@vueuse/core';
 const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' });
 
-import { INITIAL_BLOCKS } from "../constants";
+import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "../constants";
 
 import WelcomeModal from "../components/WelcomeModal.vue";
 import SettingsModal from "../components/SettingsModal.vue";
@@ -56,6 +71,7 @@ export default {
     data() {
         return {
             blocks: [],
+            externalSourceBlocks: [],
             error: null,
             focused: null,
             synthSettings: { // @TODO fix this
@@ -68,7 +84,7 @@ export default {
         }
     },
 
-    mounted() {
+    mounted() { // @TODO refactor this
         // show welcome modal
         if (localStorage.getItem("welcomeModalClosed")) {
             this.isWelcomeModalOpen = false;
@@ -76,7 +92,11 @@ export default {
             this.isWelcomeModalOpen = true;
         }
 
-        // load blocks from local storage
+        // load stuff from local storage
+        if (localStorage.getItem("externalSourceBlocks")) {
+            this.externalSourceBlocks = JSON.parse(localStorage.getItem("externalSourceBlocks"));
+        }
+
         if (localStorage.getItem("blocks")) {
             this.blocks = JSON.parse(localStorage.getItem("blocks"));
         } else {
@@ -89,17 +109,28 @@ export default {
     },
 
     updated() {
-        // move parent blocks to their position
+        // move parent blocks and external source blocks to their position
         this.blocks.map((block, index) => {
-            this.moveSource(block, index, block.position);
+            this.moveBlock(block, index, TYPE_SRC, block.position);
+        });
+
+        this.externalSourceBlocks.map((block, index) => {
+            this.moveBlock(block, index, TYPE_EXTERNAL, block.position);
         });
     },
 
-    computed: {},
-
     methods: {
-        moveSource(e, index, position) {
-            const div = document.getElementById("block" + index);
+        moveBlock(e, index, type, position) {
+            let div;
+
+            console.log(type);
+
+            if (type === TYPE_SRC) {
+                div = document.getElementById("src-block-" + index);
+            } else { // TYPE_EXTERNAL
+                div = document.getElementById("ext-block-" + index);
+            }
+
             const divRect = div.getBoundingClientRect();
 
             const offsetX = e.clientX - divRect.left;
@@ -115,7 +146,12 @@ export default {
 
                 div.style.transform = `translate(${x}px, ${y}px)`;
 
-                this.blocks[index].position = { x, y };
+
+                if (type === TYPE_SRC) {
+                    this.blocks[index].position = { x, y };
+                } else {
+                    this.externalSourceBlocks[index].position = { x, y };
+                }
             }
 
             const up = () => {
@@ -141,6 +177,10 @@ export default {
             } else {
                 this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
             }
+        },
+
+        deleteExternal(index) {
+            this.externalSourceBlocks.splice(index, 1);
         },
 
         onFocus(index, fromChildComponent) {
@@ -328,6 +368,13 @@ $darkblue: #02042c;
     &:nth-child(4) {
         .output-header {
             background: #9696ff;
+        }
+    }
+
+    &.external {
+        .output-header {
+            color: #fff;
+            background: #1c0770;
         }
     }
 }
