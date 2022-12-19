@@ -299,7 +299,7 @@ $darkblue: #02042c;
 
             &.active {
                 &:after {
-                    border-color: #fa4d4d;
+                    border-color: #f55858;
                 }
             }
         }

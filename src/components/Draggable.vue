@@ -81,16 +81,16 @@ export default {
 $darkblue: #02042c;
 
 .dragArea {
-    min-height: 30px;
-    outline: 1px dashed;
+    min-height: 40px;
+    outline: 1px dashed #ffffff80;
     list-style: none;
-    padding: 0.4rem;
+    padding: 1px 0 0;
     margin: 0.5rem 0 0;
     background: #00000040;
 
     li {
-        padding: 0.25rem 0.5rem 0.5rem;
-        border-bottom: 3px solid #000;
+        padding: 0.65rem;
+        border-bottom: 2px solid #222;
         transition: background 0.02s linear;
 
         &:hover {
