@@ -32,7 +32,7 @@
         </div>
 
         <div v-for="(block, index) in externalSourceBlocks" :key="'ext-block-' + index" :id="'ext-block-' + index"
-            class="source">
+            class="source external">
             <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
                 <span>s{{ index }} - {{ block.name }}</span>
                 <div>
@@ -74,6 +74,7 @@ export default {
             externalSourceBlocks: [],
             error: null,
             focused: null,
+            focusedBlock: null,
             synthSettings: { // @TODO fix this
                 bpm: { current: 30, previous: 30 },
                 speed: { current: 1, previous: 1 },
@@ -122,8 +123,6 @@ export default {
     methods: {
         moveBlock(e, index, type, position) {
             let div;
-
-            console.log(type);
 
             if (type === TYPE_SRC) {
                 div = document.getElementById("src-block-" + index);
@@ -188,6 +187,7 @@ export default {
                 this.focused = index;
             } else {
                 this.focused = this.blocks[index];
+                this.focusedBlock = this.focused;
             }
 
             // console.log('focus in', this.focused);
@@ -195,6 +195,7 @@ export default {
 
         removeFocus() {
             this.focused = null;
+            this.focusedBlock = this.focused;
             // console.log('focus out', this.focused);
         },
 
@@ -257,23 +258,22 @@ $darkblue: #02042c;
     min-width: 300px;
     padding: 1rem;
     border-radius: 10px;
-    background: #22222260;
-    backdrop-filter: blur(5px);
-
-    &.focused {
-        background: #11111180;
-    }
+    background: #22222280;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
     .output-header {
         color: $darkblue;
         padding: 6px;
         display: flex;
         justify-content: space-between;
-        border: 1px dashed $darkblue;
+        background: #fff;
+        border: 1px solid $darkblue;
+        border-radius: 6px;
         margin-bottom: 0.5rem;
         cursor: move;
 
-        $iconSize: 24px;
+        $iconSize: 21px;
 
         .activate,
         .delete {
@@ -290,16 +290,16 @@ $darkblue: #02042c;
                 content: "";
                 position: absolute;
                 border: 4px solid $darkblue;
-                height: 8px;
-                width: 8px;
+                height: calc($iconSize / 3);
+                width: calc($iconSize / 3);
                 border-radius: 50%;
-                top: 4px;
-                left: 4px;
+                top: 25%;
+                left: 25%;
             }
 
             &.active {
                 &:after {
-                    border-color: #f54646;
+                    border-color: #fa4d4d;
                 }
             }
         }
@@ -313,8 +313,8 @@ $darkblue: #02042c;
                 position: absolute;
                 border-top: 3px solid $darkblue;
                 width: 16px;
-                top: 10px;
-                left: 5px;
+                top: 50%;
+                left: 10%;
             }
 
             &:before {
@@ -331,7 +331,7 @@ $darkblue: #02042c;
     .param-input-container {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 5px;
 
         label {
             margin-right: 1rem;
@@ -344,37 +344,79 @@ $darkblue: #02042c;
             border: 1px solid #00000040;
             border-radius: 0;
             background: #000000aa;
+
+            &:focus {
+                background: #000000dd;
+            }
+        }
+
+        &:last-child {
+            margin-bottom: 0;
         }
     }
 
-    &:nth-child(1) {
-        .output-header {
-            background: #ffff56;
-        }
-    }
+    &:not(.external) {
+        $offset-top: -200%;
+        $bottom-color: #38383880;
+        $offset-bottom: 150%;
 
-    &:nth-child(2) {
-        .output-header {
-            background: #f7a06d;
-        }
-    }
+        &:nth-child(1) {
+            $color: #fff70080;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
 
-    &:nth-child(3) {
-        .output-header {
-            background: #74eb74;
-        }
-    }
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
 
-    &:nth-child(4) {
-        .output-header {
-            background: #9696ff;
+            .output-header {
+                background: $color;
+            }
+        }
+
+        &:nth-child(2) {
+            $color: #b8f77080;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
+        }
+
+        &:nth-child(3) {
+            $color: #3bd5f080;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
+        }
+
+        &:nth-child(4) {
+            $color: #ff8fec80;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
         }
     }
 
     &.external {
         .output-header {
-            color: #fff;
-            background: #1c0770;
+            color: #000;
+            background: #f1a3a3;
         }
     }
 }

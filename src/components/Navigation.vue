@@ -19,7 +19,7 @@
                         </ul>
                     </li>
 
-                    <li v-if="isExternalSourceVisible" v-for="external in externalSources"
+                    <li v-if="isExternalSourceVisible" v-for="external in externalSources" class="external"
                         @click="addExternal(external)">
                         {{ external.name }}
                     </li>
@@ -255,7 +255,8 @@ export default {
     align-items: center;
     padding: 6px;
     background: #222222bb;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 1;
 
     div {
@@ -288,8 +289,7 @@ export default {
             left: 0;
             margin: 0 100% 0;
             padding: 0;
-            background-color: #222222;
-            backdrop-filter: blur(5px);
+            background-color: #222;
             z-index: 1;
 
             li {
@@ -298,8 +298,13 @@ export default {
                 min-width: 100px;
                 cursor: pointer;
 
+                &.external {
+                    background-color: #333;
+
+                }
+
                 &:hover {
-                    background: #111;
+                    background-color: #111;
                 }
             }
         }
