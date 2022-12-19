@@ -4,11 +4,12 @@
             <strong v-if="focused">{{ outputName }}</strong>
 
             <div class="dropdown">
-                <button>new {{ isSourceSelectVisible ? 'source' : 'effect' }}</button>
+                <button>new {{ isAddSourceVisible ? 'source' : 'effect' }}</button>
                 <ul class="dropdown-content">
-                    <li v-if="isSourceSelectVisible" v-for="source in sources" @click="addSource(source)">
+                    <li v-if="isAddSourceVisible" v-for="source in sources" @click="addSource(source)">
                         {{ source.name }}
                     </li>
+
                     <li v-else v-for="functions in functionGroups" :key="functions.name" class="dropdown">
                         {{ functions.name }}
                         <ul class="dropdown-content">
@@ -17,28 +18,31 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li v-if="isExternalSourceVisible" v-for="external in externalSources" class="external"
+                        @click="addExternal(external)">
+                        {{ external.name }}
+                    </li>
                 </ul>
             </div>
         </div>
 
         <div>
-            <button @click="isSettingsModalOpen = true" class="settings">synth settings</button>
+            <button @click="openSettingsModal" class="settings">synth settings</button>
             <button @click="update" :disabled="isSettingsModalOpen" class="green">update</button>
             <button @click="updateAndSend" :disabled="isSettingsModalOpen" class="red">send</button>
         </div>
     </div>
-
-    <settings-modal v-if="isSettingsModalOpen" :blocks="blocks" :synthSettings="synthSettings"
-        @closeSettingsModal="closeSettingsModal" @saveAndCloseSettingsModal="saveAndCloseSettingsModal" />
 </template>
 <script>
 import { useBroadcastChannel } from '@vueuse/core';
 const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' });
 
-import { deepCopy, flatten } from '../utils/object-utils';
+import { deepCopy, flattenExternal, flatten } from '../utils/object-utils';
 
 import {
     TYPE_SRC,
+    TYPE_EXTERNAL,
     TYPE_SIMPLE,
     TYPE_COMPLEX,
     SOURCE_FUNCTIONS,
@@ -46,29 +50,23 @@ import {
     COLOR_FUNCTIONS,
     BLEND_FUNCTIONS,
     MODULATE_FUNCTIONS,
+    EXTERNAL_SOURCE_FUNCTIONS
 } from "../constants";
-
-import SettingsModal from "../components/SettingsModal.vue";
 
 export default {
     name: "Navigation",
 
-    emits: ["onFocus"],
-
-    components: {
-        SettingsModal
-    },
-
-    data() {
-        return {
-            isSettingsModalOpen: false,
-        }
-    },
+    emits: ["openSettingsModal", "onFocus"],
 
     props: {
         blocks: {
-            required: true,
-            type: Array
+            type: Array,
+            default: []
+        },
+
+        externalSourceBlocks: {
+            type: Array,
+            default: []
         },
 
         focused: {
@@ -76,9 +74,14 @@ export default {
             default: null
         },
 
+        isSettingsModalOpen: {
+            type: Boolean,
+            default: false
+        },
+
         synthSettings: {
-            required: true,
-            type: Object
+            type: Object,
+            default: {}
         }
     },
 
@@ -97,12 +100,20 @@ export default {
             return this.outputName && this.focused?.name;
         },
 
-        isSourceSelectVisible() {
+        isAddSourceVisible() {
             return (this.focused?.type !== TYPE_SRC && this.focused?.type !== TYPE_SIMPLE);
+        },
+
+        isExternalSourceVisible() {
+            return this.isAddSourceVisible && this.externalSourceBlocks.length < 4;
         },
 
         sources() {
             return SOURCE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SRC }));
+        },
+
+        externalSources() {
+            return EXTERNAL_SOURCE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_EXTERNAL }));
         },
 
         geometryFunctions() {
@@ -129,6 +140,7 @@ export default {
                 { name: "modulate", fns: this.modulateFunctions },
             ];
         },
+
     },
 
     methods: {
@@ -157,6 +169,10 @@ export default {
             }
         },
 
+        addExternal(source) {
+            this.externalSourceBlocks.push(deepCopy({ ...source, type: TYPE_EXTERNAL, position: { x: 20, y: 60 } }));
+        },
+
         /**
          * Adds effect block to the focused block as a child.
         */
@@ -168,40 +184,18 @@ export default {
             this.focused.blocks.push(effect);
 
             if (effect.type === TYPE_COMPLEX) {
-                this.onFocus(this.focused.blocks[focused.blocks.length - 1]);
+                this.onFocus(
+                    this.focused.blocks[this.focused.blocks.length - 1]
+                );
             }
         },
 
-        closeSettingsModal() {
-            // @TODO ask user if they want to save changes
-            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
-            this.synthSettings.speed.current = this.synthSettings.speed.previous;
-            this.synthSettings.output.current = this.synthSettings.output.previous;
-
-            this.isSettingsModalOpen = false;
-        },
-
-        saveAndCloseSettingsModal() {
-            const synthBpm = this.synthSettings.bpm;
-            const synthSpeed = this.synthSettings.speed;
-
-            if (synthBpm.current !== synthBpm.previous) {
-                eval(`bpm = ${synthBpm.current}`)
-                post(`bpm = ${synthBpm.current}`);
-                synthBpm.previous = synthBpm.current;
-            }
-
-            if (synthSpeed.current !== synthSpeed.previous) {
-                eval(`speed = ${synthSpeed.current}`)
-                post(`speed = ${synthSpeed.current}`);
-                synthSpeed.previous = synthSpeed.current;
-            }
-
-            this.isSettingsModalOpen = false;
+        openSettingsModal() {
+            this.$emit("openSettingsModal");
         },
 
         update() {
-            let codeString;
+            let codeString = "";
 
             if (this.blocks.length === 0) {
                 codeString = "hush()";
@@ -210,29 +204,42 @@ export default {
                     this.synthSettings.output.current = 0;
                     this.synthSettings.output.previous = 0;
                 }
-                codeString = flatten(this.blocks[this.synthSettings.output.current || 0]);
+
+                for (let i = 0; i < this.externalSourceBlocks.length; i++) {
+                    codeString += flattenExternal(this.externalSourceBlocks[i], i);
+                }
+
+                for (let i = 0; i < this.blocks.length; i++) {
+                    codeString += `${flatten(this.blocks[i])}.out(o${i})\n`;
+                }
+
+                codeString += `render(o${this.synthSettings.output.current})`;
+
             }
 
             // console.log(this.blocks, codeString);
 
             try {
-                eval(`${codeString}.out()`);
+                eval(codeString);
                 this.error = null;
+
+                return codeString;
             } catch (error) {
                 this.error = error;
+                console.error(error);
             }
         },
 
         updateAndSend() {
-            this.update();
+            const codeString = this.update();
 
-            if (!this.error) {
-                const codeString = flatten(this.blocks[this.synthSettings.output.current]);
-                post(`${codeString}.out()`);
+            if (codeString) {
+                post(codeString);
+
+                localStorage.setItem("externalSourceBlocks", JSON.stringify(this.externalSourceBlocks));
+                localStorage.setItem("blocks", JSON.stringify(this.blocks));
+                localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
             }
-
-            localStorage.setItem("blocks", JSON.stringify(this.blocks));
-            localStorage.setItem("synthSettings", JSON.stringify(this.synthSettings));
         }
     },
 };
@@ -248,7 +255,8 @@ export default {
     align-items: center;
     padding: 6px;
     background: #222222bb;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 1;
 
     div {
@@ -281,8 +289,7 @@ export default {
             left: 0;
             margin: 0 100% 0;
             padding: 0;
-            background-color: #222222;
-            backdrop-filter: blur(5px);
+            background-color: #222;
             z-index: 1;
 
             li {
@@ -291,8 +298,13 @@ export default {
                 min-width: 100px;
                 cursor: pointer;
 
+                &.external {
+                    background-color: #333;
+
+                }
+
                 &:hover {
-                    background: #111;
+                    background-color: #111;
                 }
             }
         }

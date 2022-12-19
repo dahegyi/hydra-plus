@@ -81,24 +81,28 @@ export default {
 $darkblue: #02042c;
 
 .dragArea {
-    min-height: 30px;
-    outline: 1px dashed;
+    min-height: 40px;
+    outline: 1px dashed #ffffff80;
     list-style: none;
-    padding: 0.4rem;
+    padding: 1px 0 0;
     margin: 0.5rem 0 0;
     background: #00000040;
 
     li {
-        background: #ffffff40;
-        padding: 0.25rem 0.5rem 0.5rem;
-        border-bottom: 3px solid #000;
+        padding: 0.65rem;
+        border-bottom: 2px solid #222;
+        transition: background 0.02s linear;
+
+        &:hover {
+            background: #ffffff25;
+        }
 
         &:last-child {
             border-bottom: none;
         }
 
         &.focused {
-            background: #ffffff60;
+            background: #ffffff40;
         }
 
         strong {
@@ -111,16 +115,16 @@ $darkblue: #02042c;
             }
 
             .delete {
-                height: 24px;
-                width: 24px;
+                height: 20px;
+                width: 20px;
                 position: relative;
 
                 &:before,
                 &:after {
                     content: "";
                     position: absolute;
-                    border-top: 3px solid $darkblue;
-                    width: 16px;
+                    border-top: 2px solid #ff7979;
+                    width: 12px;
                     top: 10px;
                     left: 5px;
                 }

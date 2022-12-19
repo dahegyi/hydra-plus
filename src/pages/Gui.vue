@@ -1,13 +1,20 @@
 <template>
+    <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
+
+    <settings-modal v-if="isSettingsModalOpen" :blocks="blocks" :synthSettings="synthSettings"
+        @close="closeSettingsModal" @closeAndSave="saveAndCloseSettingsModal" />
+
     <div class="playground" @click="removeFocus" />
 
-    <navigation :blocks="blocks" :focused="focused" :synthSettings="synthSettings" @onFocus="onFocus" />
+    <navigation :blocks="blocks" :externalSourceBlocks="externalSourceBlocks" :focused="focused"
+        :isSettingsModalOpen="isSettingsModalOpen" :synthSettings="synthSettings" @openSettingsModal="openSettingsModal"
+        @onFocus="onFocus" />
 
     <div>
-        <div v-for="(block, index) in blocks" :key="index" :id="'block' + index"
+        <div v-for="(block, index) in blocks" :key="'src-block-' + index" :id="'src-block-' + index"
             :class="['source', { focused: focused === block }]">
             <div @click="onFocus(index)">
-                <strong class="output-header" @mousedown="(e) => moveSource(e, index)">
+                <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
                     <span>o{{ index }} - {{ block.name }}</span>
                     <div>
                         <span :class="['activate', { active: synthSettings.output.current === index }]"
@@ -23,12 +30,31 @@
 
             <nested-draggable :blocks="block.blocks" :focused="focused" :parent="block" @onFocus="onFocus" />
         </div>
+
+        <div v-for="(block, index) in externalSourceBlocks" :key="'ext-block-' + index" :id="'ext-block-' + index"
+            class="source external">
+            <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
+                <span>s{{ index }} - {{ block.name }}</span>
+                <div>
+                    <span class="delete" @click="deleteExternal(index)" />
+                </div>
+            </strong>
+            <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
+                <label :for="paramIndex">{{ param.name }}</label>
+                <input :id="index + param.name + paramIndex" type="text" v-model="param.value" />
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import { INITIAL_BLOCKS } from "../constants";
+import { useBroadcastChannel } from '@vueuse/core';
+const { post } = useBroadcastChannel({ name: 'hydra-plus-channel' });
 
+import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "../constants";
+
+import WelcomeModal from "../components/WelcomeModal.vue";
+import SettingsModal from "../components/SettingsModal.vue";
 import Navigation from "../components/Navigation.vue";
 import NestedDraggable from "../components/Draggable.vue";
 
@@ -36,6 +62,8 @@ export default {
     Name: 'Gui',
 
     components: {
+        WelcomeModal,
+        SettingsModal,
         Navigation,
         NestedDraggable
     },
@@ -43,18 +71,33 @@ export default {
     data() {
         return {
             blocks: [],
+            externalSourceBlocks: [],
             error: null,
             focused: null,
+            focusedBlock: null,
             synthSettings: { // @TODO fix this
                 bpm: { current: 30, previous: 30 },
                 speed: { current: 1, previous: 1 },
                 output: { current: null, previous: null },
-            }
+            },
+            isWelcomeModalOpen: false,
+            isSettingsModalOpen: false,
         }
     },
 
-    mounted() {
-        // load blocks from local storage
+    mounted() { // @TODO refactor this
+        // show welcome modal
+        if (localStorage.getItem("welcomeModalClosed")) {
+            this.isWelcomeModalOpen = false;
+        } else {
+            this.isWelcomeModalOpen = true;
+        }
+
+        // load stuff from local storage
+        if (localStorage.getItem("externalSourceBlocks")) {
+            this.externalSourceBlocks = JSON.parse(localStorage.getItem("externalSourceBlocks"));
+        }
+
         if (localStorage.getItem("blocks")) {
             this.blocks = JSON.parse(localStorage.getItem("blocks"));
         } else {
@@ -67,17 +110,26 @@ export default {
     },
 
     updated() {
-        // move parent blocks to their position
+        // move parent blocks and external source blocks to their position
         this.blocks.map((block, index) => {
-            this.moveSource(block, index, block.position);
+            this.moveBlock(block, index, TYPE_SRC, block.position);
+        });
+
+        this.externalSourceBlocks.map((block, index) => {
+            this.moveBlock(block, index, TYPE_EXTERNAL, block.position);
         });
     },
 
-    computed: {},
-
     methods: {
-        moveSource(e, index, position) {
-            const div = document.getElementById("block" + index);
+        moveBlock(e, index, type, position) {
+            let div;
+
+            if (type === TYPE_SRC) {
+                div = document.getElementById("src-block-" + index);
+            } else { // TYPE_EXTERNAL
+                div = document.getElementById("ext-block-" + index);
+            }
+
             const divRect = div.getBoundingClientRect();
 
             const offsetX = e.clientX - divRect.left;
@@ -93,7 +145,12 @@ export default {
 
                 div.style.transform = `translate(${x}px, ${y}px)`;
 
-                this.blocks[index].position = { x, y };
+
+                if (type === TYPE_SRC) {
+                    this.blocks[index].position = { x, y };
+                } else {
+                    this.externalSourceBlocks[index].position = { x, y };
+                }
             }
 
             const up = () => {
@@ -121,11 +178,16 @@ export default {
             }
         },
 
+        deleteExternal(index) {
+            this.externalSourceBlocks.splice(index, 1);
+        },
+
         onFocus(index, fromChildComponent) {
             if (fromChildComponent) {
                 this.focused = index;
             } else {
                 this.focused = this.blocks[index];
+                this.focusedBlock = this.focused;
             }
 
             // console.log('focus in', this.focused);
@@ -133,7 +195,44 @@ export default {
 
         removeFocus() {
             this.focused = null;
+            this.focusedBlock = this.focused;
             // console.log('focus out', this.focused);
+        },
+
+        closeWelcomeModal() {
+            this.isWelcomeModalOpen = false;
+            localStorage.setItem("welcomeModalClosed", true);
+        },
+
+        openSettingsModal() {
+            this.isSettingsModalOpen = true;
+        },
+
+        closeSettingsModal() {
+            // @TODO ask user if they want to save changes
+            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
+            this.synthSettings.speed.current = this.synthSettings.speed.previous;
+            this.synthSettings.output.current = this.synthSettings.output.previous;
+
+            this.isSettingsModalOpen = false;
+        },
+
+        saveAndCloseSettingsModal() {
+            if (this.synthSettings.bpm.current !== this.synthSettings.bpm.previous) {
+                eval(`bpm = ${this.synthSettings.bpm.current}`)
+                post(`bpm = ${this.synthSettings.bpm.current}`);
+
+                this.synthSettings.bpm.previous = bpm.current;
+            }
+
+            if (this.synthSettings.speed.current !== this.synthSettings.speed.previous) {
+                eval(`speed = ${this.synthSettings.speed.current}`)
+                post(`speed = ${this.synthSettings.speed.current}`);
+
+                this.synthSettings.speed.previous = speed.current;
+            }
+
+            this.isSettingsModalOpen = false;
         },
     }
 }
@@ -159,23 +258,22 @@ $darkblue: #02042c;
     min-width: 300px;
     padding: 1rem;
     border-radius: 10px;
-    background: #22222260;
-    backdrop-filter: blur(5px);
-
-    &.focused {
-        background: #11111180;
-    }
+    background: #22222280;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
     .output-header {
         color: $darkblue;
         padding: 6px;
         display: flex;
         justify-content: space-between;
-        border: 1px dashed $darkblue;
+        background: #fff;
+        border: 1px solid $darkblue;
+        border-radius: 6px;
         margin-bottom: 0.5rem;
         cursor: move;
 
-        $iconSize: 24px;
+        $iconSize: 21px;
 
         .activate,
         .delete {
@@ -192,16 +290,16 @@ $darkblue: #02042c;
                 content: "";
                 position: absolute;
                 border: 4px solid $darkblue;
-                height: 8px;
-                width: 8px;
+                height: calc($iconSize / 3);
+                width: calc($iconSize / 3);
                 border-radius: 50%;
-                top: 4px;
-                left: 4px;
+                top: 25%;
+                left: 25%;
             }
 
             &.active {
                 &:after {
-                    border-color: #f54646;
+                    border-color: #f55858;
                 }
             }
         }
@@ -215,8 +313,8 @@ $darkblue: #02042c;
                 position: absolute;
                 border-top: 3px solid $darkblue;
                 width: 16px;
-                top: 10px;
-                left: 5px;
+                top: 50%;
+                left: 10%;
             }
 
             &:before {
@@ -233,7 +331,7 @@ $darkblue: #02042c;
     .param-input-container {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 5px;
 
         label {
             margin-right: 1rem;
@@ -246,30 +344,79 @@ $darkblue: #02042c;
             border: 1px solid #00000040;
             border-radius: 0;
             background: #000000aa;
+
+            &:focus {
+                background: #000000dd;
+            }
+        }
+
+        &:last-child {
+            margin-bottom: 0;
         }
     }
 
-    &:nth-child(1) {
-        .output-header {
-            background: #ffff56;
+    &:not(.external) {
+        $offset-top: -200%;
+        $bottom-color: #38383880;
+        $offset-bottom: 150%;
+
+        &:nth-child(1) {
+            $color: #fff70080;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
+        }
+
+        &:nth-child(2) {
+            $color: #b8f77080;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
+        }
+
+        &:nth-child(3) {
+            $color: #3bd5f080;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
+        }
+
+        &:nth-child(4) {
+            $color: #ff8fec80;
+            background: linear-gradient(180deg, $color $offset-top, $bottom-color $offset-bottom);
+
+            &.focused {
+                background: linear-gradient(180deg, $color calc($offset-top / 2), $bottom-color calc($offset-bottom * 2));
+            }
+
+            .output-header {
+                background: $color;
+            }
         }
     }
 
-    &:nth-child(2) {
+    &.external {
         .output-header {
-            background: #f7a06d;
-        }
-    }
-
-    &:nth-child(3) {
-        .output-header {
-            background: #74eb74;
-        }
-    }
-
-    &:nth-child(4) {
-        .output-header {
-            background: #9696ff;
+            color: #000;
+            background: #f1a3a3;
         }
     }
 }
