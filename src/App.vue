@@ -5,7 +5,7 @@
 </template>
 
 <script>
-new Hydra({ makeGlobal: true, detectAudio: true, width: window.innerWidth, height: window.innerHeight }).synth
+window.hydra = new Hydra({ makeGlobal: true, detectAudio: true, width: window.innerWidth, height: window.innerHeight }).synth
 </script>
 
 <style>

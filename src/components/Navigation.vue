@@ -213,8 +213,7 @@ export default {
                     codeString += `${flatten(this.blocks[i])}.out(o${i})\n`;
                 }
 
-                codeString += `render(o${this.synthSettings.output.current})`;
-
+                codeString += `window.hydra.render(o${this.synthSettings.output.current})`;
             }
 
             // console.log(this.blocks, codeString);
