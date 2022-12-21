@@ -181,7 +181,7 @@ export default {
                 return;
             }
 
-            this.focused.blocks.push(effect);
+            this.focused.blocks.push(deepCopy(effect));
 
             if (effect.type === TYPE_COMPLEX) {
                 this.onFocus(

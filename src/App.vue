@@ -5,7 +5,12 @@
 </template>
 
 <script>
-window.hydra = new Hydra({ makeGlobal: true, detectAudio: true, width: window.innerWidth, height: window.innerHeight }).synth
+window.hydra = new Hydra({
+  makeGlobal: true,
+  detectAudio: true,
+  width: window.width * window.devicePixelRatio,
+  height: window.height * window.devicePixelRatio
+}).synth
 </script>
 
 <style>
