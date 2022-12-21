@@ -8,8 +8,8 @@
 window.hydra = new Hydra({
   makeGlobal: true,
   detectAudio: true,
-  width: window.width * window.devicePixelRatio,
-  height: window.height * window.devicePixelRatio
+  width: window.outerWidth * window.devicePixelRatio,
+  height: window.outerHeight * window.devicePixelRatio
 }).synth
 </script>
 
