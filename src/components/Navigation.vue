@@ -163,7 +163,7 @@ export default {
 
                 this.onFocus(this.blocks[this.blocks.length - 1]);
 
-                this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
+                this.synthSettings.output = this.blocks.length - 1;
             } else if (this.focused) {
                 this.focused.blocks.push(deepCopy(copiedObject));
             }
@@ -200,9 +200,8 @@ export default {
             if (this.blocks.length === 0) {
                 codeString = "hush()";
             } else {
-                if (!this.synthSettings.output.current) {
-                    this.synthSettings.output.current = 0;
-                    this.synthSettings.output.previous = 0;
+                if (!this.synthSettings.output) {
+                    this.synthSettings.output = 0;
                 }
 
                 for (let i = 0; i < this.externalSourceBlocks.length; i++) {
@@ -213,7 +212,7 @@ export default {
                     codeString += `${flatten(this.blocks[i])}.out(o${i})\n`;
                 }
 
-                codeString += `window.hydra.render(o${this.synthSettings.output.current})`;
+                codeString += `window.hydra.render(o${this.synthSettings.output})`;
             }
 
             // console.log(this.blocks, codeString);

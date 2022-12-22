@@ -2,7 +2,7 @@
     <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
 
     <settings-modal v-if="isSettingsModalOpen" :blocks="blocks" :synthSettings="synthSettings"
-        @close="closeSettingsModal" @closeAndSave="saveAndCloseSettingsModal" />
+        @closeAndSave="saveAndCloseSettingsModal" />
 
     <div class="playground" @click="removeFocus" />
 
@@ -17,7 +17,7 @@
                 <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
                     <span>o{{ index }} - {{ block.name }}</span>
                     <div>
-                        <span :class="['activate', { active: synthSettings.output.current === index }]"
+                        <span :class="['activate', { active: synthSettings.output === index }]"
                             @click="setActiveOutput(index)" />
                         <span class="delete" @click="deleteSource(index)" />
                     </div>
@@ -75,10 +75,12 @@ export default {
             error: null,
             focused: null,
             focusedBlock: null,
-            synthSettings: { // @TODO fix this
-                bpm: { current: 30, previous: 30 },
-                speed: { current: 1, previous: 1 },
-                output: { current: null, previous: null },
+            synthSettings: {
+                bpm: 30,
+                speed: 1,
+                output: null,
+                fps: 60,
+                resolution: 1,
             },
             isWelcomeModalOpen: false,
             isSettingsModalOpen: false,
@@ -163,18 +165,16 @@ export default {
         },
 
         setActiveOutput(index) {
-            this.synthSettings.output = { current: index, previous: index };
-
-            this.onFocus(this.blocks.index);
+            this.synthSettings.output = index;
         },
 
         deleteSource(index) {
             this.blocks.splice(index, 1);
 
             if (this.blocks.length === 0) {
-                this.synthSettings.output = { current: null, previous: null };
+                this.synthSettings.output = null;
             } else {
-                this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
+                this.synthSettings.output = this.blocks.length - 1;
             }
         },
 
@@ -189,14 +189,11 @@ export default {
                 this.focused = this.blocks[index];
                 this.focusedBlock = this.focused;
             }
-
-            // console.log('focus in', this.focused);
         },
 
         removeFocus() {
             this.focused = null;
             this.focusedBlock = this.focused;
-            // console.log('focus out', this.focused);
         },
 
         closeWelcomeModal() {
@@ -208,29 +205,12 @@ export default {
             this.isSettingsModalOpen = true;
         },
 
-        closeSettingsModal() {
-            // @TODO ask user if they want to save changes
-            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
-            this.synthSettings.speed.current = this.synthSettings.speed.previous;
-            this.synthSettings.output.current = this.synthSettings.output.previous;
-
-            this.isSettingsModalOpen = false;
-        },
-
         saveAndCloseSettingsModal() {
-            if (this.synthSettings.bpm.current !== this.synthSettings.bpm.previous) {
-                eval(`bpm = ${this.synthSettings.bpm.current}`)
-                post(`bpm = ${this.synthSettings.bpm.current}`);
+            eval(`bpm = ${this.synthSettings.bpm}`);
+            post(`bpm = ${this.synthSettings.bpm}`);
 
-                this.synthSettings.bpm.previous = bpm.current;
-            }
-
-            if (this.synthSettings.speed.current !== this.synthSettings.speed.previous) {
-                eval(`speed = ${this.synthSettings.speed.current}`)
-                post(`speed = ${this.synthSettings.speed.current}`);
-
-                this.synthSettings.speed.previous = speed.current;
-            }
+            eval(`speed = ${this.synthSettings.speed}`);
+            post(`speed = ${this.synthSettings.speed}`);
 
             this.isSettingsModalOpen = false;
         },

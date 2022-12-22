@@ -2,16 +2,16 @@
     <div class="modal">
         <h2>settings</h2>
         <div class="row">
-            <label for="speed">speed</label>
-            <input type="text" id="speed" v-model="synthSettings.speed.current" />
+            <label>speed</label>
+            <input type="text" v-model="synthSettings.speed" />
         </div>
         <div class="row">
-            <label for="bpm">bpm</label>
-            <input type="text" id="bpm" v-model="synthSettings.bpm.current" />
+            <label>bpm</label>
+            <input type="text" v-model="synthSettings.bpm" />
         </div>
         <div class="row">
-            <label for="output">output</label>
-            <select id="output" v-model="synthSettings.output.current">
+            <label>output</label>
+            <select v-model="synthSettings.output">
                 <option value="">select output</option>
                 <option v-for="block, index in blocks" :value="index">
                     o{{ index }} - {{ block.name }}
@@ -22,7 +22,6 @@
         <a href="#" @click="openVisualizer">open visualizer</a>
 
         <div>
-            <button @click="close">cancel</button>
             <button @click="closeAndSave">save and close</button>
         </div>
     </div>
@@ -31,7 +30,7 @@
 export default {
     name: "SettingsModal",
 
-    emits: ["close", "closeAndSave"],
+    emits: ["closeAndSave"],
 
     props: {
         blocks: {
@@ -48,9 +47,7 @@ export default {
     methods: {
         openVisualizer() {
             window.open('/visualizer', '_blank');
-        },
 
-        close() {
             this.$emit("close");
         },
 
