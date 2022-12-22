@@ -30,7 +30,7 @@
 export default {
     name: "SettingsModal",
 
-    emits: ["closeAndSave"],
+    emits: ["close", "closeAndSave"],
 
     props: {
         blocks: {

@@ -2,7 +2,7 @@
     <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
 
     <settings-modal v-if="isSettingsModalOpen" :blocks="blocks" :synthSettings="synthSettings"
-        @closeAndSave="saveAndCloseSettingsModal" />
+        @close="closeSettingsModal" @closeAndSave="saveAndCloseSettingsModal" />
 
     <div class="playground" @click="removeFocus" />
 
@@ -203,6 +203,10 @@ export default {
 
         openSettingsModal() {
             this.isSettingsModalOpen = true;
+        },
+
+        closeSettingsModal() {
+            this.isSettingsModalOpen = false;
         },
 
         saveAndCloseSettingsModal() {
