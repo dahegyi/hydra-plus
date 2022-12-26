@@ -162,24 +162,6 @@ $darkblue: #02042c;
                 }
             }
         }
-
-
-        .param-input-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 0.2rem 0;
-
-            label {
-                margin-right: 1rem;
-                user-select: none;
-            }
-
-            input {
-                width: 60%;
-                padding: 0.2rem;
-            }
-        }
     }
 }
 </style>

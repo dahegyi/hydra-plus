@@ -324,34 +324,6 @@ $darkblue: #02042c;
         }
     }
 
-    .param-input-container {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-
-        label {
-            margin-right: 1rem;
-            user-select: none;
-        }
-
-        input,
-        select {
-            width: 60%;
-            padding: 0.2rem;
-            border: 1px solid #00000040;
-            border-radius: 0;
-            background: #000000aa;
-
-            &:focus {
-                background: #000000dd;
-            }
-        }
-
-        &:last-child {
-            margin-bottom: 0;
-        }
-    }
-
     &:not(.external) {
         $offset-top: -200%;
         $bottom-color: #38383880;

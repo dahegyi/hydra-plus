@@ -78,13 +78,22 @@ button {
         margin-right: 1rem;
     }
 
+    $width: 200px;
+
     input,
     select {
-        width: 60%;
-        padding: 0.2rem;
+        padding: 8px;
         border: 1px solid #00000040;
         border-radius: 0;
         background: #000000aa;
+    }
+
+    input {
+        width: $width;
+    }
+
+    select {
+        width: calc($width + 18px);
     }
 }
 </style>

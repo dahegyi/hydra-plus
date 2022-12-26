@@ -33,7 +33,9 @@ button {
   }
 }
 
-input {
+input,
+select {
+  appearance: none;
   color: #fff;
   border: 1px solid #111;
   border-radius: 0;
@@ -48,8 +50,9 @@ input {
 
 select {
   width: 100%;
+
   &:focus-visible {
-    outline: 0;
+    outline: 1px solid #fff;
   }
 }
 
@@ -90,5 +93,34 @@ hr {
     &:hover {
       color: #fff;
     }
+  }
+}
+
+.param-input-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0.2rem 0;
+
+  label {
+    margin-right: 1rem;
+    user-select: none;
+  }
+
+  input,
+  select {
+    width: 60%;
+    padding: 0.2rem;
+    border: 1px solid #00000040;
+    border-radius: 0;
+    background: #000000aa;
+
+    &:focus {
+      background: #000000dd;
+    }
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }
