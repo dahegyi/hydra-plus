@@ -46,6 +46,13 @@ input {
   }
 }
 
+select {
+  width: 100%;
+  &:focus-visible {
+    outline: 0;
+  }
+}
+
 hr {
   width: 100%;
 }

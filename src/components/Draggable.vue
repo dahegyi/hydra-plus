@@ -6,13 +6,26 @@
                     <span class="name" @click="onFocus(element)">{{ element.name }}</span>
                     <span class="delete" @click="deleteEffect(element)" />
                 </strong>
-                <div v-for="(param, index) in element.params" :key="index" class="param-input-container"
-                    @click="onFocus(element)">
+
+                <div v-if="element.name === 'src'" class="param-input-container" @click="onFocus(element)">
+                    <label>{{ element.params[0].name }}</label>
+                    <select v-model="element.params[0].value">
+                        <option v-for="source, sIndex in externalSourceBlocks" :value="'s' + sIndex">
+                            s{{ sIndex }} - {{ source.name }}
+                        </option>
+                        <option v-for="output, oIndex in outputBlocks" :value="'o' + oIndex">
+                            o{{ oIndex }} - {{ output.name }}
+                        </option>
+                    </select>
+                </div>
+                <div v-else v-for="(param, paramIndex) in element.params" :key="paramIndex"
+                    class="param-input-container" @click="onFocus(element)">
                     <label>{{ param.name }}</label>
-                    <input v-model="param.value" />
+                    <input type="text" v-model="param.value" />
                 </div>
 
-                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks" :focused="focused"
+                <nested-draggable v-if="hasDraggableChild(element.type)" :blocks="element.blocks"
+                    :outputBlocks="outputBlocks" :externalSourceBlocks="externalSourceBlocks" :focused="focused"
                     :parent="element" @onFocus="onFocus" />
             </li>
         </template>
@@ -28,6 +41,16 @@ export default {
 
     props: {
         blocks: {
+            required: true,
+            type: Array
+        },
+
+        outputBlocks: {
+            required: true,
+            type: Array
+        },
+
+        externalSourceBlocks: {
             required: true,
             type: Array
         },

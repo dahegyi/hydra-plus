@@ -22,13 +22,25 @@
                         <span class="delete" @click="deleteSource(index)" />
                     </div>
                 </strong>
-                <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
-                    <label :for="paramIndex">{{ param.name }}</label>
-                    <input :id="index + param.name + paramIndex" type="text" v-model="param.value" />
+                <div v-if="block.name === 'src'" class="param-input-container">
+                    <label>{{ block.params[0].name }}</label>
+                    <select v-model="block.params[0].value">
+                        <option v-for="source, sIndex in externalSourceBlocks" :value="'s' + sIndex">
+                            s{{ sIndex }} - {{ source.name }}
+                        </option>
+                        <option v-for="output, oIndex in blocks" :value="'o' + oIndex">
+                            o{{ oIndex }} - {{ output.name }}
+                        </option>
+                    </select>
+                </div>
+                <div v-else v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
+                    <label>{{ param.name }}</label>
+                    <input type="text" v-model="param.value" />
                 </div>
             </div>
 
-            <nested-draggable :blocks="block.blocks" :focused="focused" :parent="block" @onFocus="onFocus" />
+            <nested-draggable :blocks="block.blocks" :outputBlocks="blocks" :externalSourceBlocks="externalSourceBlocks"
+                :focused="focused" :parent="block" @onFocus="onFocus" />
         </div>
 
         <div v-for="(block, index) in externalSourceBlocks" :key="'ext-block-' + index" :id="'ext-block-' + index"
@@ -322,7 +334,8 @@ $darkblue: #02042c;
             user-select: none;
         }
 
-        input {
+        input,
+        select {
             width: 60%;
             padding: 0.2rem;
             border: 1px solid #00000040;
