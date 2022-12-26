@@ -1,14 +1,17 @@
 <template>
     <div class="modal">
         <h2>settings</h2>
+
         <div class="row">
             <label>speed</label>
-            <input type="text" v-model="synthSettings.speed" />
+            <input type="number" v-model="synthSettings.speed" />
         </div>
+
         <div class="row">
             <label>bpm</label>
-            <input type="text" v-model="synthSettings.bpm" />
+            <input type="number" v-model="synthSettings.bpm" />
         </div>
+
         <div class="row">
             <label>output</label>
             <select v-model="synthSettings.output">
@@ -22,6 +25,11 @@
         <div class="row">
             <label>resolution</label>
             <input type="range" min="1" max="100" class="slider" v-model="synthSettings.resolution" />
+        </div>
+
+        <div class="row">
+            <label>fps</label>
+            <input type="number" v-model="synthSettings.fps" />
         </div>
 
         <a href="#" @click="openVisualizer">open visualizer</a>

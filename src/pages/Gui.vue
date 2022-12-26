@@ -233,6 +233,9 @@ export default {
             eval(`setResolution(${window.outerHeight * multiplier}, ${window.outerWidth * multiplier})`);
             post(`setResolution(${window.outerHeight * multiplier}, ${window.outerWidth * multiplier})`);
 
+            eval(`fps = ${this.synthSettings.fps}`);
+            post(`fps = ${this.synthSettings.fps}`);
+
             this.isSettingsModalOpen = false;
         },
     }
