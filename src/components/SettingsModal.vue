@@ -1,17 +1,20 @@
 <template>
     <div class="modal">
         <h2>settings</h2>
+
         <div class="row">
-            <label for="speed">speed</label>
-            <input type="text" id="speed" v-model="synthSettings.speed.current" />
+            <label>speed</label>
+            <input type="number" v-model="synthSettings.speed" />
         </div>
+
         <div class="row">
-            <label for="bpm">bpm</label>
-            <input type="text" id="bpm" v-model="synthSettings.bpm.current" />
+            <label>bpm</label>
+            <input type="number" v-model="synthSettings.bpm" />
         </div>
+
         <div class="row">
-            <label for="output">output</label>
-            <select id="output" v-model="synthSettings.output.current">
+            <label>output</label>
+            <select v-model="synthSettings.output">
                 <option value="">select output</option>
                 <option v-for="block, index in blocks" :value="index">
                     o{{ index }} - {{ block.name }}
@@ -19,10 +22,19 @@
             </select>
         </div>
 
+        <div class="row">
+            <label>resolution</label>
+            <input type="range" min="1" max="100" class="slider" v-model="synthSettings.resolution" />
+        </div>
+
+        <div class="row">
+            <label>fps</label>
+            <input type="number" v-model="synthSettings.fps" />
+        </div>
+
         <a href="#" @click="openVisualizer">open visualizer</a>
 
         <div>
-            <button @click="close">cancel</button>
             <button @click="closeAndSave">save and close</button>
         </div>
     </div>
@@ -48,9 +60,7 @@ export default {
     methods: {
         openVisualizer() {
             window.open('/visualizer', '_blank');
-        },
 
-        close() {
             this.$emit("close");
         },
 
@@ -81,13 +91,22 @@ button {
         margin-right: 1rem;
     }
 
+    $width: 200px;
+
     input,
     select {
-        width: 60%;
-        padding: 0.2rem;
+        padding: 8px;
         border: 1px solid #00000040;
         border-radius: 0;
         background: #000000aa;
+    }
+
+    input {
+        width: $width;
+    }
+
+    select {
+        width: calc($width + 18px);
     }
 }
 </style>

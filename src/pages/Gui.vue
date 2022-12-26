@@ -17,18 +17,30 @@
                 <strong class="output-header" @mousedown="(e) => moveBlock(e, index, block.type)">
                     <span>o{{ index }} - {{ block.name }}</span>
                     <div>
-                        <span :class="['activate', { active: synthSettings.output.current === index }]"
+                        <span :class="['activate', { active: synthSettings.output === index }]"
                             @click="setActiveOutput(index)" />
                         <span class="delete" @click="deleteSource(index)" />
                     </div>
                 </strong>
-                <div v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
-                    <label :for="paramIndex">{{ param.name }}</label>
-                    <input :id="index + param.name + paramIndex" type="text" v-model="param.value" />
+                <div v-if="block.name === 'src'" class="param-input-container">
+                    <label>{{ block.params[0].name }}</label>
+                    <select v-model="block.params[0].value">
+                        <option v-for="source, sIndex in externalSourceBlocks" :value="'s' + sIndex">
+                            s{{ sIndex }} - {{ source.name }}
+                        </option>
+                        <option v-for="output, oIndex in blocks" :value="'o' + oIndex">
+                            o{{ oIndex }} - {{ output.name }}
+                        </option>
+                    </select>
+                </div>
+                <div v-else v-for="(param, paramIndex) in block.params" :key="paramIndex" class="param-input-container">
+                    <label>{{ param.name }}</label>
+                    <input type="text" v-model="param.value" />
                 </div>
             </div>
 
-            <nested-draggable :blocks="block.blocks" :focused="focused" :parent="block" @onFocus="onFocus" />
+            <nested-draggable :blocks="block.blocks" :outputBlocks="blocks" :externalSourceBlocks="externalSourceBlocks"
+                :focused="focused" :parent="block" @onFocus="onFocus" />
         </div>
 
         <div v-for="(block, index) in externalSourceBlocks" :key="'ext-block-' + index" :id="'ext-block-' + index"
@@ -75,10 +87,12 @@ export default {
             error: null,
             focused: null,
             focusedBlock: null,
-            synthSettings: { // @TODO fix this
-                bpm: { current: 30, previous: 30 },
-                speed: { current: 1, previous: 1 },
-                output: { current: null, previous: null },
+            synthSettings: {
+                bpm: 30,
+                speed: 1,
+                output: null,
+                resolution: 100,
+                fps: 60,
             },
             isWelcomeModalOpen: false,
             isSettingsModalOpen: false,
@@ -163,18 +177,16 @@ export default {
         },
 
         setActiveOutput(index) {
-            this.synthSettings.output = { current: index, previous: index };
-
-            this.onFocus(this.blocks.index);
+            this.synthSettings.output = index;
         },
 
         deleteSource(index) {
             this.blocks.splice(index, 1);
 
             if (this.blocks.length === 0) {
-                this.synthSettings.output = { current: null, previous: null };
+                this.synthSettings.output = null;
             } else {
-                this.synthSettings.output = { current: this.blocks.length - 1, previous: this.blocks.length - 1 };
+                this.synthSettings.output = this.blocks.length - 1;
             }
         },
 
@@ -189,14 +201,11 @@ export default {
                 this.focused = this.blocks[index];
                 this.focusedBlock = this.focused;
             }
-
-            // console.log('focus in', this.focused);
         },
 
         removeFocus() {
             this.focused = null;
             this.focusedBlock = this.focused;
-            // console.log('focus out', this.focused);
         },
 
         closeWelcomeModal() {
@@ -209,28 +218,23 @@ export default {
         },
 
         closeSettingsModal() {
-            // @TODO ask user if they want to save changes
-            this.synthSettings.bpm.current = this.synthSettings.bpm.previous;
-            this.synthSettings.speed.current = this.synthSettings.speed.previous;
-            this.synthSettings.output.current = this.synthSettings.output.previous;
-
             this.isSettingsModalOpen = false;
         },
 
         saveAndCloseSettingsModal() {
-            if (this.synthSettings.bpm.current !== this.synthSettings.bpm.previous) {
-                eval(`bpm = ${this.synthSettings.bpm.current}`)
-                post(`bpm = ${this.synthSettings.bpm.current}`);
+            eval(`bpm = ${this.synthSettings.bpm}`);
+            post(`bpm = ${this.synthSettings.bpm}`);
 
-                this.synthSettings.bpm.previous = bpm.current;
-            }
+            eval(`speed = ${this.synthSettings.speed}`);
+            post(`speed = ${this.synthSettings.speed}`);
 
-            if (this.synthSettings.speed.current !== this.synthSettings.speed.previous) {
-                eval(`speed = ${this.synthSettings.speed.current}`)
-                post(`speed = ${this.synthSettings.speed.current}`);
+            const multiplier = this.synthSettings.resolution * window.devicePixelRatio / 100;
 
-                this.synthSettings.speed.previous = speed.current;
-            }
+            eval(`setResolution(${window.outerHeight * multiplier}, ${window.outerWidth * multiplier})`);
+            post(`setResolution(${window.outerHeight * multiplier}, ${window.outerWidth * multiplier})`);
+
+            eval(`fps = ${this.synthSettings.fps}`);
+            post(`fps = ${this.synthSettings.fps}`);
 
             this.isSettingsModalOpen = false;
         },
@@ -325,33 +329,6 @@ $darkblue: #02042c;
                 transform: rotate(-45deg);
 
             }
-        }
-    }
-
-    .param-input-container {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-
-        label {
-            margin-right: 1rem;
-            user-select: none;
-        }
-
-        input {
-            width: 60%;
-            padding: 0.2rem;
-            border: 1px solid #00000040;
-            border-radius: 0;
-            background: #000000aa;
-
-            &:focus {
-                background: #000000dd;
-            }
-        }
-
-        &:last-child {
-            margin-bottom: 0;
         }
     }
 
