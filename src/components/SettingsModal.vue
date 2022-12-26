@@ -19,6 +19,11 @@
             </select>
         </div>
 
+        <div class="row">
+            <label>resolution</label>
+            <input type="range" min="1" max="100" class="slider" v-model="synthSettings.resolution" />
+        </div>
+
         <a href="#" @click="openVisualizer">open visualizer</a>
 
         <div>

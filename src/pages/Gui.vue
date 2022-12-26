@@ -91,8 +91,8 @@ export default {
                 bpm: 30,
                 speed: 1,
                 output: null,
+                resolution: 100,
                 fps: 60,
-                resolution: 1,
             },
             isWelcomeModalOpen: false,
             isSettingsModalOpen: false,
@@ -227,6 +227,11 @@ export default {
 
             eval(`speed = ${this.synthSettings.speed}`);
             post(`speed = ${this.synthSettings.speed}`);
+
+            const multiplier = this.synthSettings.resolution * window.devicePixelRatio / 100;
+
+            eval(`setResolution(${window.outerHeight * multiplier}, ${window.outerWidth * multiplier})`);
+            post(`setResolution(${window.outerHeight * multiplier}, ${window.outerWidth * multiplier})`);
 
             this.isSettingsModalOpen = false;
         },
