@@ -1,3 +1,7 @@
+import store from './';
+
+import { deepCopy } from '../utils/object-utils'
+
 import { TYPE_SRC } from "../constants";
 
 export default {
@@ -11,16 +15,18 @@ export default {
     } else {
       state.externalSourceBlocks.push({ ...block, position: defaultPosition });
     }
+
+    store.commit("setHistory");
   },
 
-  setBlocks(state, blocks) {
-    console.log(blocks);
-
+  setBlocks(state, { blocks, isUndoRedo }) {
     state.blocks = blocks.filter((block) => block.type === TYPE_SRC);
 
     state.externalSourceBlocks = blocks.filter(
       (block) => block.type !== TYPE_SRC
     );
+
+    store.commit("setHistory", isUndoRedo);
   },
 
   setBlockPosition(state, { index, type, position }) {
@@ -37,6 +43,8 @@ export default {
     } else {
       state.externalSourceBlocks.splice(index, 1);
     }
+
+    store.commit("setHistory");
   },
 
   // Synth Settings
@@ -51,8 +59,20 @@ export default {
 
   // History
 
-  setHistory(state, history) {
-    state.history = history;
+  setHistory(state, isUndoRedo) {
+    if (state.history.length > 99) {
+      state.history.pop();
+    }
+
+    if (!isUndoRedo) {
+      if (state.historyIndex > 0) {
+        state.history.splice(0, state.historyIndex);
+      }
+
+      state.historyIndex = 0;
+
+      state.history = [deepCopy({ blocks: state.blocks, externalSourceBlocks: state.externalSourceBlocks }), ...state.history]
+    };
   },
 
   setHistoryIndex(state, index) {

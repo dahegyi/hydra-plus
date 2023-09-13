@@ -1,9 +1,11 @@
-export const addBlock = ({ commit }, payload) => {
+import { deepCopy } from '../utils/object-utils'
+
+export const addBlock = ({ commit, state }, payload) => {
   commit("addBlock", payload);
 };
 
 export const setBlocks = ({ commit }, payload) => {
-  commit("setBlocks", payload);
+  commit("setBlocks", { blocks: payload });
 };
 
 export const setBlockPosition = ({ commit }, payload) => {
@@ -23,11 +25,12 @@ export const setOutput = ({ commit }, payload) => {
 };
 
 export const setHistory = ({ commit, state }, payload) => {
-  const history = state.history.splice(0, state.historyIndex + 1);
+  const history = state.history;
+
   history.push(payload);
 
   commit("setHistory", history);
-  commit("setHistoryIndex", history.length - 1);
+  commit("setHistoryIndex", state.historyIndex + 1);
 };
 
 export const setHistoryIndex = ({ commit }, payload) => {
@@ -35,22 +38,25 @@ export const setHistoryIndex = ({ commit }, payload) => {
 };
 
 export const undo = ({ commit, state }) => {
-  if (state.historyIndex === 0) {
+  const historyIndex = deepCopy(state.historyIndex);
+  const history = deepCopy(state.history);
+
+  if (historyIndex === history.length - 1) {
     return;
   }
-  const historyIndex = state.historyIndex;
 
-
-  commit("setHistoryIndex", historyIndex);
-  commit("setBlocks", state.history[historyIndex - 1]);
+  commit("setHistoryIndex", historyIndex + 1);
+  commit("setBlocks", { blocks: [...history[historyIndex + 1].blocks, ...history[historyIndex + 1].externalSourceBlocks], isUndoRedo: true });
 };
 
 export const redo = ({ commit, state }) => {
-  if (state.historyIndex === state.history.length) {
+  const historyIndex = deepCopy(state.historyIndex);
+  const history = deepCopy(state.history);
+
+  if (historyIndex === 0) {
     return;
   }
-  const historyIndex = state.historyIndex;
 
-  commit("setHistoryIndex", historyIndex);
-  commit("setBlocks", state.history[historyIndex - 1]);
+  commit("setHistoryIndex", historyIndex - 1);
+  commit("setBlocks", { blocks: [...history[historyIndex - 1].blocks, ...history[historyIndex - 1].externalSourceBlocks], isUndoRedo: true });
 };
