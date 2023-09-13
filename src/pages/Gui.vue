@@ -1,6 +1,12 @@
 <template>
   <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
 
+  <three-modal
+    v-if="isThreeModalOpen"
+    @close="closeThreeModal"
+    @closeAndSave="saveAndCloseThreeModal"
+  />
+
   <settings-modal
     v-if="isSettingsModalOpen"
     @close="closeSettingsModal"
@@ -11,6 +17,8 @@
 
   <navigation
     :focused="focused"
+    :isThreeModalOpen="isThreeModalOpen"
+    @openThreeModal="openThreeModal"
     :isSettingsModalOpen="isSettingsModalOpen"
     @openSettingsModal="openSettingsModal"
     @onFocus="onFocus"
@@ -111,11 +119,12 @@
 import { useBroadcastChannel } from "@vueuse/core";
 const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
-import { TYPE_EXTERNAL, TYPE_SRC } from "../constants";
-
 import { mapGetters, mapActions } from "vuex";
 
+import { TYPE_EXTERNAL, TYPE_SRC } from "../constants";
+
 import WelcomeModal from "../components/WelcomeModal.vue";
+import ThreeModal from "../components/ThreeModal.vue";
 import SettingsModal from "../components/SettingsModal.vue";
 import Navigation from "../components/Navigation.vue";
 import NestedDraggable from "../components/Draggable.vue";
@@ -125,6 +134,7 @@ export default {
 
   components: {
     WelcomeModal,
+    ThreeModal,
     SettingsModal,
     Navigation,
     NestedDraggable,
@@ -135,6 +145,7 @@ export default {
       error: null,
       focused: null,
       isWelcomeModalOpen: false,
+      isThreeModalOpen: false,
       isSettingsModalOpen: false,
     };
   },
@@ -148,10 +159,17 @@ export default {
     }
 
     // load stuff from local storage
-    this.setBlocks([
-      ...JSON.parse(localStorage.getItem("blocks")),
-      ...JSON.parse(localStorage.getItem("externalSourceBlocks")),
-    ]);
+    const blocks = [];
+
+    if (localStorage.getItem("blocks")) {
+      blocks.push(...JSON.parse(localStorage.getItem("blocks")));
+    }
+
+    if (localStorage.getItem("externalSourceBlocks")) {
+      blocks.push(...JSON.parse(localStorage.getItem("externalSourceBlocks")));
+    }
+
+    this.setBlocks({ blocks });
 
     if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
@@ -159,12 +177,28 @@ export default {
 
     // set up keyboard shortcuts
     const onKeyDown = (e) => {
-      if (e.keyCode === 90 && (e.ctrlKey || e.metaKey)) {
+      const isUndoKey =
+        e.keyCode === 90 && !e.shiftKey && (e.ctrlKey || e.metaKey);
+      const isRedoKey =
+        (e.keyCode === 89 && (e.ctrlKey || e.metaKey)) ||
+        (e.keyCode === 90 && e.shiftKey && (e.ctrlKey || e.metaKey));
+
+      if (isUndoKey) {
         e.preventDefault();
         this.undo();
-      } else if (e.keyCode === 89 && (e.ctrlKey || e.metaKey)) {
+
+        this.setBlocks({
+          blocks: [...this.blocks, ...this.externalSourceBlocks],
+          isUndoRedo: true,
+        });
+      } else if (isRedoKey) {
         e.preventDefault();
         this.redo();
+
+        this.setBlocks({
+          blocks: [...this.blocks, ...this.externalSourceBlocks],
+          isUndoRedo: true,
+        });
       }
     };
 
@@ -192,8 +226,6 @@ export default {
 
   methods: {
     ...mapActions([
-      "addBlock",
-      "setBlock",
       "setBlocks",
       "setBlockPosition",
       "deleteBlock",
@@ -215,6 +247,8 @@ export default {
 
       const divRect = div.getBoundingClientRect();
 
+      // console.log(divRect);
+
       const offsetX = e.clientX - divRect.left;
       const offsetY = e.clientY - divRect.top;
 
@@ -234,6 +268,11 @@ export default {
       const up = () => {
         document.removeEventListener("mousemove", move);
         document.removeEventListener("mouseup", up);
+
+        // This is to be able to undo/redo the moving of a block
+        this.setBlocks({
+          blocks: [...this.blocks, ...this.externalSourceBlocks],
+        });
       };
 
       document.addEventListener("mousemove", move);
@@ -257,6 +296,14 @@ export default {
       localStorage.setItem("welcomeModalClosed", true);
     },
 
+    openThreeModal() {
+      this.isThreeModalOpen = true;
+    },
+
+    closeThreeModal() {
+      this.isThreeModalOpen = false;
+    },
+
     openSettingsModal() {
       this.isSettingsModalOpen = true;
     },
@@ -278,18 +325,18 @@ export default {
       eval(
         `setResolution(${window.outerHeight * multiplier}, ${
           window.outerWidth * multiplier
-        })`
+        })`,
       );
       post(
         `setResolution(${window.outerHeight * multiplier}, ${
           window.outerWidth * multiplier
-        })`
+        })`,
       );
 
       eval(`fps = ${this.synthSettings.fps}`);
       post(`fps = ${this.synthSettings.fps}`);
 
-      this.isSettingsModalOpen = false;
+      this.closeSettingsModal();
     },
   },
 };

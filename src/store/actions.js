@@ -1,11 +1,11 @@
 import { deepCopy } from '../utils/object-utils'
 
-export const addBlock = ({ commit, state }, payload) => {
+export const addBlock = ({ commit }, payload) => {
   commit("addBlock", payload);
 };
 
 export const setBlocks = ({ commit }, payload) => {
-  commit("setBlocks", { blocks: payload });
+  commit("setBlocks", payload);
 };
 
 export const setBlockPosition = ({ commit }, payload) => {
@@ -24,10 +24,8 @@ export const setOutput = ({ commit }, payload) => {
   commit("setOutput", payload);
 };
 
-export const setHistory = ({ commit, state }, payload) => {
+export const setHistory = ({ commit, state }) => {
   const history = state.history;
-
-  history.push(payload);
 
   commit("setHistory", history);
   commit("setHistoryIndex", state.historyIndex + 1);

@@ -45,6 +45,7 @@
     </div>
 
     <div>
+      <button @click="openThreeModal">3D settings</button>
       <button @click="openSettingsModal" class="settings">
         synth settings
       </button>
@@ -84,12 +85,17 @@ import { mapActions, mapGetters } from "vuex";
 export default {
   name: "Navigation",
 
-  emits: ["openSettingsModal", "onFocus"],
+  emits: ["openThreeModal", "openSettingsModal", "onFocus"],
 
   props: {
     focused: {
       type: Object,
       default: null,
+    },
+
+    isThreeModalVisible: {
+      type: Boolean,
+      default: false,
     },
 
     isSettingsModalOpen: {
@@ -108,7 +114,7 @@ export default {
 
     outputName() {
       const blockIndex = this.blocks.findIndex(
-        (block) => block === this.focused
+        (block) => block === this.focused,
       );
 
       if (blockIndex >= 0) {
@@ -170,7 +176,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addBlock", "setOutput"]),
+    ...mapActions(["addBlock", "setBlocks", "setOutput"]),
 
     onFocus(focusedBlock) {
       this.$emit("onFocus", focusedBlock, true);
@@ -224,7 +230,15 @@ export default {
         this.onFocus(this.focused.blocks[this.focused.blocks.length - 1]);
       }
 
+      this.setBlocks({
+        blocks: this.blocks,
+        externalSourceBlocks: this.externalSourceBlocks,
+      });
       this.update();
+    },
+
+    openThreeModal() {
+      this.$emit("openThreeModal");
     },
 
     openSettingsModal() {
@@ -273,12 +287,12 @@ export default {
 
         localStorage.setItem(
           "externalSourceBlocks",
-          JSON.stringify(this.externalSourceBlocks)
+          JSON.stringify(this.externalSourceBlocks),
         );
         localStorage.setItem("blocks", JSON.stringify(this.blocks));
         localStorage.setItem(
           "synthSettings",
-          JSON.stringify(this.synthSettings)
+          JSON.stringify(this.synthSettings),
         );
       }
     },

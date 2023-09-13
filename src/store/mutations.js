@@ -21,10 +21,7 @@ export default {
 
   setBlocks(state, { blocks, isUndoRedo }) {
     state.blocks = blocks.filter((block) => block.type === TYPE_SRC);
-
-    state.externalSourceBlocks = blocks.filter(
-      (block) => block.type !== TYPE_SRC
-    );
+    state.externalSourceBlocks = blocks.filter((block) => block.type !== TYPE_SRC);
 
     store.commit("setHistory", isUndoRedo);
   },
@@ -65,14 +62,13 @@ export default {
     }
 
     if (!isUndoRedo) {
-      if (state.historyIndex > 0) {
-        state.history.splice(0, state.historyIndex);
-      }
+      state.history.splice(0, state.historyIndex);
 
-      state.historyIndex = 0;
+      store.commit("setHistoryIndex", 0);
 
       state.history = [deepCopy({ blocks: state.blocks, externalSourceBlocks: state.externalSourceBlocks }), ...state.history]
     };
+
   },
 
   setHistoryIndex(state, index) {

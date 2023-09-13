@@ -1,6 +1,6 @@
 <template>
   <div class="modal">
-    <h2>settings</h2>
+    <h2>synth settings</h2>
 
     <div class="row">
       <label>speed</label>

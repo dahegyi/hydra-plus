@@ -5,6 +5,7 @@
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
+    @end="() => onMove()"
   >
     <template #item="{ element }">
       <li :class="{ focused: focused === element }">
@@ -54,8 +55,8 @@
   </draggable>
 </template>
 <script>
+import { mapGetters, mapActions } from "vuex";
 import draggable from "vuedraggable";
-import { mapGetters } from "vuex";
 
 import { TYPE_SRC, TYPE_COMPLEX } from "../constants";
 
@@ -82,6 +83,14 @@ export default {
   computed: mapGetters(["blocks", "externalSourceBlocks"]),
 
   methods: {
+    ...mapActions(["setBlocks"]),
+
+    onMove() {
+      this.setBlocks({
+        blocks: [...this.blocks, ...this.externalSourceBlocks],
+      });
+    },
+
     deleteEffect(element) {
       const { children, parent } = this;
 
@@ -89,7 +98,9 @@ export default {
         if (child === element) {
           this.onFocus(parent);
 
-          return children.splice(children.indexOf(child), 1);
+          children.splice(children.indexOf(child), 1);
+
+          return this.onMove();
         }
       }
     },
