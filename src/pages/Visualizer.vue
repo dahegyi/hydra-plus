@@ -1,22 +1,18 @@
 <script setup>
-import { watch } from 'vue';
-import { useBroadcastChannel } from '@vueuse/core';
+import { watch } from "vue";
+import { useBroadcastChannel } from "@vueuse/core";
 
-const {
-    data
-} = useBroadcastChannel({ name: 'hydra-plus-channel' })
+const { data } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
 watch(data, () => {
-    if (data.value)
-        eval(data.value)
-})
+  if (data.value) eval(data.value);
+});
 </script>
 
-<template>
-</template>
+<template></template>
 
 <script>
 export default {
-    name: 'Visualizer',
-}
+  name: "Visualizer",
+};
 </script>

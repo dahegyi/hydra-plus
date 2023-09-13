@@ -1,0 +1,77 @@
+import store from './';
+
+import { deepCopy } from '../utils/object-utils'
+
+import { TYPE_SRC } from "../constants";
+
+export default {
+  // Blocks
+
+  addBlock(state, block) {
+    const defaultPosition = { x: 20, y: 60 };
+
+    if (block.type === TYPE_SRC) {
+      state.blocks.push({ ...block, position: defaultPosition });
+    } else {
+      state.externalSourceBlocks.push({ ...block, position: defaultPosition });
+    }
+
+    store.commit("setHistory");
+  },
+
+  setBlocks(state, { blocks, isUndoRedo }) {
+    state.blocks = blocks.filter((block) => block.type === TYPE_SRC);
+    state.externalSourceBlocks = blocks.filter((block) => block.type !== TYPE_SRC);
+
+    store.commit("setHistory", isUndoRedo);
+  },
+
+  setBlockPosition(state, { index, type, position }) {
+    if (type === TYPE_SRC) {
+      state.blocks[index].position = position;
+    } else {
+      state.externalSourceBlocks[index].position = position;
+    }
+  },
+
+  deleteBlock(state, { type, index }) {
+    if (type === TYPE_SRC) {
+      state.blocks.splice(index, 1);
+    } else {
+      state.externalSourceBlocks.splice(index, 1);
+    }
+
+    store.commit("setHistory");
+  },
+
+  // Synth Settings
+
+  setSynthSettings(state, synthSettings) {
+    state.synthSettings = synthSettings;
+  },
+
+  setOutput(state, output) {
+    state.synthSettings.output = output;
+  },
+
+  // History
+
+  setHistory(state, isUndoRedo) {
+    if (state.history.length > 99) {
+      state.history.pop();
+    }
+
+    if (!isUndoRedo) {
+      state.history.splice(0, state.historyIndex);
+
+      store.commit("setHistoryIndex", 0);
+
+      state.history = [deepCopy({ blocks: state.blocks, externalSourceBlocks: state.externalSourceBlocks }), ...state.history]
+    };
+
+  },
+
+  setHistoryIndex(state, index) {
+    state.historyIndex = index;
+  },
+};
