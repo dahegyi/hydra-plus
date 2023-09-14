@@ -9,6 +9,7 @@
           <li
             v-if="isAddSourceVisible"
             v-for="source in sources"
+            :class="source.type"
             @click="addSource(source)"
           >
             {{ source.name }}
@@ -31,15 +32,6 @@
               </li>
             </ul>
           </li>
-
-          <li
-            v-if="isExternalSourceVisible"
-            v-for="external in externalSources"
-            class="external"
-            @click="addExternal(external)"
-          >
-            {{ external.name }}
-          </li>
         </ul>
       </div>
     </div>
@@ -49,13 +41,13 @@
       <button @click="openSettingsModal" class="settings">
         synth settings
       </button>
-      <button @click="update" :disabled="isSettingsModalOpen" class="green">
+      <button @click="update" :disabled="isSettingsModalOpen" class="update">
         update
       </button>
       <button
         @click="updateAndSend"
         :disabled="isSettingsModalOpen"
-        class="red"
+        class="send"
       >
         send
       </button>
@@ -71,14 +63,16 @@ import { deepCopy, flattenExternal, flatten } from "../utils/object-utils";
 import {
   TYPE_SRC,
   TYPE_EXTERNAL,
+  TYPE_THREE,
   TYPE_SIMPLE,
   TYPE_COMPLEX,
   SOURCE_FUNCTIONS,
+  EXTERNAL_SOURCE_FUNCTIONS,
+  THREE_FUNCTIONS,
   GEOMETRY_FUNCTIONS,
   COLOR_FUNCTIONS,
   BLEND_FUNCTIONS,
   MODULATE_FUNCTIONS,
-  EXTERNAL_SOURCE_FUNCTIONS,
 } from "../constants";
 import { mapActions, mapGetters } from "vuex";
 
@@ -105,12 +99,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      "blocks",
-      "externalSourceBlocks",
-      "synthSettings",
-      // "focused",
-    ]),
+    ...mapGetters(["blocks", "externalSourceBlocks", "synthSettings"]),
 
     outputName() {
       const blockIndex = this.blocks.findIndex(
@@ -139,38 +128,43 @@ export default {
     },
 
     sources() {
-      return SOURCE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SRC }));
-    },
+      return [
+        ...SOURCE_FUNCTIONS.map((fn) => ({
+          ...fn,
+          type: TYPE_SRC,
+          blocks: [],
+        })),
 
-    externalSources() {
-      return EXTERNAL_SOURCE_FUNCTIONS.map((fn) => ({
-        ...fn,
-        type: TYPE_EXTERNAL,
-      }));
-    },
+        ...EXTERNAL_SOURCE_FUNCTIONS.map((fn) => ({
+          ...fn,
+          type: TYPE_EXTERNAL,
+        })),
 
-    geometryFunctions() {
-      return GEOMETRY_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE }));
-    },
-
-    colorFunctions() {
-      return COLOR_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE }));
-    },
-
-    blendFunctions() {
-      return BLEND_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
-    },
-
-    modulateFunctions() {
-      return MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX }));
+        ...THREE_FUNCTIONS.map((fn) => ({
+          ...fn,
+          type: TYPE_THREE,
+        })),
+      ];
     },
 
     functionGroups() {
       return [
-        { name: "geometry", fns: this.geometryFunctions },
-        { name: "color", fns: this.colorFunctions },
-        { name: "blend", fns: this.blendFunctions },
-        { name: "modulate", fns: this.modulateFunctions },
+        {
+          name: "geometry",
+          fns: GEOMETRY_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE })),
+        },
+        {
+          name: "color",
+          fns: COLOR_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_SIMPLE })),
+        },
+        {
+          name: "blend",
+          fns: BLEND_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX })),
+        },
+        {
+          name: "modulate",
+          fns: MODULATE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_COMPLEX })),
+        },
       ];
     },
   },
@@ -188,14 +182,18 @@ export default {
      * differently for different sources.
      */
     addSource(source) {
-      const copiedObject = {
-        ...deepCopy(source),
-        type: TYPE_SRC,
-        blocks: [],
-      };
+      const copiedObject = deepCopy(source);
 
       if (!this.focused) {
-        if (this.blocks.length >= 4) {
+        if (
+          (source.type === TYPE_SRC &&
+            this.blocks.filter((block) => block.type === TYPE_SRC).length >=
+              4) ||
+          ((source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
+            this.blocks.filter(
+              (block) => block.type === TYPE_EXTERNAL || TYPE_THREE,
+            ).length >= 4)
+        ) {
           return;
         }
 
@@ -231,9 +229,9 @@ export default {
       }
 
       this.setBlocks({
-        blocks: this.blocks,
-        externalSourceBlocks: this.externalSourceBlocks,
+        blocks: [...this.blocks, ...this.externalSourceBlocks],
       });
+
       this.update();
     },
 
@@ -348,11 +346,15 @@ export default {
       li {
         margin: 0;
         padding: 0.5rem 1rem;
-        min-width: 100px;
+        min-width: 160px;
         cursor: pointer;
 
         &.external {
           background-color: #333;
+        }
+
+        &.three {
+          background-color: #555;
         }
 
         &:hover {
@@ -374,6 +376,7 @@ export default {
 
     .dropdown-content {
       @include dropdown;
+      border: 3px solid #111;
     }
   }
 
@@ -382,12 +385,12 @@ export default {
       margin-right: 2rem;
     }
 
-    &.green {
-      border: 1px solid #84ff84;
+    &.update {
+      border: 3px solid #bda22d;
     }
 
-    &.red {
-      border: 1px solid #ee6060;
+    &.send {
+      border: 3px solid #b62424;
     }
   }
 }

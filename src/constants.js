@@ -5,6 +5,7 @@ export const DEFAULT_POSITION = { x: 20, y: 60 };
 
 export const TYPE_SRC = "source";
 export const TYPE_EXTERNAL = "external";
+export const TYPE_THREE = "three";
 export const TYPE_SIMPLE = "simple";
 export const TYPE_COMPLEX = "complex";
 
@@ -109,6 +110,56 @@ export const SOURCE_FUNCTIONS = [
       {
         name: "a",
         value: 1,
+      },
+    ],
+  },
+];
+
+export const EXTERNAL_SOURCE_FUNCTIONS = [
+  {
+    name: "initCam",
+    params: [
+      {
+        name: "index",
+        value: 0,
+      },
+    ],
+  },
+  {
+    name: "initImage",
+    params: [
+      {
+        name: "url",
+        value:
+          "https://upload.wikimedia.org/wikipedia/commons/2/25/Hydra-Foto.jpg",
+      },
+    ],
+  },
+  {
+    name: "initVideo",
+    params: [
+      {
+        name: "url",
+        value: "https://media.giphy.com/media/AS9LIFttYzkc0/giphy.mp4",
+      },
+    ],
+  },
+  // {
+  //   name: "init",
+  //
+  // },
+  {
+    name: "initScreen",
+  },
+];
+
+export const THREE_FUNCTIONS = [
+  {
+    name: "3D",
+    params: [
+      {
+        name: "scene",
+        value: 0,
       },
     ],
   },
@@ -598,40 +649,3 @@ export const BLEND_FUNCTIONS = [
   },
 ];
 
-export const EXTERNAL_SOURCE_FUNCTIONS = [
-  {
-    name: "initCam",
-    params: [
-      {
-        name: "index",
-        value: 0,
-      },
-    ],
-  },
-  {
-    name: "initImage",
-    params: [
-      {
-        name: "url",
-        value:
-          "https://upload.wikimedia.org/wikipedia/commons/2/25/Hydra-Foto.jpg",
-      },
-    ],
-  },
-  {
-    name: "initVideo",
-    params: [
-      {
-        name: "url",
-        value: "https://media.giphy.com/media/AS9LIFttYzkc0/giphy.mp4",
-      },
-    ],
-  },
-  // {
-  //   name: "init",
-  //
-  // },
-  {
-    name: "initScreen",
-  },
-];
