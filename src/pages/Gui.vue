@@ -349,12 +349,11 @@ $darkblue: #02042c;
   display: flex;
   flex-direction: column;
   width: fit-content;
-  min-width: 300px;
+  min-width: 320px;
   padding: 1rem;
-  border-radius: 10px;
-  background: #22222280;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
+  background: #222222aa;
+  backdrop-filter: blur(6px);
 
   .output-header {
     color: $darkblue;
@@ -423,11 +422,11 @@ $darkblue: #02042c;
 
   &:not(.external) {
     $offset-top: -200%;
-    $bottom-color: #38383880;
+    $bottom-color: #38383890;
     $offset-bottom: 150%;
 
     &:nth-child(1) {
-      $color: #fff70080;
+      $color: #fff700;
       background: linear-gradient(
         180deg,
         $color $offset-top,
@@ -448,7 +447,7 @@ $darkblue: #02042c;
     }
 
     &:nth-child(2) {
-      $color: #b8f77080;
+      $color: #b8f770;
       background: linear-gradient(
         180deg,
         $color $offset-top,
@@ -469,7 +468,7 @@ $darkblue: #02042c;
     }
 
     &:nth-child(3) {
-      $color: #3bd5f080;
+      $color: #3bd5f0;
       background: linear-gradient(
         180deg,
         $color $offset-top,
@@ -490,7 +489,7 @@ $darkblue: #02042c;
     }
 
     &:nth-child(4) {
-      $color: #ff8fec80;
+      $color: #ff8fec;
       background: linear-gradient(
         180deg,
         $color $offset-top,

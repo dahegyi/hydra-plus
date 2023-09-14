@@ -305,9 +305,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 6px;
-  background: #222222bb;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #151515dd;
+  backdrop-filter: blur(6px);
   z-index: 1;
 
   div {
