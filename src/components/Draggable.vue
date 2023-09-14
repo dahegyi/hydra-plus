@@ -5,7 +5,7 @@
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
-    @end="() => onMove()"
+    @end="() => onEnd()"
   >
     <template #item="{ element }">
       <li :class="{ focused: focused === element }">
@@ -85,7 +85,7 @@ export default {
   methods: {
     ...mapActions(["setBlocks"]),
 
-    onMove() {
+    onEnd() {
       this.setBlocks({
         blocks: [...this.blocks, ...this.externalSourceBlocks],
       });
@@ -100,7 +100,7 @@ export default {
 
           children.splice(children.indexOf(child), 1);
 
-          return this.onMove();
+          return this.onEnd();
         }
       }
     },
@@ -138,7 +138,6 @@ $darkblue: #02042c;
   li {
     padding: 0.65rem;
     border-bottom: 2px solid #222;
-    transition: background 0.02s linear;
 
     &:hover {
       background: #ffffff25;
