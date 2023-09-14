@@ -266,8 +266,6 @@ export default {
         codeString += `window.hydra.render(o${this.synthSettings.output})`;
       }
 
-      // console.log(this.blocks, codeString);
-
       try {
         eval(codeString);
         this.error = null;

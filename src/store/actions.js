@@ -39,22 +39,18 @@ export const undo = ({ commit, state }) => {
   const historyIndex = deepCopy(state.historyIndex);
   const history = deepCopy(state.history);
 
-  if (historyIndex === history.length - 1) {
-    return;
+  if (historyIndex < history.length - 1) {
+    commit("setHistoryIndex", historyIndex + 1);
+    commit("setBlocks", { blocks: [...history[historyIndex + 1].blocks, ...history[historyIndex + 1].externalSourceBlocks], isUndoRedo: true });
   }
-
-  commit("setHistoryIndex", historyIndex + 1);
-  commit("setBlocks", { blocks: [...history[historyIndex + 1].blocks, ...history[historyIndex + 1].externalSourceBlocks], isUndoRedo: true });
 };
 
 export const redo = ({ commit, state }) => {
   const historyIndex = deepCopy(state.historyIndex);
   const history = deepCopy(state.history);
 
-  if (historyIndex === 0) {
-    return;
+  if (historyIndex > 0) {
+    commit("setHistoryIndex", historyIndex - 1);
+    commit("setBlocks", { blocks: [...history[historyIndex - 1].blocks, ...history[historyIndex - 1].externalSourceBlocks], isUndoRedo: true });
   }
-
-  commit("setHistoryIndex", historyIndex - 1);
-  commit("setBlocks", { blocks: [...history[historyIndex - 1].blocks, ...history[historyIndex - 1].externalSourceBlocks], isUndoRedo: true });
 };

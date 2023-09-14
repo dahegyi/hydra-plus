@@ -121,7 +121,7 @@ const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
 import { mapGetters, mapActions } from "vuex";
 
-import { TYPE_EXTERNAL, TYPE_SRC } from "../constants";
+import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "../constants";
 
 import WelcomeModal from "../components/WelcomeModal.vue";
 import ThreeModal from "../components/ThreeModal.vue";
@@ -163,6 +163,8 @@ export default {
 
     if (localStorage.getItem("blocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("blocks")));
+    } else {
+      blocks.push(...JSON.parse(INITIAL_BLOCKS));
     }
 
     if (localStorage.getItem("externalSourceBlocks")) {
@@ -186,19 +188,9 @@ export default {
       if (isUndoKey) {
         e.preventDefault();
         this.undo();
-
-        this.setBlocks({
-          blocks: [...this.blocks, ...this.externalSourceBlocks],
-          isUndoRedo: true,
-        });
       } else if (isRedoKey) {
         e.preventDefault();
         this.redo();
-
-        this.setBlocks({
-          blocks: [...this.blocks, ...this.externalSourceBlocks],
-          isUndoRedo: true,
-        });
       }
     };
 
@@ -246,8 +238,6 @@ export default {
       }
 
       const divRect = div.getBoundingClientRect();
-
-      // console.log(divRect);
 
       const offsetX = e.clientX - divRect.left;
       const offsetY = e.clientY - divRect.top;
