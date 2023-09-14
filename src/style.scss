@@ -66,13 +66,11 @@ hr {
   flex-direction: column;
   z-index: 999;
   top: 20%;
-  left: calc(50% - 180px);
-  width: 360px;
-  background: #222222bb;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 20px;
-  border-radius: 10px;
+  left: calc(50% - 190px);
+  width: 380px;
+  background: #222;
+  padding: 30px;
+  border-radius: 20px;
 
   &:before {
     content: "";
@@ -80,8 +78,8 @@ hr {
     top: -20vh;
     height: 100vh;
     width: 100vw;
-    left: calc(180px - 50vw);
-    background: #00000050;
+    left: calc(190px - 50vw);
+    background: #00000068;
     z-index: -1;
   }
 
