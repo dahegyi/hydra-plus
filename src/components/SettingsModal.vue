@@ -41,7 +41,7 @@
     <a href="#" @click="openVisualizer">open visualizer</a>
 
     <div>
-      <button @click="saveAndClose">save and close</button>
+      <button @click="saveAndClose" class="saveAndClose">save</button>
     </div>
   </div>
 </template>
@@ -75,7 +75,9 @@ h2 {
 }
 
 button {
-  margin: 5px;
+  margin: 10px 0 0;
+  width: 120px;
+  border: 2px solid #fff;
 }
 
 .row {
