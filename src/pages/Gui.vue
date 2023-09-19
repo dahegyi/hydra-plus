@@ -4,13 +4,13 @@
   <three-modal
     v-if="isThreeModalOpen"
     @close="closeThreeModal"
-    @closeAndSave="saveAndCloseThreeModal"
+    @saveAndClose="saveAndCloseThreeModal"
   />
 
   <settings-modal
     v-if="isSettingsModalOpen"
     @close="closeSettingsModal"
-    @closeAndSave="saveAndCloseSettingsModal"
+    @saveAndClose="saveAndCloseSettingsModal"
   />
 
   <div class="playground" @click="removeFocus" />
@@ -327,6 +327,10 @@ export default {
       post(`fps = ${this.synthSettings.fps}`);
 
       this.closeSettingsModal();
+    },
+
+    saveAndCloseThreeModal() {
+      this.closeThreeModal();
     },
   },
 };

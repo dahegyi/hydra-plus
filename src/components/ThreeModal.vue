@@ -5,7 +5,7 @@
     <div class="row">soon...</div>
 
     <div>
-      <button @click="closeAndSave">save and close</button>
+      <button @click="saveAndClose">save and close</button>
     </div>
   </div>
 </template>
@@ -15,7 +15,7 @@ import { mapGetters } from "vuex";
 export default {
   name: "ThreeModal",
 
-  emits: ["close", "closeAndSave"],
+  emits: ["close", "saveAndClose"],
 
   computed: mapGetters(["blocks", "synthSettings"]),
 
@@ -26,8 +26,8 @@ export default {
       this.$emit("close");
     },
 
-    closeAndSave() {
-      this.$emit("closeAndSave");
+    saveAndClose() {
+      this.$emit("saveAndClose");
     },
   },
 };
