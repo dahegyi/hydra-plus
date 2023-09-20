@@ -1,4 +1,4 @@
-import { deepCopy } from '../utils/object-utils'
+import { deepCopy } from '@/utils/object-utils'
 
 export const addBlock = ({ commit }, payload) => {
   commit("addBlock", payload);

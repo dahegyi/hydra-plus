@@ -116,26 +116,30 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { useBroadcastChannel } from "@vueuse/core";
 const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
 import { mapGetters, mapActions } from "vuex";
 
-import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "../constants";
+import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "@/constants";
 
-import WelcomeModal from "../components/WelcomeModal.vue";
-import ThreeModal from "../components/ThreeModal.vue";
-import SettingsModal from "../components/SettingsModal.vue";
-import Navigation from "../components/Navigation.vue";
-import NestedDraggable from "../components/Draggable.vue";
+import Navigation from "@/components/Navigation.vue";
+import NestedDraggable from "@/components/Draggable.vue";
 
 export default {
   Name: "Gui",
 
   components: {
-    WelcomeModal,
-    ThreeModal,
-    SettingsModal,
+    WelcomeModal: defineAsyncComponent(() =>
+      import("@/components/WelcomeModal.vue"),
+    ),
+    ThreeModal: defineAsyncComponent(() =>
+      import("@/components/ThreeModal.vue"),
+    ),
+    SettingsModal: defineAsyncComponent(() =>
+      import("@/components/SettingsModal.vue"),
+    ),
     Navigation,
     NestedDraggable,
   },

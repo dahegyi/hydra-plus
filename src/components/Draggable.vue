@@ -58,7 +58,7 @@
 import { mapGetters, mapActions } from "vuex";
 import draggable from "vuedraggable";
 
-import { TYPE_SRC, TYPE_COMPLEX } from "../constants";
+import { TYPE_SRC, TYPE_COMPLEX } from "@/constants";
 
 export default {
   name: "NestedDraggable",

@@ -58,7 +58,9 @@
 import { useBroadcastChannel } from "@vueuse/core";
 const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
-import { deepCopy, flattenExternal, flatten } from "../utils/object-utils";
+import { mapActions, mapGetters } from "vuex";
+
+import { deepCopy, flattenExternal, flatten } from "@/utils/object-utils";
 
 import {
   MAX_NUMBER_OF_SOURCES,
@@ -75,8 +77,7 @@ import {
   COLOR_FUNCTIONS,
   BLEND_FUNCTIONS,
   MODULATE_FUNCTIONS,
-} from "../constants";
-import { mapActions, mapGetters } from "vuex";
+} from "@/constants";
 
 export default {
   name: "Navigation",

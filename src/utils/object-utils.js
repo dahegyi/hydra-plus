@@ -1,4 +1,4 @@
-import { TYPE_SRC, TYPE_COMPLEX } from "../constants";
+import { TYPE_SRC, TYPE_COMPLEX } from "@/constants";
 
 export const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
