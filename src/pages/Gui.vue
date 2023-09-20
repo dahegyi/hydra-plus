@@ -22,9 +22,10 @@
     :isSettingsModalOpen="isSettingsModalOpen"
     @openSettingsModal="openSettingsModal"
     @onFocus="onFocus"
+    :class="{ hidden: areBlocksHidden }"
   />
 
-  <div>
+  <div :class="{ hidden: areBlocksHidden }">
     <div
       v-for="(block, index) in blocks"
       :key="'src-block-' + index"
@@ -146,6 +147,7 @@ export default {
 
   data() {
     return {
+      areBlocksHidden: false,
       error: null,
       focused: null,
       isWelcomeModalOpen: false,
@@ -195,6 +197,8 @@ export default {
       } else if (isRedoKey) {
         e.preventDefault();
         this.redo();
+      } else if (e.key === "Escape") {
+        this.areBlocksHidden = !this.areBlocksHidden;
       }
     };
 
@@ -350,6 +354,10 @@ $darkblue: #02042c;
   width: 100%;
   height: 100%;
   z-index: 0;
+}
+
+.hidden {
+  display: none;
 }
 
 .source {
