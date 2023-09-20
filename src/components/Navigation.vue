@@ -123,10 +123,6 @@ export default {
       );
     },
 
-    isExternalSourceVisible() {
-      return this.isAddSourceVisible && this.externalSourceBlocks.length < 4;
-    },
-
     sources() {
       return [
         ...SOURCE_FUNCTIONS.map((fn) => ({
@@ -205,13 +201,17 @@ export default {
         this.focused.blocks.push(copiedObject);
       }
 
-      this.update();
-    },
+      if (source.type === TYPE_EXTERNAL) {
+        const addedExternal = flattenExternal(
+          deepCopy(source),
+          this.externalSourceBlocks.length - 1,
+        );
 
-    addExternal(source) {
-      this.addBlock({ ...deepCopy(source), type: TYPE_EXTERNAL });
-
-      this.update();
+        eval(addedExternal);
+        post(addedExternal);
+      } else {
+        this.update();
+      }
     },
 
     /**
@@ -243,6 +243,7 @@ export default {
       this.$emit("openSettingsModal");
     },
 
+    // @TODO: fix this mess
     update() {
       let codeString = "";
 
@@ -254,7 +255,9 @@ export default {
         }
 
         for (let i = 0; i < this.externalSourceBlocks.length; i++) {
-          codeString += flattenExternal(this.externalSourceBlocks[i], i);
+          if (this.externalSourceBlocks[i].name !== "initScreen") {
+            codeString += flattenExternal(this.externalSourceBlocks[i], i);
+          }
         }
 
         for (let i = 0; i < this.blocks.length; i++) {
