@@ -425,12 +425,12 @@ $darkblue: #02042c;
   }
 
   &:not(.external) {
-    $offset-top: -200%;
+    $offset-top: -300%;
+    $color: #ffffff;
     $bottom-color: #38383890;
     $offset-bottom: 150%;
 
-    &:nth-child(1) {
-      $color: #fff700;
+    @mixin block-colors {
       background: linear-gradient(
         180deg,
         $color $offset-top,
@@ -448,69 +448,46 @@ $darkblue: #02042c;
       .output-header {
         background: $color;
       }
+    }
+
+    &:nth-child(1) {
+      $color: #fff700;
+      @include block-colors();
     }
 
     &:nth-child(2) {
       $color: #b8f770;
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
-
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
-
-      .output-header {
-        background: $color;
-      }
+      @include block-colors();
     }
 
     &:nth-child(3) {
       $color: #3bd5f0;
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
-
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
-
-      .output-header {
-        background: $color;
-      }
+      @include block-colors();
     }
 
     &:nth-child(4) {
       $color: #ff8fec;
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
+      @include block-colors();
+    }
 
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
+    &:nth-child(5) {
+      $color: #9063f3;
+      @include block-colors();
+    }
 
-      .output-header {
-        background: $color;
-      }
+    &:nth-child(6) {
+      $color: #ef8c56;
+      @include block-colors();
+    }
+
+    &:nth-child(7) {
+      $color: #4282d6;
+      @include block-colors();
+    }
+
+    &:nth-child(8) {
+      $color: #ea7979;
+      @include block-colors();
     }
   }
 

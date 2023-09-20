@@ -3,6 +3,9 @@ export const INITIAL_BLOCKS =
 
 export const DEFAULT_POSITION = { x: 20, y: 60 };
 
+export const MAX_NUMBER_OF_SOURCES = 8;
+export const MAX_NUMBER_OF_EXTERNALS = 8;
+
 export const TYPE_SRC = "source";
 export const TYPE_EXTERNAL = "external";
 export const TYPE_THREE = "three";

@@ -5,9 +5,11 @@
 </template>
 
 <script>
+import { MAX_NUMBER_OF_SOURCES, MAX_NUMBER_OF_EXTERNALS } from "./constants";
+
 window.hydra = new Hydra({
-  makeGlobal: true,
-  detectAudio: true,
+  numSources: MAX_NUMBER_OF_SOURCES,
+  numOutputs: MAX_NUMBER_OF_EXTERNALS,
   width: window.outerWidth * window.devicePixelRatio,
   height: window.outerHeight * window.devicePixelRatio,
 }).synth;

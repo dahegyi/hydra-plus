@@ -61,6 +61,8 @@ const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 import { deepCopy, flattenExternal, flatten } from "../utils/object-utils";
 
 import {
+  MAX_NUMBER_OF_SOURCES,
+  MAX_NUMBER_OF_EXTERNALS,
   TYPE_SRC,
   TYPE_EXTERNAL,
   TYPE_THREE,
@@ -184,11 +186,11 @@ export default {
         if (
           (source.type === TYPE_SRC &&
             this.blocks.filter((block) => block.type === TYPE_SRC).length >=
-              4) ||
+              MAX_NUMBER_OF_SOURCES) ||
           ((source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
             this.blocks.filter(
               (block) => block.type === TYPE_EXTERNAL || TYPE_THREE,
-            ).length >= 4)
+            ).length >= MAX_NUMBER_OF_EXTERNALS)
         ) {
           return;
         }
