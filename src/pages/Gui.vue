@@ -185,20 +185,20 @@ export default {
 
     // set up keyboard shortcuts
     const onKeyDown = (e) => {
-      const isUndoKey =
-        e.keyCode === 90 && !e.shiftKey && (e.ctrlKey || e.metaKey);
-      const isRedoKey =
-        (e.keyCode === 89 && (e.ctrlKey || e.metaKey)) ||
-        (e.keyCode === 90 && e.shiftKey && (e.ctrlKey || e.metaKey));
+      if (e.ctrlKey || e.metaKey) {
+        if (e.keyCode === 90 && !e.shiftKey) {
+          e.preventDefault();
+          return this.undo();
+        }
 
-      if (isUndoKey) {
-        e.preventDefault();
-        this.undo();
-      } else if (isRedoKey) {
-        e.preventDefault();
-        this.redo();
-      } else if (e.key === "Escape") {
-        this.areBlocksHidden = !this.areBlocksHidden;
+        if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
+          e.preventDefault();
+          return this.redo();
+        }
+      }
+
+      if (e.key === "Escape") {
+        return (this.areBlocksHidden = !this.areBlocksHidden);
       }
     };
 
