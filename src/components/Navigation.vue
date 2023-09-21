@@ -62,6 +62,9 @@ import { mapActions, mapGetters } from "vuex";
 
 import { deepCopy, flattenExternal, flatten } from "@/utils/object-utils";
 
+import Toastify from "toastify-js";
+import "toastify-js/src/toastify.css";
+
 import {
   MAX_NUMBER_OF_SOURCES,
   MAX_NUMBER_OF_EXTERNALS,
@@ -272,12 +275,21 @@ export default {
 
       try {
         eval(codeString);
-        this.error = null;
-
         return codeString;
       } catch (error) {
-        this.error = error;
         console.error(error);
+
+        Toastify({
+          text: error,
+          duration: 4000,
+          close: true,
+          gravity: "bottom",
+          stopOnFocus: true,
+          style: {
+            background: "#b62424",
+          },
+          onClick: function () {}, // Callback after click
+        }).showToast();
       }
     },
 

@@ -13,6 +13,7 @@
     "codejar": "^4.2.0",
     "sass": "^1.67.0",
     "three": "^0.156.1",
+    "toastify-js": "^1.12.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
     "vuedraggable": "^4.1.0",
