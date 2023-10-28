@@ -141,7 +141,6 @@ export default {
   data() {
     return {
       areBlocksHidden: false,
-      error: null,
       isWelcomeModalOpen: false,
       isThreeModalOpen: false,
       isSettingsModalOpen: false,
