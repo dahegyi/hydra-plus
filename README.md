@@ -23,8 +23,10 @@ If you have any questions, suggestions, or just want to report a bug, please use
 ### planned features:
 
 - audio settings modal
+- transition on updates
 - hover info boxes for sources & effects
 - UI for arrays
+- MIDI integration
 - import / export configs
 - built-in extra shaders + option to add new ones from the GUI
 - [1.0] customizable colors for GUI
