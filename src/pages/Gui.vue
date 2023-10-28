@@ -13,15 +13,13 @@
     @saveAndClose="saveAndCloseSettingsModal"
   />
 
-  <div class="playground" @click="removeFocus" />
+  <div class="playground" @click="() => setFocus(null)" />
 
   <navigation
-    :focused="focused"
     :isThreeModalOpen="isThreeModalOpen"
     @openThreeModal="openThreeModal"
     :isSettingsModalOpen="isSettingsModalOpen"
     @openSettingsModal="openSettingsModal"
-    @onFocus="onFocus"
     :class="{ hidden: areBlocksHidden }"
   />
 
@@ -32,7 +30,7 @@
       :id="'src-block-' + index"
       :class="['source', { focused: focused === block }]"
     >
-      <div @click="onFocus(index)">
+      <div @click="() => setFocus(blocks[index])">
         <strong
           class="output-header"
           @mousedown="(e) => moveBlock(e, index, block.type)"
@@ -74,12 +72,7 @@
         </div>
       </div>
 
-      <nested-draggable
-        :children="block.blocks"
-        :focused="focused"
-        :parent="block"
-        @onFocus="onFocus"
-      />
+      <nested-draggable :children="block.blocks" :parent="block" />
     </div>
 
     <div
@@ -149,7 +142,6 @@ export default {
     return {
       areBlocksHidden: false,
       error: null,
-      focused: null,
       isWelcomeModalOpen: false,
       isThreeModalOpen: false,
       isSettingsModalOpen: false,
@@ -217,6 +209,7 @@ export default {
 
   computed: {
     ...mapGetters([
+      "focused",
       "blocks",
       "externalSourceBlocks",
       "synthSettings",
@@ -226,6 +219,7 @@ export default {
 
   methods: {
     ...mapActions([
+      "setFocus",
       "setBlocks",
       "setBlockPosition",
       "deleteBlock",
@@ -275,18 +269,6 @@ export default {
 
       document.addEventListener("mousemove", move);
       document.addEventListener("mouseup", up);
-    },
-
-    onFocus(index, fromChildComponent) {
-      if (fromChildComponent) {
-        this.focused = index;
-      } else {
-        this.focused = this.blocks[index];
-      }
-    },
-
-    removeFocus() {
-      this.focused = null;
     },
 
     closeWelcomeModal() {

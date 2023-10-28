@@ -46,9 +46,7 @@
         <nested-draggable
           v-if="hasDraggableChild(element.type)"
           :children="element.blocks"
-          :focused="focused"
           :parent="element"
-          @onFocus="onFocus"
         />
       </li>
     </template>
@@ -69,21 +67,16 @@ export default {
       type: Array,
     },
 
-    focused: {
-      type: Object,
-      default: null,
-    },
-
     parent: {
       required: true,
       type: Object,
     },
   },
 
-  computed: mapGetters(["blocks", "externalSourceBlocks"]),
+  computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
 
   methods: {
-    ...mapActions(["setBlocks"]),
+    ...mapActions(["setFocus", "setBlocks"]),
 
     onEnd() {
       this.setBlocks({
@@ -111,9 +104,9 @@ export default {
 
     onFocus(element) {
       if (this.hasDraggableChild(element.type)) {
-        this.$emit("onFocus", element, true);
+        this.setFocus(element, true);
       } else {
-        this.$emit("onFocus", this.parent, true);
+        this.setFocus(this.parent, true);
       }
     },
   },

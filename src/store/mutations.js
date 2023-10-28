@@ -1,10 +1,16 @@
-import store from './';
+import store from "./";
 
-import { deepCopy } from '@/utils/object-utils'
+import { deepCopy } from "@/utils/object-utils";
 
 import { DEFAULT_POSITION, TYPE_SRC, TYPE_EXTERNAL } from "@/constants";
 
 export default {
+  // Focus
+
+  setFocus(state, focused) {
+    state.focused = focused;
+  },
+
   // Blocks
 
   addBlock(state, block) {
@@ -19,7 +25,9 @@ export default {
 
   setBlocks(state, { blocks, isUndoRedo }) {
     state.blocks = blocks.filter((block) => block.type === TYPE_SRC);
-    state.externalSourceBlocks = blocks.filter((block) => block.type === TYPE_EXTERNAL);
+    state.externalSourceBlocks = blocks.filter(
+      (block) => block.type === TYPE_EXTERNAL,
+    );
 
     if (!isUndoRedo) store.commit("setHistory");
   },
@@ -63,7 +71,13 @@ export default {
 
     store.commit("setHistoryIndex", 0);
 
-    state.history = [deepCopy({ blocks: state.blocks, externalSourceBlocks: state.externalSourceBlocks }), ...state.history]
+    state.history = [
+      deepCopy({
+        blocks: state.blocks,
+        externalSourceBlocks: state.externalSourceBlocks,
+      }),
+      ...state.history,
+    ];
   },
 
   setHistoryIndex(state, index) {

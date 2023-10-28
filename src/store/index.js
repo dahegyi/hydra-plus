@@ -6,6 +6,7 @@ import mutations from "./mutations";
 import { INITIAL_BLOCKS } from "../constants";
 
 const state = {
+  focused: null,
   blocks: JSON.parse(INITIAL_BLOCKS),
   externalSourceBlocks: [],
   synthSettings: {

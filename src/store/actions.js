@@ -1,4 +1,13 @@
-import { deepCopy } from '@/utils/object-utils'
+import { deepCopy } from "@/utils/object-utils";
+
+import { focused } from "./getters";
+
+export const setFocus = ({ commit, state }, payload) => {
+  // don't call mutation if focus is the same
+  if (focused(state) === payload) return;
+
+  commit("setFocus", payload);
+};
 
 export const addBlock = ({ commit }, payload) => {
   commit("addBlock", payload);
@@ -41,7 +50,13 @@ export const undo = ({ commit, state }) => {
 
   if (historyIndex < history.length - 1) {
     commit("setHistoryIndex", historyIndex + 1);
-    commit("setBlocks", { blocks: [...history[historyIndex + 1].blocks, ...history[historyIndex + 1].externalSourceBlocks], isUndoRedo: true });
+    commit("setBlocks", {
+      blocks: [
+        ...history[historyIndex + 1].blocks,
+        ...history[historyIndex + 1].externalSourceBlocks,
+      ],
+      isUndoRedo: true,
+    });
   }
 };
 
@@ -51,6 +66,12 @@ export const redo = ({ commit, state }) => {
 
   if (historyIndex > 0) {
     commit("setHistoryIndex", historyIndex - 1);
-    commit("setBlocks", { blocks: [...history[historyIndex - 1].blocks, ...history[historyIndex - 1].externalSourceBlocks], isUndoRedo: true });
+    commit("setBlocks", {
+      blocks: [
+        ...history[historyIndex - 1].blocks,
+        ...history[historyIndex - 1].externalSourceBlocks,
+      ],
+      isUndoRedo: true,
+    });
   }
 };

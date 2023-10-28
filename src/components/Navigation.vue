@@ -85,14 +85,9 @@ import {
 export default {
   name: "Navigation",
 
-  emits: ["openThreeModal", "openSettingsModal", "onFocus"],
+  emits: ["openThreeModal", "openSettingsModal"],
 
   props: {
-    focused: {
-      type: Object,
-      default: null,
-    },
-
     isThreeModalVisible: {
       type: Boolean,
       default: false,
@@ -105,7 +100,12 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["blocks", "externalSourceBlocks", "synthSettings"]),
+    ...mapGetters([
+      "focused",
+      "blocks",
+      "externalSourceBlocks",
+      "synthSettings",
+    ]),
 
     outputName() {
       const blockIndex = this.blocks.findIndex(
@@ -172,11 +172,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addBlock", "setBlocks", "setOutput"]),
-
-    onFocus(focusedBlock) {
-      this.$emit("onFocus", focusedBlock, true);
-    },
+    ...mapActions(["setFocus", "addBlock", "setBlocks", "setOutput"]),
 
     /**
      * Adds source to the main code block or to a child block.
@@ -202,7 +198,7 @@ export default {
         this.addBlock(copiedObject);
         this.setOutput(this.blocks.length - 1);
 
-        this.onFocus(this.blocks[this.blocks.length - 1]);
+        this.setFocus(this.blocks[this.blocks.length - 1]);
       } else {
         this.focused.blocks.push(copiedObject);
       }
@@ -231,7 +227,7 @@ export default {
       this.focused.blocks.push(deepCopy(effect));
 
       if (effect.type === TYPE_COMPLEX) {
-        this.onFocus(this.focused.blocks[this.focused.blocks.length - 1]);
+        this.setFocus(this.focused.blocks[this.focused.blocks.length - 1]);
       }
 
       this.setBlocks({
