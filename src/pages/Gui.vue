@@ -168,11 +168,12 @@ export default {
     }
 
     this.setBlocks({ blocks });
-    this.update();
 
     if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
     }
+
+    this.update();
 
     // set up keyboard shortcuts
     const onKeyDown = (e) => {

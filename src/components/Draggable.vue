@@ -82,6 +82,8 @@ export default {
       this.setBlocks({
         blocks: [...this.blocks, ...this.externalSourceBlocks],
       });
+
+      this.update();
     },
 
     deleteEffect(element) {

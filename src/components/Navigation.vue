@@ -41,7 +41,6 @@
       <button @click="openSettingsModal" class="settings">
         synth settings
       </button>
-      <button @click="update" class="update">update</button>
       <button @click="send" class="send">send</button>
     </div>
   </div>
@@ -147,7 +146,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addSource", "addEffect", "update", "send"]),
+    ...mapActions(["addSource", "addEffect", "send"]),
 
     openThreeModal() {
       this.$emit("openThreeModal");
@@ -246,10 +245,6 @@ export default {
   button {
     &.settings {
       margin-right: 2rem;
-    }
-
-    &.update {
-      border: 3px solid #bda22d;
     }
 
     &.send {

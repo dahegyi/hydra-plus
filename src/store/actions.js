@@ -102,8 +102,14 @@ export const setBlockPosition = ({ commit }, payload) => {
   commit("setBlockPosition", payload);
 };
 
-export const deleteBlock = ({ commit }, payload) => {
+export const deleteBlock = ({ commit, state }, payload) => {
   commit("deleteBlock", payload);
+
+  const { blocks, synthSettings } = state;
+
+  if (!blocks[synthSettings.output]) {
+    commit("setOutput", blocks.length - 1);
+  }
 
   store.dispatch("update");
 };
@@ -117,9 +123,7 @@ export const update = ({ commit, state }) => {
   if (blocks.length === 0) {
     codeString = "hush()";
   } else {
-    if (!synthSettings.output) {
-      commit("setOutput", 0);
-    }
+    commit("setOutput", synthSettings.output || 0);
 
     for (let i = 0; i < externalSourceBlocks.length; i++) {
       if (externalSourceBlocks[i].name !== "initScreen") {
@@ -171,10 +175,11 @@ export const setSynthSettings = ({ commit }, payload) => {
 };
 
 export const setOutput = ({ state, commit }, payload) => {
-  console.log(state.synthSettings.output, payload);
   if (state.synthSettings.output === payload) return;
 
   commit("setOutput", payload);
+
+  store.dispatch("update");
 };
 
 // History
