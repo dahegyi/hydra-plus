@@ -16,6 +16,7 @@ const state = {
     resolution: 100,
     fps: 60,
   },
+  codeString: "",
   history: [],
   historyIndex: 0,
 };

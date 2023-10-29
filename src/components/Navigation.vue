@@ -44,11 +44,7 @@
       <button @click="update" :disabled="isSettingsModalOpen" class="update">
         update
       </button>
-      <button
-        @click="updateAndSend"
-        :disabled="isSettingsModalOpen"
-        class="send"
-      >
+      <button @click="send" :disabled="isSettingsModalOpen" class="send">
         send
       </button>
     </div>
@@ -60,14 +56,9 @@ const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
 import { mapActions, mapGetters } from "vuex";
 
-import { deepCopy, flattenExternal, flatten } from "@/utils/object-utils";
-
-import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
 
 import {
-  MAX_NUMBER_OF_SOURCES,
-  MAX_NUMBER_OF_EXTERNALS,
   TYPE_SRC,
   TYPE_EXTERNAL,
   TYPE_THREE,
@@ -172,70 +163,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["setFocus", "addBlock", "setBlocks", "setOutput"]),
-
-    /**
-     * Adds source to the main code block or to a child block.
-     * Deep copy is needed because we want to handle the input parameters
-     * differently for different sources.
-     */
-    addSource(source) {
-      const copiedObject = deepCopy(source);
-
-      if (!this.focused) {
-        if (
-          (source.type === TYPE_SRC &&
-            this.blocks.filter((block) => block.type === TYPE_SRC).length >=
-              MAX_NUMBER_OF_SOURCES) ||
-          ((source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
-            this.blocks.filter(
-              (block) => block.type === TYPE_EXTERNAL || TYPE_THREE,
-            ).length >= MAX_NUMBER_OF_EXTERNALS)
-        ) {
-          return;
-        }
-
-        this.addBlock(copiedObject);
-        this.setOutput(this.blocks.length - 1);
-
-        this.setFocus(this.blocks[this.blocks.length - 1]);
-      } else {
-        this.focused.blocks.push(copiedObject);
-      }
-
-      if (source.type === TYPE_EXTERNAL) {
-        const addedExternal = flattenExternal(
-          deepCopy(source),
-          this.externalSourceBlocks.length - 1,
-        );
-
-        eval(addedExternal);
-        post(addedExternal);
-      } else {
-        this.update();
-      }
-    },
-
-    /**
-     * Adds effect block to the focused block as a child.
-     */
-    addEffect(effect) {
-      if (!this.focused) {
-        return;
-      }
-
-      this.focused.blocks.push(deepCopy(effect));
-
-      if (effect.type === TYPE_COMPLEX) {
-        this.setFocus(this.focused.blocks[this.focused.blocks.length - 1]);
-      }
-
-      this.setBlocks({
-        blocks: [...this.blocks, ...this.externalSourceBlocks],
-      });
-
-      this.update();
-    },
+    ...mapActions(["addSource", "addEffect", "update", "send"]),
 
     openThreeModal() {
       this.$emit("openThreeModal");
@@ -243,68 +171,6 @@ export default {
 
     openSettingsModal() {
       this.$emit("openSettingsModal");
-    },
-
-    // @TODO: fix this mess
-    update() {
-      let codeString = "";
-
-      if (this.blocks.length === 0) {
-        codeString = "hush()";
-      } else {
-        if (!this.synthSettings.output) {
-          this.setOutput(0);
-        }
-
-        for (let i = 0; i < this.externalSourceBlocks.length; i++) {
-          if (this.externalSourceBlocks[i].name !== "initScreen") {
-            codeString += flattenExternal(this.externalSourceBlocks[i], i);
-          }
-        }
-
-        for (let i = 0; i < this.blocks.length; i++) {
-          codeString += `${flatten(this.blocks[i])}.out(o${i})\n`;
-        }
-
-        codeString += `window.hydra.render(o${this.synthSettings.output})`;
-      }
-
-      try {
-        eval(codeString);
-        return codeString;
-      } catch (error) {
-        console.error(error);
-
-        Toastify({
-          text: error,
-          duration: 4000,
-          close: true,
-          gravity: "bottom",
-          stopOnFocus: true,
-          style: {
-            background: "#b62424",
-          },
-          onClick: function () {}, // Callback after click
-        }).showToast();
-      }
-    },
-
-    updateAndSend() {
-      const codeString = this.update();
-
-      if (codeString) {
-        post(codeString);
-
-        localStorage.setItem(
-          "externalSourceBlocks",
-          JSON.stringify(this.externalSourceBlocks),
-        );
-        localStorage.setItem("blocks", JSON.stringify(this.blocks));
-        localStorage.setItem(
-          "synthSettings",
-          JSON.stringify(this.synthSettings),
-        );
-      }
     },
   },
 };

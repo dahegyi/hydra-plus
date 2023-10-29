@@ -50,6 +50,10 @@ export default {
     store.commit("setHistory");
   },
 
+  setCodeString(state, codeString) {
+    state.codeString = codeString;
+  },
+
   // Synth Settings
 
   setSynthSettings(state, synthSettings) {
