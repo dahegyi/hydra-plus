@@ -109,21 +109,21 @@ import { defineAsyncComponent } from "vue";
 
 import { mapGetters, mapActions } from "vuex";
 
-import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "@/constants";
+import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "~/constants";
 
-import NavigationPanel from "@/components/NavigationPanel.vue";
-import NestedDraggable from "@/components/NestedDraggable.vue";
+import NavigationPanel from "~/components/NavigationPanel.vue";
+import NestedDraggable from "~/components/NestedDraggable.vue";
 
 export default {
   components: {
     WelcomeModal: defineAsyncComponent(() =>
-      import("@/components/WelcomeModal.vue"),
+      import("~/components/WelcomeModal.vue"),
     ),
     ThreeModal: defineAsyncComponent(() =>
-      import("@/components/ThreeModal.vue"),
+      import("~/components/ThreeModal.vue"),
     ),
     SettingsModal: defineAsyncComponent(() =>
-      import("@/components/SettingsModal.vue"),
+      import("~/components/SettingsModal.vue"),
     ),
     NavigationPanel,
     NestedDraggable,

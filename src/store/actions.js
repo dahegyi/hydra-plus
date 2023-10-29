@@ -5,7 +5,7 @@ import Toastify from "toastify-js";
 
 import store from "./";
 
-import { deepCopy, flatten, flattenExternal } from "@/utils/object-utils";
+import { deepCopy, flatten, flattenExternal } from "~/utils/object-utils";
 
 import {
   MAX_NUMBER_OF_SOURCES,
@@ -14,7 +14,7 @@ import {
   TYPE_EXTERNAL,
   TYPE_THREE,
   TYPE_COMPLEX,
-} from "@/constants";
+} from "~/constants";
 
 export const setFocus = ({ commit, state }, payload) => {
   // don't call mutation if focus is the same

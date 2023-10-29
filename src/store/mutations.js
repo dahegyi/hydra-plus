@@ -1,8 +1,8 @@
 import store from "./";
 
-import { deepCopy } from "@/utils/object-utils";
+import { deepCopy } from "~/utils/object-utils";
 
-import { DEFAULT_POSITION, TYPE_SRC, TYPE_EXTERNAL } from "@/constants";
+import { DEFAULT_POSITION, TYPE_SRC, TYPE_EXTERNAL } from "~/constants";
 
 export default {
   // Focus

@@ -63,7 +63,7 @@ import {
   COLOR_FUNCTIONS,
   BLEND_FUNCTIONS,
   MODULATE_FUNCTIONS,
-} from "@/constants";
+} from "~/constants";
 
 export default {
   emits: ["openThreeModal", "openSettingsModal"],
