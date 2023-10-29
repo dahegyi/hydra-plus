@@ -1,17 +1,9 @@
 <template>
   <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
 
-  <three-modal
-    v-if="isThreeModalOpen"
-    @close="closeThreeModal"
-    @saveAndClose="saveAndCloseThreeModal"
-  />
+  <three-modal v-if="isThreeModalOpen" @close="closeThreeModal" />
 
-  <settings-modal
-    v-if="isSettingsModalOpen"
-    @close="closeSettingsModal"
-    @saveAndClose="saveAndCloseSettingsModal"
-  />
+  <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
 
   <div class="playground" @click="() => setFocus(null)" />
 
@@ -109,8 +101,6 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { useBroadcastChannel } from "@vueuse/core";
-const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
 import { mapGetters, mapActions } from "vuex";
 
@@ -190,6 +180,12 @@ export default {
       }
 
       if (e.key === "Escape") {
+        if (this.isSettingsModalOpen) {
+          return this.closeSettingsModal();
+        } else if (this.isThreeModalOpen) {
+          return this.closeThreeModal();
+        }
+
         return (this.areBlocksHidden = !this.areBlocksHidden);
       }
     };
@@ -308,37 +304,6 @@ export default {
 
     closeSettingsModal() {
       this.isSettingsModalOpen = false;
-    },
-
-    saveAndCloseSettingsModal() {
-      eval(`bpm = ${this.synthSettings.bpm}`);
-      post(`bpm = ${this.synthSettings.bpm}`);
-
-      eval(`speed = ${this.synthSettings.speed}`);
-      post(`speed = ${this.synthSettings.speed}`);
-
-      const multiplier =
-        (this.synthSettings.resolution * window.devicePixelRatio) / 100;
-
-      eval(
-        `setResolution(${window.outerHeight * multiplier}, ${
-          window.outerWidth * multiplier
-        })`,
-      );
-      post(
-        `setResolution(${window.outerHeight * multiplier}, ${
-          window.outerWidth * multiplier
-        })`,
-      );
-
-      eval(`fps = ${this.synthSettings.fps}`);
-      post(`fps = ${this.synthSettings.fps}`);
-
-      this.closeSettingsModal();
-    },
-
-    saveAndCloseThreeModal() {
-      this.closeThreeModal();
     },
   },
 };

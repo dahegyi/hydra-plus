@@ -2,10 +2,12 @@
   <div class="modal">
     <h2>3D settings</h2>
 
+    <span class="close" @click="close" />
+
     <div class="row">soon...</div>
 
     <div>
-      <button @click="saveAndClose">save and close</button>
+      <button @click="close">close</button>
     </div>
   </div>
 </template>
@@ -15,60 +17,22 @@ import { mapGetters } from "vuex";
 export default {
   name: "ThreeModal",
 
-  emits: ["close", "saveAndClose"],
+  emits: ["close"],
 
   computed: mapGetters(["blocks", "synthSettings"]),
 
   methods: {
-    openVisualizer() {
-      window.open("/visualizer", "_blank");
-
+    close() {
       this.$emit("close");
-    },
-
-    saveAndClose() {
-      this.$emit("saveAndClose");
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-h2 {
-  margin-top: 0.5rem;
-}
-
-button {
-  margin: 5px;
-}
-
 .row {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  width: 100%;
-  margin-bottom: 1rem;
-
-  label {
-    margin-right: 1rem;
-  }
-
-  $width: 200px;
-
-  input,
-  select {
-    padding: 8px;
-    border: 1px solid #00000040;
-    border-radius: 0;
-    background: #000000aa;
-  }
-
-  input {
-    width: $width;
-  }
-
-  select {
-    width: calc($width + 18px);
-  }
 }
 </style>

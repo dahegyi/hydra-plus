@@ -2,6 +2,8 @@
   <div class="modal">
     <h2>synth settings</h2>
 
+    <span class="close" @click="close" />
+
     <div class="row">
       <label>speed</label>
       <input type="number" v-model="synthSettings.speed" />
@@ -46,40 +48,58 @@
   </div>
 </template>
 <script>
+import { useBroadcastChannel } from "@vueuse/core";
+const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
+
 import { mapGetters } from "vuex";
 
 export default {
   name: "SettingsModal",
 
-  emits: ["close", "saveAndClose"],
+  emits: ["close"],
 
   computed: mapGetters(["blocks", "synthSettings"]),
 
   methods: {
-    openVisualizer() {
-      window.open("/visualizer", "_blank");
-
+    close() {
       this.$emit("close");
     },
 
+    openVisualizer() {
+      window.open("/visualizer", "_blank");
+
+      this.close();
+    },
+
     saveAndClose() {
-      this.$emit("saveAndClose");
+      eval(`bpm = ${this.synthSettings.bpm}`);
+      post(`bpm = ${this.synthSettings.bpm}`);
+
+      eval(`speed = ${this.synthSettings.speed}`);
+      post(`speed = ${this.synthSettings.speed}`);
+
+      const multiplier =
+        (this.synthSettings.resolution * window.devicePixelRatio) / 100;
+
+      eval(
+        `setResolution(${window.outerHeight * multiplier}, ${
+          window.outerWidth * multiplier
+        })`,
+      );
+      post(
+        `setResolution(${window.outerHeight * multiplier}, ${
+          window.outerWidth * multiplier
+        })`,
+      );
+
+      eval(`fps = ${this.synthSettings.fps}`);
+      post(`fps = ${this.synthSettings.fps}`);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-h2 {
-  margin-top: 0.5rem;
-}
-
-button {
-  margin: 10px 0 0;
-  width: 120px;
-  border: 2px solid #fff;
-}
-
 .row {
   display: flex;
   justify-content: space-between;

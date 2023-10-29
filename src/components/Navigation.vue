@@ -239,6 +239,7 @@ export default {
     .dropdown-content {
       @include dropdown;
       border: 3px solid #111;
+      margin-top: -3px;
     }
   }
 
