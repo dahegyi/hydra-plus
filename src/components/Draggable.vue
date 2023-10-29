@@ -40,7 +40,7 @@
           @click="onFocus(element)"
         >
           <label>{{ param.name }}</label>
-          <input type="text" v-model="param.value" />
+          <input type="text" v-model="param.value" @focusout="update" />
         </div>
 
         <nested-draggable
@@ -76,7 +76,7 @@ export default {
   computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
 
   methods: {
-    ...mapActions(["setFocus", "setBlocks"]),
+    ...mapActions(["setFocus", "setBlocks", "update"]),
 
     onEnd() {
       this.setBlocks({

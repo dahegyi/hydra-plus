@@ -66,7 +66,7 @@
           class="param-input-container"
         >
           <label>{{ param.name }}</label>
-          <input type="text" v-model="param.value" />
+          <input type="text" v-model="param.value" @focusout="update" />
         </div>
       </div>
 
@@ -220,6 +220,7 @@ export default {
       "setBlocks",
       "setBlockPosition",
       "deleteBlock",
+      "update",
       "setSynthSettings",
       "setOutput",
       "setHistory",
