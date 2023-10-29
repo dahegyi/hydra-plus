@@ -111,19 +111,17 @@ import { mapGetters, mapActions } from "vuex";
 
 import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "~/constants";
 
-import NavigationPanel from "~/components/NavigationPanel.vue";
-import NestedDraggable from "~/components/NestedDraggable.vue";
+import NavigationPanel from "~/components/NavigationPanel";
+import NestedDraggable from "~/components/NestedDraggable";
 
 export default {
   components: {
     WelcomeModal: defineAsyncComponent(() =>
-      import("~/components/WelcomeModal.vue"),
+      import("~/components/WelcomeModal"),
     ),
-    ThreeModal: defineAsyncComponent(() =>
-      import("~/components/ThreeModal.vue"),
-    ),
+    ThreeModal: defineAsyncComponent(() => import("~/components/ThreeModal")),
     SettingsModal: defineAsyncComponent(() =>
-      import("~/components/SettingsModal.vue"),
+      import("~/components/SettingsModal"),
     ),
     NavigationPanel,
     NestedDraggable,

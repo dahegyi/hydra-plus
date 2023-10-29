@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         "~": "/src",
       },
+      extensions: [".js", ".json", ".vue", ".scss", ".css"],
     },
   };
 
