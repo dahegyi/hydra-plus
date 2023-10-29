@@ -168,6 +168,7 @@ export default {
     }
 
     this.setBlocks({ blocks });
+    this.update();
 
     if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
