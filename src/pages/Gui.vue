@@ -16,9 +16,7 @@
   <div class="playground" @click="() => setFocus(null)" />
 
   <navigation
-    :isThreeModalOpen="isThreeModalOpen"
     @openThreeModal="openThreeModal"
-    :isSettingsModalOpen="isSettingsModalOpen"
     @openSettingsModal="openSettingsModal"
     :class="{ hidden: areBlocksHidden }"
   />

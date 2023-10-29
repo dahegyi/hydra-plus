@@ -41,12 +41,8 @@
       <button @click="openSettingsModal" class="settings">
         synth settings
       </button>
-      <button @click="update" :disabled="isSettingsModalOpen" class="update">
-        update
-      </button>
-      <button @click="send" :disabled="isSettingsModalOpen" class="send">
-        send
-      </button>
+      <button @click="update" class="update">update</button>
+      <button @click="send" class="send">send</button>
     </div>
   </div>
 </template>
@@ -77,18 +73,6 @@ export default {
   name: "Navigation",
 
   emits: ["openThreeModal", "openSettingsModal"],
-
-  props: {
-    isThreeModalVisible: {
-      type: Boolean,
-      default: false,
-    },
-
-    isSettingsModalOpen: {
-      type: Boolean,
-      default: false,
-    },
-  },
 
   computed: {
     ...mapGetters([

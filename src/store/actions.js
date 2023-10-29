@@ -153,7 +153,7 @@ export const update = ({ commit, state }) => {
   }
 };
 
-export const send = ({ commit, state }) => {
+export const send = ({ state }) => {
   if (state.codeString) {
     post(state.codeString);
 
@@ -170,7 +170,10 @@ export const setSynthSettings = ({ commit }, payload) => {
   commit("setSynthSettings", payload);
 };
 
-export const setOutput = ({ commit }, payload) => {
+export const setOutput = ({ state, commit }, payload) => {
+  console.log(state.synthSettings.output, payload);
+  if (state.synthSettings.output === payload) return;
+
   commit("setOutput", payload);
 };
 
