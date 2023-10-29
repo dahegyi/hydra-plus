@@ -138,6 +138,7 @@ export default {
 
   data() {
     return {
+      movedBlockCoordinates: { x: 0, y: 0 },
       areBlocksHidden: false,
       isWelcomeModalOpen: false,
       isThreeModalOpen: false,
@@ -195,7 +196,7 @@ export default {
   },
 
   updated() {
-    // move parent blocks and external source blocks to their position
+    // move source blocks to their position
     this.blocks.map((block, index) => {
       this.moveBlock(block, index, TYPE_SRC, block.position);
     });
@@ -223,13 +224,13 @@ export default {
       "update",
       "setSynthSettings",
       "setOutput",
-      "setHistory",
       "undo",
       "redo",
     ]),
 
     moveBlock(e, index, type, position) {
       let div;
+      let positionChanged = false;
 
       if (type === TYPE_SRC) {
         div = document.getElementById("src-block-" + index);
@@ -237,27 +238,44 @@ export default {
         div = document.getElementById("ext-block-" + index);
       }
 
+      if (position) {
+        return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
+      }
+
       const divRect = div.getBoundingClientRect();
 
       const offsetX = e.clientX - divRect.left;
       const offsetY = e.clientY - divRect.top;
 
-      if (position) {
-        return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
-      }
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+
+      this.movedBlockCoordinates = { x, y };
 
       const move = (e) => {
         const x = e.clientX - offsetX;
         const y = e.clientY - offsetY;
 
+        this.movedBlockCoordinates = { x, y };
         div.style.transform = `translate(${x}px, ${y}px)`;
 
-        this.setBlockPosition({ index, type, position: { x, y } });
+        // not ultimately true, but the chance of moving the block to the exact same position is low
+        positionChanged = true;
       };
 
       const up = () => {
         document.removeEventListener("mousemove", move);
         document.removeEventListener("mouseup", up);
+
+        if (!positionChanged) {
+          return;
+        }
+
+        this.setBlockPosition({
+          index,
+          type,
+          position: this.movedBlockCoordinates,
+        });
 
         // This is to be able to undo/redo the moving of a block
         this.setBlocks({

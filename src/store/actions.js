@@ -177,6 +177,8 @@ export const setOutput = ({ state, commit }, payload) => {
   commit("setOutput", payload);
 };
 
+// History
+
 export const setHistory = ({ commit, state }) => {
   const history = state.history;
 
@@ -184,7 +186,9 @@ export const setHistory = ({ commit, state }) => {
   commit("setHistoryIndex", state.historyIndex + 1);
 };
 
-export const setHistoryIndex = ({ commit }, payload) => {
+export const setHistoryIndex = ({ commit, state }, payload) => {
+  if (state.historyIndex === payload) return;
+
   commit("setHistoryIndex", payload);
 };
 
