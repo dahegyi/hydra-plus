@@ -1,0 +1,28 @@
+{
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:vue/vue3-recommended",
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error"
+  },
+  "ignorePatterns": [
+    "node_modules/*",
+    ".next/*",
+    ".out/*",
+    "!.prettierrc.js",
+    "src/external/*"
+  ]
+}

@@ -29,8 +29,6 @@
 </template>
 <script>
 export default {
-  name: "WelcomeModal",
-
   emits: ["close"],
 
   methods: {

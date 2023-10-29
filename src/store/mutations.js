@@ -1,19 +1,23 @@
-import store from './';
+import store from "./";
 
-import { deepCopy } from '../utils/object-utils'
+import { deepCopy } from "~/utils/object-utils";
 
-import { TYPE_SRC } from "../constants";
+import { DEFAULT_POSITION, TYPE_SRC, TYPE_EXTERNAL } from "~/constants";
 
 export default {
+  // Focus
+
+  setFocus(state, focused) {
+    state.focused = focused;
+  },
+
   // Blocks
 
   addBlock(state, block) {
-    const defaultPosition = { x: 20, y: 60 };
-
     if (block.type === TYPE_SRC) {
-      state.blocks.push({ ...block, position: defaultPosition });
+      state.blocks.push({ ...block, position: DEFAULT_POSITION });
     } else {
-      state.externalSourceBlocks.push({ ...block, position: defaultPosition });
+      state.externalSourceBlocks.push({ ...block, position: DEFAULT_POSITION });
     }
 
     store.commit("setHistory");
@@ -21,9 +25,11 @@ export default {
 
   setBlocks(state, { blocks, isUndoRedo }) {
     state.blocks = blocks.filter((block) => block.type === TYPE_SRC);
-    state.externalSourceBlocks = blocks.filter((block) => block.type !== TYPE_SRC);
+    state.externalSourceBlocks = blocks.filter(
+      (block) => block.type === TYPE_EXTERNAL,
+    );
 
-    store.commit("setHistory", isUndoRedo);
+    if (!isUndoRedo) store.commit("setHistory");
   },
 
   setBlockPosition(state, { index, type, position }) {
@@ -44,6 +50,10 @@ export default {
     store.commit("setHistory");
   },
 
+  setCodeString(state, codeString) {
+    state.codeString = codeString;
+  },
+
   // Synth Settings
 
   setSynthSettings(state, synthSettings) {
@@ -56,19 +66,22 @@ export default {
 
   // History
 
-  setHistory(state, isUndoRedo) {
+  setHistory(state) {
     if (state.history.length > 99) {
       state.history.pop();
     }
 
-    if (!isUndoRedo) {
-      state.history.splice(0, state.historyIndex);
+    state.history.splice(0, state.historyIndex);
 
-      store.commit("setHistoryIndex", 0);
+    store.commit("setHistoryIndex", 0);
 
-      state.history = [deepCopy({ blocks: state.blocks, externalSourceBlocks: state.externalSourceBlocks }), ...state.history]
-    };
-
+    state.history = [
+      deepCopy({
+        blocks: state.blocks,
+        externalSourceBlocks: state.externalSourceBlocks,
+      }),
+      ...state.history,
+    ];
   },
 
   setHistoryIndex(state, index) {

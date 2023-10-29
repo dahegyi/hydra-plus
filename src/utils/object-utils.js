@@ -1,11 +1,13 @@
-import { TYPE_SRC, TYPE_COMPLEX } from "../constants";
+import { TYPE_SRC, TYPE_COMPLEX } from "~/constants";
 
 export const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
 export const flattenExternal = (obj, index) => {
-  return `s${index}.${obj.name}("${obj.params && obj.params[0].value}")\n`;
+  return `s${index}.${obj.name}(${
+    obj.params && obj.params[0] ? `"${obj.params[0].value}"` : ""
+  })\n`;
 };
 
 /**

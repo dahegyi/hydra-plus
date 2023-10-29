@@ -1,29 +1,37 @@
 # hydra+
 
-[![Deploy to Firebase Hosting on merge](https://github.com/dahegyi/hydra-plus/actions/workflows/firebase-hosting-merge.yml/badge.svg)](https://github.com/dahegyi/hydra-plus/actions/workflows/firebase-hosting-merge.yml)
+hydra+ is a double-screen visual editing environment for [hydra synth](https://github.com/hydra-synth/hydra-synth), designed for ease of use and to project live visuals without revealing any code.
 
-A double-screen visual editing environment for [hydra](https://github.com/hydra-synth/hydra-synth).
+### 👉 [Live demo available here](https://hydra-plus.web.app)
 
-[Live demo](https://hydra-plus.web.app)
+**For now, the project is only tested on Chrome on desktop.**
+
+If you have any questions, suggestions, or just want to report a bug, please use the **Issues** / **Discussions** tabs here on Github.
 
 ---
 
-The project uses Vue 3 with Vite.
+### usable key combos:
 
-To run the application, install dependencies with
+- hide/show GUI: `Escape`
+- undo: `Ctrl/Cmd + Z`
+- redo: `Ctrl/Cmd + Y` or `Ctrl/Cmd + Shift + Z`
 
-```
-npm install
-```
+### known issues:
 
-and run the application with
+- initSreen() doesn't work properly in visualizer
 
-```
-npm run dev
-```
+### planned features:
 
-or build the application with
+- audio settings modal
+- transition on updates
+- hover info boxes for sources & effects
+- UI for arrays
+- MIDI integration
+- import / export configs
+- built-in extra shaders + option to add new ones from the GUI
+- [1.0] customizable colors for GUI
+- [1.0] implementation of backend server where files and configs can be saved
 
-```
-npm run build
-```
+---
+
+The project uses Vue 3 with Vuex and Vite. Commands to run and build the program are left the way they are by default (`npm i`, `npm run dev`, `npm run build`).

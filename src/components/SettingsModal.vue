@@ -2,21 +2,23 @@
   <div class="modal">
     <h2>synth settings</h2>
 
+    <span class="close" @click="close" />
+
     <div class="row">
       <label>speed</label>
-      <input type="number" v-model="synthSettings.speed" />
+      <input v-model="synthSettings.speed" type="number" />
     </div>
 
     <div class="row">
       <label>bpm</label>
-      <input type="number" v-model="synthSettings.bpm" />
+      <input v-model="synthSettings.bpm" type="number" />
     </div>
 
     <div class="row">
       <label>output</label>
       <select v-model="synthSettings.output">
         <option value="">select output</option>
-        <option v-for="(block, index) in blocks" :value="index">
+        <option v-for="(block, index) in blocks" :key="index" :value="index">
           o{{ index }} - {{ block.name }}
         </option>
       </select>
@@ -25,64 +27,82 @@
     <div class="row">
       <label>resolution</label>
       <input
+        v-model="synthSettings.resolution"
         type="range"
         min="1"
         max="100"
         class="slider"
-        v-model="synthSettings.resolution"
       />
     </div>
 
     <div class="row">
       <label>fps</label>
-      <input type="number" v-model="synthSettings.fps" />
+      <input v-model="synthSettings.fps" type="number" />
     </div>
 
     <a href="#" @click="openVisualizer">open visualizer</a>
 
     <div>
-      <button @click="closeAndSave">save and close</button>
+      <button class="saveAndClose" @click="saveAndClose">save</button>
     </div>
   </div>
 </template>
 <script>
+import { useBroadcastChannel } from "@vueuse/core";
+const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
+
 import { mapGetters } from "vuex";
 
 export default {
-  name: "SettingsModal",
-
-  emits: ["close", "closeAndSave"],
+  emits: ["close"],
 
   computed: mapGetters(["blocks", "synthSettings"]),
 
   methods: {
-    openVisualizer() {
-      window.open("/visualizer", "_blank");
-
+    close() {
       this.$emit("close");
     },
 
-    closeAndSave() {
-      this.$emit("closeAndSave");
+    openVisualizer() {
+      window.open("/visualizer", "_blank");
+
+      this.close();
+    },
+
+    saveAndClose() {
+      eval(`bpm = ${this.synthSettings.bpm}`);
+      post(`bpm = ${this.synthSettings.bpm}`);
+
+      eval(`speed = ${this.synthSettings.speed}`);
+      post(`speed = ${this.synthSettings.speed}`);
+
+      const multiplier =
+        (this.synthSettings.resolution * window.devicePixelRatio) / 100;
+
+      eval(
+        `setResolution(${window.outerHeight * multiplier}, ${
+          window.outerWidth * multiplier
+        })`,
+      );
+      post(
+        `setResolution(${window.outerHeight * multiplier}, ${
+          window.outerWidth * multiplier
+        })`,
+      );
+
+      eval(`fps = ${this.synthSettings.fps}`);
+      post(`fps = ${this.synthSettings.fps}`);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-h2 {
-  margin-top: 0.5rem;
-}
-
-button {
-  margin: 5px;
-}
-
 .row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
 
   label {

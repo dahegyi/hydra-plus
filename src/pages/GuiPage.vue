@@ -1,37 +1,26 @@
 <template>
   <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
 
-  <three-modal
-    v-if="isThreeModalOpen"
-    @close="closeThreeModal"
-    @closeAndSave="saveAndCloseThreeModal"
+  <three-modal v-if="isThreeModalOpen" @close="closeThreeModal" />
+
+  <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
+
+  <div class="playground" @click="() => setFocus(null)" />
+
+  <navigation-panel
+    :class="{ hidden: areBlocksHidden }"
+    @open-three-modal="openThreeModal"
+    @open-settings-modal="openSettingsModal"
   />
 
-  <settings-modal
-    v-if="isSettingsModalOpen"
-    @close="closeSettingsModal"
-    @closeAndSave="saveAndCloseSettingsModal"
-  />
-
-  <div class="playground" @click="removeFocus" />
-
-  <navigation
-    :focused="focused"
-    :isThreeModalOpen="isThreeModalOpen"
-    @openThreeModal="openThreeModal"
-    :isSettingsModalOpen="isSettingsModalOpen"
-    @openSettingsModal="openSettingsModal"
-    @onFocus="onFocus"
-  />
-
-  <div>
+  <div :class="{ hidden: areBlocksHidden }">
     <div
       v-for="(block, index) in blocks"
-      :key="'src-block-' + index"
       :id="'src-block-' + index"
+      :key="'src-block-' + index"
       :class="['source', { focused: focused === block }]"
     >
-      <div @click="onFocus(index)">
+      <div @click="() => setFocus(blocks[index])">
         <strong
           class="output-header"
           @mousedown="(e) => moveBlock(e, index, block.type)"
@@ -53,38 +42,38 @@
           <select v-model="block.params[0].value">
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
+              :key="'s' + sIndex"
               :value="'s' + sIndex"
             >
               s{{ sIndex }} - {{ source.name }}
             </option>
-            <option v-for="(output, oIndex) in blocks" :value="'o' + oIndex">
+            <option
+              v-for="(output, oIndex) in blocks"
+              :key="'o' + oIndex"
+              :value="'o' + oIndex"
+            >
               o{{ oIndex }} - {{ output.name }}
             </option>
           </select>
         </div>
         <div
-          v-else
           v-for="(param, paramIndex) in block.params"
+          v-else
           :key="paramIndex"
           class="param-input-container"
         >
           <label>{{ param.name }}</label>
-          <input type="text" v-model="param.value" />
+          <input v-model="param.value" type="text" @focusout="update" />
         </div>
       </div>
 
-      <nested-draggable
-        :children="block.blocks"
-        :focused="focused"
-        :parent="block"
-        @onFocus="onFocus"
-      />
+      <nested-draggable :children="block.blocks" :parent="block" />
     </div>
 
     <div
       v-for="(block, index) in externalSourceBlocks"
-      :key="'ext-block-' + index"
       :id="'ext-block-' + index"
+      :key="'ext-block-' + index"
       class="source external"
     >
       <strong
@@ -107,8 +96,8 @@
         <label :for="paramIndex">{{ param.name }}</label>
         <input
           :id="index + param.name + paramIndex"
-          type="text"
           v-model="param.value"
+          type="text"
         />
       </div>
     </div>
@@ -116,38 +105,46 @@
 </template>
 
 <script>
-import { useBroadcastChannel } from "@vueuse/core";
-const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
+import { defineAsyncComponent } from "vue";
 
 import { mapGetters, mapActions } from "vuex";
 
-import { TYPE_EXTERNAL, TYPE_SRC } from "../constants";
+import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "~/constants";
 
-import WelcomeModal from "../components/WelcomeModal.vue";
-import ThreeModal from "../components/ThreeModal.vue";
-import SettingsModal from "../components/SettingsModal.vue";
-import Navigation from "../components/Navigation.vue";
-import NestedDraggable from "../components/Draggable.vue";
+import NavigationPanel from "~/components/NavigationPanel";
+import NestedDraggable from "~/components/NestedDraggable";
 
 export default {
-  Name: "Gui",
-
   components: {
-    WelcomeModal,
-    ThreeModal,
-    SettingsModal,
-    Navigation,
+    WelcomeModal: defineAsyncComponent(() =>
+      import("~/components/WelcomeModal"),
+    ),
+    ThreeModal: defineAsyncComponent(() => import("~/components/ThreeModal")),
+    SettingsModal: defineAsyncComponent(() =>
+      import("~/components/SettingsModal"),
+    ),
+    NavigationPanel,
     NestedDraggable,
   },
 
   data() {
     return {
-      error: null,
-      focused: null,
+      movedBlockCoordinates: { x: 0, y: 0 },
+      areBlocksHidden: false,
       isWelcomeModalOpen: false,
       isThreeModalOpen: false,
       isSettingsModalOpen: false,
     };
+  },
+
+  computed: {
+    ...mapGetters([
+      "focused",
+      "blocks",
+      "externalSourceBlocks",
+      "synthSettings",
+      "history",
+    ]),
   },
 
   mounted() {
@@ -163,6 +160,8 @@ export default {
 
     if (localStorage.getItem("blocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("blocks")));
+    } else {
+      blocks.push(...JSON.parse(INITIAL_BLOCKS));
     }
 
     if (localStorage.getItem("externalSourceBlocks")) {
@@ -175,30 +174,30 @@ export default {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
     }
 
+    this.update();
+
     // set up keyboard shortcuts
     const onKeyDown = (e) => {
-      const isUndoKey =
-        e.keyCode === 90 && !e.shiftKey && (e.ctrlKey || e.metaKey);
-      const isRedoKey =
-        (e.keyCode === 89 && (e.ctrlKey || e.metaKey)) ||
-        (e.keyCode === 90 && e.shiftKey && (e.ctrlKey || e.metaKey));
+      if (e.ctrlKey || e.metaKey) {
+        if (e.keyCode === 90 && !e.shiftKey) {
+          e.preventDefault();
+          return this.undo();
+        }
 
-      if (isUndoKey) {
-        e.preventDefault();
-        this.undo();
+        if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
+          e.preventDefault();
+          return this.redo();
+        }
+      }
 
-        this.setBlocks({
-          blocks: [...this.blocks, ...this.externalSourceBlocks],
-          isUndoRedo: true,
-        });
-      } else if (isRedoKey) {
-        e.preventDefault();
-        this.redo();
+      if (e.key === "Escape") {
+        if (this.isSettingsModalOpen) {
+          return this.closeSettingsModal();
+        } else if (this.isThreeModalOpen) {
+          return this.closeThreeModal();
+        }
 
-        this.setBlocks({
-          blocks: [...this.blocks, ...this.externalSourceBlocks],
-          isUndoRedo: true,
-        });
+        return (this.areBlocksHidden = !this.areBlocksHidden);
       }
     };
 
@@ -206,7 +205,7 @@ export default {
   },
 
   updated() {
-    // move parent blocks and external source blocks to their position
+    // move source blocks to their position
     this.blocks.map((block, index) => {
       this.moveBlock(block, index, TYPE_SRC, block.position);
     });
@@ -215,29 +214,22 @@ export default {
     });
   },
 
-  computed: {
-    ...mapGetters([
-      "blocks",
-      "externalSourceBlocks",
-      "synthSettings",
-      "history",
-    ]),
-  },
-
   methods: {
     ...mapActions([
+      "setFocus",
       "setBlocks",
       "setBlockPosition",
       "deleteBlock",
+      "update",
       "setSynthSettings",
       "setOutput",
-      "setHistory",
       "undo",
       "redo",
     ]),
 
     moveBlock(e, index, type, position) {
       let div;
+      let positionChanged = false;
 
       if (type === TYPE_SRC) {
         div = document.getElementById("src-block-" + index);
@@ -245,29 +237,44 @@ export default {
         div = document.getElementById("ext-block-" + index);
       }
 
-      const divRect = div.getBoundingClientRect();
+      if (position) {
+        return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
+      }
 
-      // console.log(divRect);
+      const divRect = div.getBoundingClientRect();
 
       const offsetX = e.clientX - divRect.left;
       const offsetY = e.clientY - divRect.top;
 
-      if (position) {
-        return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
-      }
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+
+      this.movedBlockCoordinates = { x, y };
 
       const move = (e) => {
         const x = e.clientX - offsetX;
         const y = e.clientY - offsetY;
 
+        this.movedBlockCoordinates = { x, y };
         div.style.transform = `translate(${x}px, ${y}px)`;
 
-        this.setBlockPosition({ index, type, position: { x, y } });
+        // not ultimately true, but the chance of moving the block to the exact same position is low
+        positionChanged = true;
       };
 
       const up = () => {
         document.removeEventListener("mousemove", move);
         document.removeEventListener("mouseup", up);
+
+        if (!positionChanged) {
+          return;
+        }
+
+        this.setBlockPosition({
+          index,
+          type,
+          position: this.movedBlockCoordinates,
+        });
 
         // This is to be able to undo/redo the moving of a block
         this.setBlocks({
@@ -277,18 +284,6 @@ export default {
 
       document.addEventListener("mousemove", move);
       document.addEventListener("mouseup", up);
-    },
-
-    onFocus(index, fromChildComponent) {
-      if (fromChildComponent) {
-        this.focused = index;
-      } else {
-        this.focused = this.blocks[index];
-      }
-    },
-
-    removeFocus() {
-      this.focused = null;
     },
 
     closeWelcomeModal() {
@@ -311,33 +306,6 @@ export default {
     closeSettingsModal() {
       this.isSettingsModalOpen = false;
     },
-
-    saveAndCloseSettingsModal() {
-      eval(`bpm = ${this.synthSettings.bpm}`);
-      post(`bpm = ${this.synthSettings.bpm}`);
-
-      eval(`speed = ${this.synthSettings.speed}`);
-      post(`speed = ${this.synthSettings.speed}`);
-
-      const multiplier =
-        (this.synthSettings.resolution * window.devicePixelRatio) / 100;
-
-      eval(
-        `setResolution(${window.outerHeight * multiplier}, ${
-          window.outerWidth * multiplier
-        })`,
-      );
-      post(
-        `setResolution(${window.outerHeight * multiplier}, ${
-          window.outerWidth * multiplier
-        })`,
-      );
-
-      eval(`fps = ${this.synthSettings.fps}`);
-      post(`fps = ${this.synthSettings.fps}`);
-
-      this.closeSettingsModal();
-    },
   },
 };
 </script>
@@ -347,34 +315,37 @@ $darkblue: #02042c;
 
 .playground {
   position: fixed;
+  z-index: 0;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
+}
+
+.hidden {
+  display: none;
 }
 
 .source {
   position: absolute;
   display: flex;
-  flex-direction: column;
   width: fit-content;
-  min-width: 300px;
+  min-width: 320px;
+  flex-direction: column;
   padding: 1rem;
-  border-radius: 10px;
-  background: #22222280;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  background: #222222aa;
 
   .output-header {
-    color: $darkblue;
-    padding: 6px;
     display: flex;
     justify-content: space-between;
-    background: #fff;
+    padding: 6px;
     border: 1px solid $darkblue;
     border-radius: 6px;
     margin-bottom: 0.5rem;
+    background: #fff;
+    color: $darkblue;
     cursor: move;
 
     $iconSize: 21px;
@@ -382,8 +353,8 @@ $darkblue: #02042c;
     .activate,
     .delete {
       position: absolute;
-      height: $iconSize;
       width: $iconSize;
+      height: $iconSize;
       cursor: pointer;
     }
 
@@ -391,14 +362,14 @@ $darkblue: #02042c;
       right: calc(2 * $iconSize);
 
       &:after {
-        content: "";
         position: absolute;
-        border: 4px solid $darkblue;
-        height: calc($iconSize / 3);
-        width: calc($iconSize / 3);
-        border-radius: 50%;
         top: 25%;
         left: 25%;
+        width: calc($iconSize / 3);
+        height: calc($iconSize / 3);
+        border: 4px solid $darkblue;
+        border-radius: 50%;
+        content: "";
       }
 
       &.active {
@@ -413,12 +384,12 @@ $darkblue: #02042c;
 
       &:before,
       &:after {
-        content: "";
         position: absolute;
-        border-top: 3px solid $darkblue;
-        width: 16px;
         top: 50%;
         left: 10%;
+        width: 16px;
+        border-top: 3px solid $darkblue;
+        content: "";
       }
 
       &:before {
@@ -432,12 +403,12 @@ $darkblue: #02042c;
   }
 
   &:not(.external) {
-    $offset-top: -200%;
-    $bottom-color: #38383880;
+    $offset-top: -300%;
+    $color: #ffffff;
+    $bottom-color: #38383890;
     $offset-bottom: 150%;
 
-    &:nth-child(1) {
-      $color: #fff70080;
+    @mixin block-colors {
       background: linear-gradient(
         180deg,
         $color $offset-top,
@@ -455,76 +426,53 @@ $darkblue: #02042c;
       .output-header {
         background: $color;
       }
+    }
+
+    &:nth-child(1) {
+      $color: #fff700;
+      @include block-colors();
     }
 
     &:nth-child(2) {
-      $color: #b8f77080;
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
-
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
-
-      .output-header {
-        background: $color;
-      }
+      $color: #b8f770;
+      @include block-colors();
     }
 
     &:nth-child(3) {
-      $color: #3bd5f080;
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
-
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
-
-      .output-header {
-        background: $color;
-      }
+      $color: #3bd5f0;
+      @include block-colors();
     }
 
     &:nth-child(4) {
-      $color: #ff8fec80;
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
+      $color: #ff8fec;
+      @include block-colors();
+    }
 
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
+    &:nth-child(5) {
+      $color: #9063f3;
+      @include block-colors();
+    }
 
-      .output-header {
-        background: $color;
-      }
+    &:nth-child(6) {
+      $color: #ef8c56;
+      @include block-colors();
+    }
+
+    &:nth-child(7) {
+      $color: #4282d6;
+      @include block-colors();
+    }
+
+    &:nth-child(8) {
+      $color: #ea7979;
+      @include block-colors();
     }
   }
 
   &.external {
     .output-header {
-      color: #000;
       background: #f1a3a3;
+      color: #000;
     }
   }
 }

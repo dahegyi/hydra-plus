@@ -5,7 +5,7 @@
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
-    @end="() => onMove()"
+    @end="() => onEnd()"
   >
     <template #item="{ element }">
       <li :class="{ focused: focused === element }">
@@ -23,32 +23,35 @@
           <select v-model="element.params[0].value">
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
+              :key="sIndex"
               :value="'s' + sIndex"
             >
               s{{ sIndex }} - {{ source.name }}
             </option>
-            <option v-for="(output, oIndex) in blocks" :value="'o' + oIndex">
+            <option
+              v-for="(output, oIndex) in blocks"
+              :key="oIndex"
+              :value="'o' + oIndex"
+            >
               o{{ oIndex }} - {{ output.name }}
             </option>
           </select>
         </div>
         <div
-          v-else
           v-for="(param, paramIndex) in element.params"
+          v-else
           :key="paramIndex"
           class="param-input-container"
           @click="onFocus(element)"
         >
           <label>{{ param.name }}</label>
-          <input type="text" v-model="param.value" />
+          <input v-model="param.value" type="text" @focusout="update" />
         </div>
 
         <nested-draggable
           v-if="hasDraggableChild(element.type)"
           :children="element.blocks"
-          :focused="focused"
           :parent="element"
-          @onFocus="onFocus"
         />
       </li>
     </template>
@@ -58,20 +61,17 @@
 import { mapGetters, mapActions } from "vuex";
 import draggable from "vuedraggable";
 
-import { TYPE_SRC, TYPE_COMPLEX } from "../constants";
+import { TYPE_SRC, TYPE_COMPLEX } from "~/constants";
 
 export default {
-  name: "NestedDraggable",
+  components: {
+    draggable,
+  },
 
   props: {
     children: {
       required: true,
       type: Array,
-    },
-
-    focused: {
-      type: Object,
-      default: null,
     },
 
     parent: {
@@ -80,15 +80,17 @@ export default {
     },
   },
 
-  computed: mapGetters(["blocks", "externalSourceBlocks"]),
+  computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
 
   methods: {
-    ...mapActions(["setBlocks"]),
+    ...mapActions(["setFocus", "setBlocks", "update"]),
 
-    onMove() {
+    onEnd() {
       this.setBlocks({
         blocks: [...this.blocks, ...this.externalSourceBlocks],
       });
+
+      this.update();
     },
 
     deleteEffect(element) {
@@ -100,7 +102,7 @@ export default {
 
           children.splice(children.indexOf(child), 1);
 
-          return this.onMove();
+          return this.onEnd();
         }
       }
     },
@@ -111,15 +113,11 @@ export default {
 
     onFocus(element) {
       if (this.hasDraggableChild(element.type)) {
-        this.$emit("onFocus", element, true);
+        this.setFocus(element, true);
       } else {
-        this.$emit("onFocus", this.parent, true);
+        this.setFocus(this.parent, true);
       }
     },
-  },
-
-  components: {
-    draggable,
   },
 };
 </script>
@@ -129,16 +127,15 @@ $darkblue: #02042c;
 
 .dragArea {
   min-height: 40px;
-  outline: 1px dashed #ffffff80;
-  list-style: none;
   padding: 1px 0 0;
   margin: 0.5rem 0 0;
   background: #00000040;
+  list-style: none;
+  outline: 1px dashed #ffffff80;
 
   li {
     padding: 0.65rem;
     border-bottom: 2px solid #222;
-    transition: background 0.02s linear;
 
     &:hover {
       background: #ffffff25;
@@ -162,18 +159,18 @@ $darkblue: #02042c;
       }
 
       .delete {
-        height: 20px;
-        width: 20px;
         position: relative;
+        width: 20px;
+        height: 20px;
 
         &:before,
         &:after {
-          content: "";
           position: absolute;
-          border-top: 2px solid #ff7979;
-          width: 12px;
           top: 10px;
           left: 5px;
+          width: 12px;
+          border-top: 2px solid #ff7979;
+          content: "";
         }
 
         &:before {

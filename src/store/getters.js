@@ -1,3 +1,7 @@
+export const focused = (state) => {
+  return state.focused;
+};
+
 export const blocks = (state) => {
   return state.blocks;
 };

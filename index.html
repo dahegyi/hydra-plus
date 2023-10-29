@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hydra+</title>
-    <script src="https://unpkg.com/hydra-synth"></script>
+    <script type="module" src="./src/external/hydra-three.min.js"></script>
   </head>
   <body>
     <div id="app"></div>
@@ -20,7 +20,9 @@
       }
       gtag("js", new Date());
 
-      gtag("config", "G-G2BSQDGS76");
+      gtag("config", "G-G2BSQDGS76", {
+        storage: "none",
+      });
     </script>
   </body>
 </html>

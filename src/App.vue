@@ -5,9 +5,13 @@
 </template>
 
 <script>
+import Hydra from "hydra-synth";
+
+import { MAX_NUMBER_OF_SOURCES, MAX_NUMBER_OF_EXTERNALS } from "./constants";
+
 window.hydra = new Hydra({
-  makeGlobal: true,
-  detectAudio: true,
+  numSources: MAX_NUMBER_OF_SOURCES,
+  numOutputs: MAX_NUMBER_OF_EXTERNALS,
   width: window.outerWidth * window.devicePixelRatio,
   height: window.outerHeight * window.devicePixelRatio,
 }).synth;
@@ -16,8 +20,8 @@ window.hydra = new Hydra({
 <style>
 canvas {
   position: fixed;
+  z-index: -1;
   top: 0;
   left: 0;
-  z-index: -1;
 }
 </style>

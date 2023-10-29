@@ -4,14 +4,14 @@ import { createRouter, createWebHistory } from "vue-router";
 import store from "./store";
 
 import "./style.scss";
-import App from "./App.vue";
+import App from "./App";
 
-const Visualizer = () => import("./pages/Visualizer.vue");
-const Gui = () => import("./pages/Gui.vue");
+const GuiPage = () => import("./pages/GuiPage");
+const VisualizerPage = () => import("./pages/VisualizerPage");
 
 const routes = [
-  { path: "/", component: Gui },
-  { path: "/visualizer", component: Visualizer },
+  { path: "/", component: GuiPage },
+  { path: "/visualizer", component: VisualizerPage },
 ];
 
 const router = createRouter({
