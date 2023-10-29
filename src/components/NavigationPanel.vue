@@ -5,18 +5,18 @@
 
       <div class="dropdown">
         <button>new {{ isAddSourceVisible ? "source" : "effect" }}</button>
-        <ul class="dropdown-content">
+        <ul v-if="isAddSourceVisible" class="dropdown-content">
           <li
-            v-if="isAddSourceVisible"
             v-for="source in sources"
+            :key="source.name"
             :class="source.type"
             @click="addSource(source)"
           >
             {{ source.name }}
           </li>
-
+        </ul>
+        <ul v-else class="dropdown-content">
           <li
-            v-else
             v-for="functions in functionGroups"
             :key="functions.name"
             class="dropdown"
@@ -38,17 +38,14 @@
 
     <div>
       <button @click="openThreeModal">3D settings</button>
-      <button @click="openSettingsModal" class="settings">
+      <button class="settings" @click="openSettingsModal">
         synth settings
       </button>
-      <button @click="send" class="send">send</button>
+      <button class="send" @click="send">send</button>
     </div>
   </div>
 </template>
 <script>
-import { useBroadcastChannel } from "@vueuse/core";
-const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
-
 import { mapActions, mapGetters } from "vuex";
 
 import "toastify-js/src/toastify.css";
@@ -69,8 +66,6 @@ import {
 } from "@/constants";
 
 export default {
-  name: "Navigation",
-
   emits: ["openThreeModal", "openSettingsModal"],
 
   computed: {
@@ -162,15 +157,15 @@ export default {
 <style lang="scss" scoped>
 .navigation {
   position: fixed;
-  width: calc(100% - 12px);
+  z-index: 1;
   top: 0;
   display: flex;
-  justify-content: space-between;
+  width: calc(100% - 12px);
   align-items: center;
+  justify-content: space-between;
   padding: 6px;
-  background: #151515dd;
   backdrop-filter: blur(6px);
-  z-index: 1;
+  background: #151515dd;
 
   div {
     display: flex;
@@ -194,21 +189,21 @@ export default {
     }
 
     > .dropdown-content {
-      display: none;
       position: absolute;
-      flex-direction: column;
-      list-style: none;
+      z-index: 1;
       top: 0;
       left: 0;
-      margin: 0 100% 0;
+      display: none;
+      flex-direction: column;
       padding: 0;
+      margin: 0 100% 0;
       background-color: #222;
-      z-index: 1;
+      list-style: none;
 
       li {
-        margin: 0;
-        padding: 0.5rem 1rem;
         min-width: 160px;
+        padding: 0.5rem 1rem;
+        margin: 0;
         cursor: pointer;
 
         &.external {

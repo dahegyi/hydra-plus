@@ -15,8 +15,6 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "ThreeModal",
-
   emits: ["close"],
 
   computed: mapGetters(["blocks", "synthSettings"]),
@@ -32,7 +30,7 @@ export default {
 <style lang="scss" scoped>
 .row {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 </style>

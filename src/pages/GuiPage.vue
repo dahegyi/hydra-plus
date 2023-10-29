@@ -7,17 +7,17 @@
 
   <div class="playground" @click="() => setFocus(null)" />
 
-  <navigation
-    @openThreeModal="openThreeModal"
-    @openSettingsModal="openSettingsModal"
+  <navigation-panel
     :class="{ hidden: areBlocksHidden }"
+    @open-three-modal="openThreeModal"
+    @open-settings-modal="openSettingsModal"
   />
 
   <div :class="{ hidden: areBlocksHidden }">
     <div
       v-for="(block, index) in blocks"
-      :key="'src-block-' + index"
       :id="'src-block-' + index"
+      :key="'src-block-' + index"
       :class="['source', { focused: focused === block }]"
     >
       <div @click="() => setFocus(blocks[index])">
@@ -42,23 +42,28 @@
           <select v-model="block.params[0].value">
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
+              :key="'s' + sIndex"
               :value="'s' + sIndex"
             >
               s{{ sIndex }} - {{ source.name }}
             </option>
-            <option v-for="(output, oIndex) in blocks" :value="'o' + oIndex">
+            <option
+              v-for="(output, oIndex) in blocks"
+              :key="'o' + oIndex"
+              :value="'o' + oIndex"
+            >
               o{{ oIndex }} - {{ output.name }}
             </option>
           </select>
         </div>
         <div
-          v-else
           v-for="(param, paramIndex) in block.params"
+          v-else
           :key="paramIndex"
           class="param-input-container"
         >
           <label>{{ param.name }}</label>
-          <input type="text" v-model="param.value" @focusout="update" />
+          <input v-model="param.value" type="text" @focusout="update" />
         </div>
       </div>
 
@@ -67,8 +72,8 @@
 
     <div
       v-for="(block, index) in externalSourceBlocks"
-      :key="'ext-block-' + index"
       :id="'ext-block-' + index"
+      :key="'ext-block-' + index"
       class="source external"
     >
       <strong
@@ -91,8 +96,8 @@
         <label :for="paramIndex">{{ param.name }}</label>
         <input
           :id="index + param.name + paramIndex"
-          type="text"
           v-model="param.value"
+          type="text"
         />
       </div>
     </div>
@@ -106,12 +111,10 @@ import { mapGetters, mapActions } from "vuex";
 
 import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "@/constants";
 
-import Navigation from "@/components/Navigation.vue";
-import NestedDraggable from "@/components/Draggable.vue";
+import NavigationPanel from "@/components/NavigationPanel.vue";
+import NestedDraggable from "@/components/NestedDraggable.vue";
 
 export default {
-  Name: "Gui",
-
   components: {
     WelcomeModal: defineAsyncComponent(() =>
       import("@/components/WelcomeModal.vue"),
@@ -122,7 +125,7 @@ export default {
     SettingsModal: defineAsyncComponent(() =>
       import("@/components/SettingsModal.vue"),
     ),
-    Navigation,
+    NavigationPanel,
     NestedDraggable,
   },
 
@@ -134,6 +137,16 @@ export default {
       isThreeModalOpen: false,
       isSettingsModalOpen: false,
     };
+  },
+
+  computed: {
+    ...mapGetters([
+      "focused",
+      "blocks",
+      "externalSourceBlocks",
+      "synthSettings",
+      "history",
+    ]),
   },
 
   mounted() {
@@ -201,16 +214,6 @@ export default {
     this.externalSourceBlocks.map((block, index) => {
       this.moveBlock(block, index, TYPE_EXTERNAL, block.position);
     });
-  },
-
-  computed: {
-    ...mapGetters([
-      "focused",
-      "blocks",
-      "externalSourceBlocks",
-      "synthSettings",
-      "history",
-    ]),
   },
 
   methods: {
@@ -314,11 +317,11 @@ $darkblue: #02042c;
 
 .playground {
   position: fixed;
+  z-index: 0;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
 }
 
 .hidden {
@@ -328,23 +331,23 @@ $darkblue: #02042c;
 .source {
   position: absolute;
   display: flex;
-  flex-direction: column;
   width: fit-content;
   min-width: 320px;
+  flex-direction: column;
   padding: 1rem;
   border-radius: 12px;
-  background: #222222aa;
   backdrop-filter: blur(6px);
+  background: #222222aa;
 
   .output-header {
-    color: $darkblue;
-    padding: 6px;
     display: flex;
     justify-content: space-between;
-    background: #fff;
+    padding: 6px;
     border: 1px solid $darkblue;
     border-radius: 6px;
     margin-bottom: 0.5rem;
+    background: #fff;
+    color: $darkblue;
     cursor: move;
 
     $iconSize: 21px;
@@ -352,8 +355,8 @@ $darkblue: #02042c;
     .activate,
     .delete {
       position: absolute;
-      height: $iconSize;
       width: $iconSize;
+      height: $iconSize;
       cursor: pointer;
     }
 
@@ -361,14 +364,14 @@ $darkblue: #02042c;
       right: calc(2 * $iconSize);
 
       &:after {
-        content: "";
         position: absolute;
-        border: 4px solid $darkblue;
-        height: calc($iconSize / 3);
-        width: calc($iconSize / 3);
-        border-radius: 50%;
         top: 25%;
         left: 25%;
+        width: calc($iconSize / 3);
+        height: calc($iconSize / 3);
+        border: 4px solid $darkblue;
+        border-radius: 50%;
+        content: "";
       }
 
       &.active {
@@ -383,12 +386,12 @@ $darkblue: #02042c;
 
       &:before,
       &:after {
-        content: "";
         position: absolute;
-        border-top: 3px solid $darkblue;
-        width: 16px;
         top: 50%;
         left: 10%;
+        width: 16px;
+        border-top: 3px solid $darkblue;
+        content: "";
       }
 
       &:before {
@@ -470,8 +473,8 @@ $darkblue: #02042c;
 
   &.external {
     .output-header {
-      color: #000;
       background: #f1a3a3;
+      color: #000;
     }
   }
 }

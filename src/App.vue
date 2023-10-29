@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import Hydra from "hydra-synth";
+
 import { MAX_NUMBER_OF_SOURCES, MAX_NUMBER_OF_EXTERNALS } from "./constants";
 
 window.hydra = new Hydra({
@@ -18,8 +20,8 @@ window.hydra = new Hydra({
 <style>
 canvas {
   position: fixed;
+  z-index: -1;
   top: 0;
   left: 0;
-  z-index: -1;
 }
 </style>

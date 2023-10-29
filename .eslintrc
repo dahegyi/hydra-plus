@@ -4,6 +4,11 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "node": true
+  },
   "extends": [
     "plugin:vue/vue3-recommended",
     "eslint:recommended",
@@ -11,8 +16,7 @@
   ],
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": "error",
-    "vue/no-v-html": "off" // since there is no user input
+    "prettier/prettier": "error"
   },
   "ignorePatterns": [
     "node_modules/*",

@@ -8,11 +8,3 @@ watch(data, () => {
   if (data.value) eval(data.value);
 });
 </script>
-
-<template></template>
-
-<script>
-export default {
-  name: "Visualizer",
-};
-</script>

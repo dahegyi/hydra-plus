@@ -6,19 +6,19 @@
 
     <div class="row">
       <label>speed</label>
-      <input type="number" v-model="synthSettings.speed" />
+      <input v-model="synthSettings.speed" type="number" />
     </div>
 
     <div class="row">
       <label>bpm</label>
-      <input type="number" v-model="synthSettings.bpm" />
+      <input v-model="synthSettings.bpm" type="number" />
     </div>
 
     <div class="row">
       <label>output</label>
       <select v-model="synthSettings.output">
         <option value="">select output</option>
-        <option v-for="(block, index) in blocks" :value="index">
+        <option v-for="(block, index) in blocks" :key="index" :value="index">
           o{{ index }} - {{ block.name }}
         </option>
       </select>
@@ -27,23 +27,23 @@
     <div class="row">
       <label>resolution</label>
       <input
+        v-model="synthSettings.resolution"
         type="range"
         min="1"
         max="100"
         class="slider"
-        v-model="synthSettings.resolution"
       />
     </div>
 
     <div class="row">
       <label>fps</label>
-      <input type="number" v-model="synthSettings.fps" />
+      <input v-model="synthSettings.fps" type="number" />
     </div>
 
     <a href="#" @click="openVisualizer">open visualizer</a>
 
     <div>
-      <button @click="saveAndClose" class="saveAndClose">save</button>
+      <button class="saveAndClose" @click="saveAndClose">save</button>
     </div>
   </div>
 </template>
@@ -54,8 +54,6 @@ const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 import { mapGetters } from "vuex";
 
 export default {
-  name: "SettingsModal",
-
   emits: ["close"],
 
   computed: mapGetters(["blocks", "synthSettings"]),
@@ -102,9 +100,9 @@ export default {
 <style lang="scss" scoped>
 .row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
 
   label {

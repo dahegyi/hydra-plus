@@ -651,4 +651,3 @@ export const BLEND_FUNCTIONS = [
     blocks: [],
   },
 ];
-

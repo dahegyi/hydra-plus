@@ -6,12 +6,12 @@ import store from "./store";
 import "./style.scss";
 import App from "./App.vue";
 
-const Visualizer = () => import("./pages/Visualizer.vue");
-const Gui = () => import("./pages/Gui.vue");
+const GuiPage = () => import("./pages/GuiPage.vue");
+const VisualizerPage = () => import("./pages/VisualizerPage.vue");
 
 const routes = [
-  { path: "/", component: Gui },
-  { path: "/visualizer", component: Visualizer },
+  { path: "/", component: GuiPage },
+  { path: "/visualizer", component: VisualizerPage },
 ];
 
 const router = createRouter({
