@@ -39,7 +39,10 @@
         </strong>
         <div v-if="block.name === 'src'" class="param-input-container">
           <label>{{ block.params[0].name }}</label>
-          <select v-model="block.params[0].value" @change="handleChange">
+          <select
+            v-model="block.params[0].value"
+            @change="() => handleChange()"
+          >
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
               :key="'s' + sIndex"
@@ -67,7 +70,7 @@
             v-model="param.value"
             type="text"
             @focusin="setInputFocus(true)"
-            @focusout="handleChange"
+            @focusout="() => handleChange()"
           />
         </div>
       </div>
@@ -75,7 +78,7 @@
       <nested-draggable
         :children="block.blocks"
         :parent="block"
-        :handle-change="handleChange"
+        :handle-change="() => handleChange()"
       />
     </div>
 
@@ -221,6 +224,10 @@ export default {
 
         return (this.areBlocksHidden = !this.areBlocksHidden);
       }
+
+      if (this.isInputFocused && e.key === "Enter") {
+        return this.handleChange(true);
+      }
     };
 
     document.onkeydown = onKeyDown;
@@ -254,8 +261,9 @@ export default {
       this.setFocus(clickedBlock);
     },
 
-    handleChange() {
-      this.setInputFocus(false);
+    handleChange(isEnterKey = false) {
+      console.log("handleChange", isEnterKey);
+      if (!isEnterKey) this.setInputFocus(false);
 
       const newBlocks = [...this.blocks, ...this.externalSourceBlocks];
 
