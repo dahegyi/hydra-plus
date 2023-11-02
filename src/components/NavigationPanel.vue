@@ -3,8 +3,9 @@
     <div>
       <strong v-if="focused">{{ outputName }}</strong>
 
-      <div class="dropdown">
+      <div :class="['dropdown', { disabled: isButtonDisabled }]">
         <button>new {{ isAddParentVisible ? "source" : "effect" }}</button>
+
         <ul v-if="isAddParentVisible" class="dropdown-content">
           <li
             v-for="source in sources"
@@ -96,6 +97,10 @@ export default {
       return (
         this.focused?.type !== TYPE_SRC && this.focused?.type !== TYPE_SIMPLE
       );
+    },
+
+    isButtonDisabled() {
+      return this.isAddParentVisible && this.focused?.blocks.length > 0;
     },
 
     sources() {
@@ -220,7 +225,7 @@ export default {
       }
     }
 
-    &:hover > .dropdown-content {
+    &:not(.disabled):hover > .dropdown-content {
       display: block;
     }
   }
@@ -235,6 +240,13 @@ export default {
       @include dropdown;
       border: 3px solid #111;
       margin-top: -3px;
+    }
+
+    &.disabled {
+      button {
+        background: #999;
+        cursor: not-allowed;
+      }
     }
   }
 
