@@ -23,7 +23,7 @@
           @click="onFocus(element)"
         >
           <label>{{ element.params[0].name }}</label>
-          <select v-model="element.params[0].value">
+          <select v-model="element.params[0].value" @change="handleChange">
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
               :key="sIndex"

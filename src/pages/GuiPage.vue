@@ -39,7 +39,7 @@
         </strong>
         <div v-if="block.name === 'src'" class="param-input-container">
           <label>{{ block.params[0].name }}</label>
-          <select v-model="block.params[0].value">
+          <select v-model="block.params[0].value" @change="handleChange">
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
               :key="'s' + sIndex"
