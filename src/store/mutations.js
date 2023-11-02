@@ -9,6 +9,10 @@ export default {
     state.focused = focused;
   },
 
+  setInputFocus(state, isInputFocused) {
+    state.isInputFocused = isInputFocused;
+  },
+
   // Blocks
 
   addParent(state, block) {
@@ -69,17 +73,15 @@ export default {
 
     state.history.splice(0, state.historyIndex);
 
-    state.history = [
+    state.history.unshift(
       deepCopy({
         blocks: state.blocks,
         externalSourceBlocks: state.externalSourceBlocks,
       }),
-      ...state.history,
-    ];
+    );
   },
 
-  setHistoryIndex(state, index, isUndoRedo = false) {
-    if (isUndoRedo) return;
+  setHistoryIndex(state, index) {
     state.historyIndex = index;
   },
 };

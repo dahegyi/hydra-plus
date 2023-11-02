@@ -7,7 +7,8 @@ import { INITIAL_BLOCKS } from "../constants";
 
 const state = {
   focused: null,
-  blocks: JSON.parse(INITIAL_BLOCKS),
+  isInputFocused: false,
+  blocks: INITIAL_BLOCKS,
   externalSourceBlocks: [],
   synthSettings: {
     bpm: 30,
@@ -19,7 +20,6 @@ const state = {
   codeString: "",
   history: [],
   historyIndex: 0,
-  isUndoRedo: false,
 };
 
 export default createStore({
@@ -29,6 +29,6 @@ export default createStore({
   mutations,
   plugins:
     process.env.NODE_ENV !== "production"
-      ? [createLogger({ logActions: true, logMutations: true })]
+      ? [createLogger({ logActions: false, logMutations: false })]
       : [],
 });

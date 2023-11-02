@@ -20,6 +20,10 @@ export const setFocus = ({ commit }, focused) => {
   commit("setFocus", focused);
 };
 
+export const setInputFocus = ({ commit }, isInputFocused) => {
+  commit("setInputFocus", isInputFocused);
+};
+
 export const setBlocks = ({ commit, state }, { blocks, isUndoRedo }) => {
   if (
     blocks.filter((block) => block.type === TYPE_SRC) === state.blocks &&
@@ -238,19 +242,17 @@ export const setHistory = ({ commit }) => {
  */
 export const undoRedo = ({ commit, state }, direction) => {
   const { history, historyIndex } = state;
+  const newHistoryIndex = historyIndex + direction;
 
-  if (
-    historyIndex + direction < 0 ||
-    historyIndex + direction >= history.length
-  )
-    return;
+  if (newHistoryIndex < 0 || newHistoryIndex >= history.length) return;
 
-  commit("setHistoryIndex", historyIndex + direction);
+  commit("setHistoryIndex", newHistoryIndex);
+
   store.dispatch("setBlocks", {
-    blocks: [
-      ...history[historyIndex + direction].blocks,
-      ...history[historyIndex + direction].externalSourceBlocks,
-    ],
+    blocks: deepCopy([
+      ...history[newHistoryIndex].blocks,
+      ...history[newHistoryIndex].externalSourceBlocks,
+    ]),
     isUndoRedo: true,
   });
 };

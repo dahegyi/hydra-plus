@@ -63,7 +63,12 @@
           class="param-input-container"
         >
           <label>{{ param.name }}</label>
-          <input v-model="param.value" type="text" @focusout="handleChange" />
+          <input
+            v-model="param.value"
+            type="text"
+            @focusin="setInputFocus(true)"
+            @focusout="handleChange"
+          />
         </div>
       </div>
 
@@ -134,7 +139,7 @@ export default {
 
   data() {
     return {
-      prevBlocks: [this.blocks, this.externalSourceBlocks],
+      prevBlocks: null,
       movedBlockCoordinates: { x: 0, y: 0 },
       areBlocksHidden: false,
       isWelcomeModalOpen: false,
@@ -146,10 +151,12 @@ export default {
   computed: {
     ...mapGetters([
       "focused",
+      "isInputFocused",
       "blocks",
       "externalSourceBlocks",
       "synthSettings",
       "history",
+      "historyIndex",
     ]),
   },
 
@@ -180,19 +187,27 @@ export default {
 
     this.setBlocks({ blocks });
 
+    // set up history
+    this.prevBlocks = [
+      ...deepCopy(this.blocks),
+      ...deepCopy(this.externalSourceBlocks),
+    ];
+
     // set up keyboard shortcuts
     const onKeyDown = (e) => {
       if (e.ctrlKey || e.metaKey) {
-        // undo
-        if (e.keyCode === 90 && !e.shiftKey) {
-          e.preventDefault();
-          return this.undoRedo(1);
-        }
+        if (!this.isInputFocused) {
+          // undo
+          if (e.keyCode === 90 && !e.shiftKey) {
+            e.preventDefault();
+            return this.undoRedo(1);
+          }
 
-        // redo
-        if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
-          e.preventDefault();
-          return this.undoRedo(-1);
+          // redo
+          if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
+            e.preventDefault();
+            return this.undoRedo(-1);
+          }
         }
       }
 
@@ -224,6 +239,7 @@ export default {
   methods: {
     ...mapActions([
       "setFocus",
+      "setInputFocus",
       "setBlocks",
       "setBlockPosition",
       "deleteParent",
@@ -239,6 +255,8 @@ export default {
     },
 
     handleChange() {
+      this.setInputFocus(false);
+
       const newBlocks = [...this.blocks, ...this.externalSourceBlocks];
 
       if (JSON.stringify(newBlocks) === JSON.stringify(this.prevBlocks)) return;
