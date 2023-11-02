@@ -1,5 +1,68 @@
-export const INITIAL_BLOCKS =
-  '[{"name":"osc","params":[{"name":"frequency","value":"15"},{"name":"sync","value":0.1},{"name":"offset","value":0}],"type":"source","blocks":[{"name":"blend","blocks":[{"name":"gradient","params":[{"name":"speed","value":"0.1"}],"type":"source","blocks":[{"name":"scrollX","params":[{"name":"scrollX","value":"0"},{"name":"speed","value":"0.1"}],"type":"simple"}],"position":{"x":20,"y":60}}],"params":[{"name":"amount","value":"3"}],"type":"complex"},{"name":"modulateRotate","blocks":[{"name":"noise","params":[{"name":"scale","value":"1"},{"name":"offset","value":"0.01"}],"type":"source","blocks":[{"name":"contrast","params":[{"name":"amount","value":"30"}],"type":"simple"}],"position":{"x":20,"y":60}}],"params":[{"name":"multiple","value":"1,5"},{"name":"offset","value":"0"}],"type":"complex"}],"position":{"x":20,"y":60}}]';
+export const WELCOME_MODAL_LAST_UPDATE = "0.7.1";
+
+export const INITIAL_BLOCKS = [
+  {
+    name: "osc",
+    params: [
+      { name: "frequency", value: "15" },
+      { name: "sync", value: 0.1 },
+      { name: "offset", value: 0 },
+    ],
+    type: "source",
+    blocks: [
+      {
+        name: "blend",
+        blocks: [
+          {
+            name: "gradient",
+            params: [{ name: "speed", value: "0.1" }],
+            type: "source",
+            blocks: [
+              {
+                name: "scrollX",
+                params: [
+                  { name: "scrollX", value: "0" },
+                  { name: "speed", value: "0.1" },
+                ],
+                type: "simple",
+              },
+            ],
+            position: { x: 20, y: 60 },
+          },
+        ],
+        params: [{ name: "amount", value: "3" }],
+        type: "complex",
+      },
+      {
+        name: "modulateRotate",
+        blocks: [
+          {
+            name: "noise",
+            params: [
+              { name: "scale", value: "1" },
+              { name: "offset", value: "0.01" },
+            ],
+            type: "source",
+            blocks: [
+              {
+                name: "contrast",
+                params: [{ name: "amount", value: "30" }],
+                type: "simple",
+              },
+            ],
+            position: { x: 20, y: 60 },
+          },
+        ],
+        params: [
+          { name: "multiple", value: "1,5" },
+          { name: "offset", value: "0" },
+        ],
+        type: "complex",
+      },
+    ],
+    position: { x: 20, y: 60 },
+  },
+];
 
 export const DEFAULT_POSITION = { x: 20, y: 60 };
 

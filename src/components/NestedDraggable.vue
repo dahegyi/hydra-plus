@@ -5,13 +5,16 @@
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
-    @end="() => onEnd()"
+    @end="handleChange"
   >
     <template #item="{ element }">
       <li :class="{ focused: focused === element }">
         <strong>
           <span class="name" @click="onFocus(element)">{{ element.name }}</span>
-          <span class="delete" @click="deleteEffect(element)" />
+          <span
+            class="delete"
+            @click="deleteChild({ element, children, parent })"
+          />
         </strong>
 
         <div
@@ -20,7 +23,7 @@
           @click="onFocus(element)"
         >
           <label>{{ element.params[0].name }}</label>
-          <select v-model="element.params[0].value">
+          <select v-model="element.params[0].value" @change="handleChange">
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
               :key="sIndex"
@@ -45,13 +48,19 @@
           @click="onFocus(element)"
         >
           <label>{{ param.name }}</label>
-          <input v-model="param.value" type="text" @focusout="update" />
+          <input
+            v-model="param.value"
+            type="text"
+            @focusin="setInputFocus(true)"
+            @focusout="handleChange"
+          />
         </div>
 
         <nested-draggable
           v-if="hasDraggableChild(element.type)"
-          :children="element.blocks"
           :parent="element"
+          :children="element.blocks"
+          :handle-change="handleChange"
         />
       </li>
     </template>
@@ -59,6 +68,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
+
 import draggable from "vuedraggable";
 
 import { TYPE_SRC, TYPE_COMPLEX } from "~/constants";
@@ -69,54 +79,39 @@ export default {
   },
 
   props: {
+    parent: {
+      required: true,
+      type: Object,
+    },
+
     children: {
       required: true,
       type: Array,
     },
 
-    parent: {
+    handleChange: {
       required: true,
-      type: Object,
+      type: Function,
     },
   },
 
   computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
 
   methods: {
-    ...mapActions(["setFocus", "setBlocks", "update"]),
-
-    onEnd() {
-      this.setBlocks({
-        blocks: [...this.blocks, ...this.externalSourceBlocks],
-      });
-
-      this.update();
-    },
-
-    deleteEffect(element) {
-      const { children, parent } = this;
-
-      for (const child of children) {
-        if (child === element) {
-          this.onFocus(parent);
-
-          children.splice(children.indexOf(child), 1);
-
-          return this.onEnd();
-        }
-      }
-    },
+    ...mapActions(["setFocus", "setInputFocus", "setBlocks", "deleteChild"]),
 
     hasDraggableChild(type) {
       return type === TYPE_SRC || type === TYPE_COMPLEX;
     },
 
     onFocus(element) {
-      if (this.hasDraggableChild(element.type)) {
-        this.setFocus(element, true);
-      } else {
-        this.setFocus(this.parent, true);
-      }
+      const focusedElement = this.hasDraggableChild(element.type)
+        ? element
+        : this.parent;
+
+      if (this.focused === focusedElement) return;
+
+      this.setFocus(focusedElement, true);
     },
   },
 };

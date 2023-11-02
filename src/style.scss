@@ -91,8 +91,8 @@ hr {
 .modal {
   position: fixed;
   z-index: 999;
-  top: 20%;
-  left: calc(50% - 190px);
+  top: 50%;
+  left: 50%;
   display: flex;
   width: 380px;
   min-height: 200px;
@@ -100,18 +100,20 @@ hr {
   align-items: center;
   justify-content: space-around;
   padding: 20px 30px;
-  border-radius: 20px;
+  border-radius: 15px;
   background: #222;
+  transform: translate(-50%, -50%);
 
   &:before {
     position: absolute;
     z-index: -1;
-    top: -20vh;
-    left: calc(190px - 50vw);
+    top: 50%;
+    left: 50%;
     width: 100vw;
     height: 100vh;
     background: #00000068;
     content: "";
+    transform: translate(-50%, -50%);
   }
 
   h2 {

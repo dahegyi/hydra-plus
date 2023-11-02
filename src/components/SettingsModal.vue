@@ -43,15 +43,12 @@
     <a href="#" @click="openVisualizer">open visualizer</a>
 
     <div>
-      <button class="saveAndClose" @click="saveAndClose">save</button>
+      <button @click="setSynthSettings(synthSettings)">save</button>
     </div>
   </div>
 </template>
 <script>
-import { useBroadcastChannel } from "@vueuse/core";
-const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
-
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   emits: ["close"],
@@ -59,6 +56,8 @@ export default {
   computed: mapGetters(["blocks", "synthSettings"]),
 
   methods: {
+    ...mapActions(["setSynthSettings"]),
+
     close() {
       this.$emit("close");
     },
@@ -67,31 +66,6 @@ export default {
       window.open("/visualizer", "_blank");
 
       this.close();
-    },
-
-    saveAndClose() {
-      eval(`bpm = ${this.synthSettings.bpm}`);
-      post(`bpm = ${this.synthSettings.bpm}`);
-
-      eval(`speed = ${this.synthSettings.speed}`);
-      post(`speed = ${this.synthSettings.speed}`);
-
-      const multiplier =
-        (this.synthSettings.resolution * window.devicePixelRatio) / 100;
-
-      eval(
-        `setResolution(${window.outerHeight * multiplier}, ${
-          window.outerWidth * multiplier
-        })`,
-      );
-      post(
-        `setResolution(${window.outerHeight * multiplier}, ${
-          window.outerWidth * multiplier
-        })`,
-      );
-
-      eval(`fps = ${this.synthSettings.fps}`);
-      post(`fps = ${this.synthSettings.fps}`);
     },
   },
 };

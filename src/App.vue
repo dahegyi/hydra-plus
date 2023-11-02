@@ -23,5 +23,6 @@ canvas {
   z-index: -1;
   top: 0;
   left: 0;
+  image-rendering: auto !important;
 }
 </style>

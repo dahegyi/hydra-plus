@@ -7,7 +7,8 @@ import { INITIAL_BLOCKS } from "../constants";
 
 const state = {
   focused: null,
-  blocks: JSON.parse(INITIAL_BLOCKS),
+  isInputFocused: false,
+  blocks: INITIAL_BLOCKS,
   externalSourceBlocks: [],
   synthSettings: {
     bpm: 30,
@@ -26,5 +27,8 @@ export default createStore({
   getters,
   actions,
   mutations,
-  plugins: process.env.NODE_ENV !== "production" ? [createLogger()] : [],
+  plugins:
+    process.env.NODE_ENV !== "production"
+      ? [createLogger({ logActions: false, logMutations: false })]
+      : [],
 });

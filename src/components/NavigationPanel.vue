@@ -3,14 +3,15 @@
     <div>
       <strong v-if="focused">{{ outputName }}</strong>
 
-      <div class="dropdown">
-        <button>new {{ isAddSourceVisible ? "source" : "effect" }}</button>
-        <ul v-if="isAddSourceVisible" class="dropdown-content">
+      <div :class="['dropdown', { disabled: isButtonDisabled }]">
+        <button>new {{ isAddParentVisible ? "source" : "effect" }}</button>
+
+        <ul v-if="isAddParentVisible" class="dropdown-content">
           <li
             v-for="source in sources"
             :key="source.name"
             :class="source.type"
-            @click="addSource(source)"
+            @click="addParent(source)"
           >
             {{ source.name }}
           </li>
@@ -26,7 +27,7 @@
               <li
                 v-for="fn in functions.fns"
                 :key="fn.name"
-                @click="addEffect(fn)"
+                @click="addChild(fn)"
               >
                 {{ fn.name }}
               </li>
@@ -92,10 +93,14 @@ export default {
       return this.outputName && this.focused?.name;
     },
 
-    isAddSourceVisible() {
+    isAddParentVisible() {
       return (
         this.focused?.type !== TYPE_SRC && this.focused?.type !== TYPE_SIMPLE
       );
+    },
+
+    isButtonDisabled() {
+      return this.isAddParentVisible && this.focused?.blocks.length > 0;
     },
 
     sources() {
@@ -141,7 +146,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(["addSource", "addEffect", "send"]),
+    ...mapActions(["addParent", "addChild", "send"]),
 
     openThreeModal() {
       this.$emit("openThreeModal");
@@ -220,7 +225,7 @@ export default {
       }
     }
 
-    &:hover > .dropdown-content {
+    &:not(.disabled):hover > .dropdown-content {
       display: block;
     }
   }
@@ -235,6 +240,13 @@ export default {
       @include dropdown;
       border: 3px solid #111;
       margin-top: -3px;
+    }
+
+    &.disabled {
+      button {
+        background: #999;
+        cursor: not-allowed;
+      }
     }
   }
 

@@ -1,11 +1,11 @@
 import { useBroadcastChannel } from "@vueuse/core";
 const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
-import Toastify from "toastify-js";
+import { deepCopy, flatten, flattenExternal } from "~/utils/object-utils";
 
 import store from "./";
 
-import { deepCopy, flatten, flattenExternal } from "~/utils/object-utils";
+import { showToast } from "~/utils/index.js";
 
 import {
   MAX_NUMBER_OF_SOURCES,
@@ -16,19 +16,26 @@ import {
   TYPE_COMPLEX,
 } from "~/constants";
 
-export const setFocus = ({ commit, state }, payload) => {
-  // don't call mutation if focus is the same
-  if (state.focused === payload) return;
-
-  commit("setFocus", payload);
+export const setFocus = ({ commit }, focused) => {
+  commit("setFocus", focused);
 };
 
-export const addBlock = ({ commit }, payload) => {
-  commit("addBlock", payload);
+export const setInputFocus = ({ commit }, isInputFocused) => {
+  commit("setInputFocus", isInputFocused);
 };
 
-export const setBlocks = ({ commit }, payload) => {
-  commit("setBlocks", payload);
+export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
+  if (
+    blocks.filter((block) => block.type === TYPE_SRC) === state.blocks &&
+    blocks.filter((block) => block.type === TYPE_EXTERNAL) ===
+      state.externalSourceBlocks
+  ) {
+    return;
+  }
+
+  commit("setBlocks", blocks);
+
+  store.dispatch("update", shouldSetHistory);
 };
 
 /**
@@ -36,86 +43,107 @@ export const setBlocks = ({ commit }, payload) => {
  * Deep copy is needed because we want to handle the input parameters
  * differently for different sources.
  *
- * @param {Object} source - source object
+ * @param {Object} source source object
  */
-export const addSource = ({ commit, state }, source) => {
-  // commit("addSource", payload);
-  const copiedObject = deepCopy(source);
+export const addParent = ({ commit, state }, source) => {
+  const copiedSource = deepCopy(source);
 
   if (!state.focused) {
     if (
-      (source.type === TYPE_SRC &&
-        state.blocks.filter((block) => block.type === TYPE_SRC).length >=
-          MAX_NUMBER_OF_SOURCES) ||
-      ((source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
-        state.blocks.filter(
-          (block) => block.type === TYPE_EXTERNAL || TYPE_THREE,
-        ).length >= MAX_NUMBER_OF_EXTERNALS)
+      source.type === TYPE_SRC &&
+      state.blocks.length >= MAX_NUMBER_OF_SOURCES
     ) {
-      return;
+      return showToast(
+        `You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`,
+      );
     }
 
-    commit("addBlock", copiedObject);
-    commit("setOutput", state.blocks.length - 1);
+    if (
+      (source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
+      state.externalSourceBlocks.length >= MAX_NUMBER_OF_EXTERNALS
+    ) {
+      return showToast(
+        `You can't add more than ${MAX_NUMBER_OF_EXTERNALS} externals.`,
+      );
+    }
 
+    commit("addParent", copiedSource);
     commit("setFocus", state.blocks[state.blocks.length - 1]);
+    commit("setOutput", state.blocks.length - 1);
   } else {
-    // this isn't right
-    state.focused.blocks.push(copiedObject);
+    commit("addChild", copiedSource);
   }
 
   if (source.type === TYPE_EXTERNAL) {
     const addedExternal = flattenExternal(
-      deepCopy(source),
+      copiedSource,
       state.externalSourceBlocks.length - 1,
     );
 
     eval(addedExternal);
     post(addedExternal);
   } else {
-    store.dispatch("update");
+    store.dispatch("setBlocks", {
+      blocks: [...state.blocks, ...state.externalSourceBlocks],
+    });
   }
 };
 
 /**
  * Adds effect block to the focused block as a child.
  */
-export const addEffect = ({ commit, state }, effect) => {
+export const addChild = ({ commit, state }, effect) => {
   if (!state.focused) {
     return;
   }
 
-  state.focused.blocks.push(deepCopy(effect));
+  commit("addChild", deepCopy(effect));
 
   if (effect.type === TYPE_COMPLEX) {
     commit("setFocus", state.focused.blocks[state.focused.blocks.length - 1]);
   }
 
-  commit("setBlocks", {
+  store.dispatch("setBlocks", {
     blocks: [...state.blocks, ...state.externalSourceBlocks],
   });
+};
 
-  store.dispatch("update");
+export const deleteParent = ({ commit, state }, payload) => {
+  const { blocks, externalSourceBlocks, synthSettings } = state;
+
+  commit("deleteParent", payload);
+
+  if (!blocks[synthSettings.output] && blocks.length > 0)
+    commit("setOutput", blocks.length - 1);
+
+  store.dispatch("setBlocks", {
+    blocks: [...blocks, ...externalSourceBlocks],
+  });
+};
+
+export const deleteChild = ({ commit, state }, payload) => {
+  const { element, children, parent } = payload;
+
+  for (const child of children) {
+    if (child === element) {
+      if (state.focused !== parent) commit("setFocus", parent);
+
+      // @todo probably not the best way to do this
+      children.splice(children.indexOf(child), 1);
+
+      return store.dispatch("setBlocks", {
+        blocks: [...state.blocks, ...state.externalSourceBlocks],
+      });
+    }
+  }
 };
 
 export const setBlockPosition = ({ commit }, payload) => {
   commit("setBlockPosition", payload);
+  store.dispatch("setHistory");
 };
 
-export const deleteBlock = ({ commit, state }, payload) => {
-  commit("deleteBlock", payload);
-
-  const { blocks, synthSettings } = state;
-
-  if (!blocks[synthSettings.output]) {
-    commit("setOutput", blocks.length - 1);
-  }
-
-  store.dispatch("update");
-};
-
-// @todo fix this mess
-export const update = ({ commit, state }) => {
+export const update = ({ commit, state }, shouldSetHistory = true) => {
   const { blocks, externalSourceBlocks, synthSettings } = state;
 
   let codeString = "";
@@ -123,7 +151,8 @@ export const update = ({ commit, state }) => {
   if (blocks.length === 0) {
     codeString = "hush()";
   } else {
-    commit("setOutput", synthSettings.output || 0);
+    if (!synthSettings.output || !blocks[synthSettings.output])
+      commit("setOutput", 0);
 
     for (let i = 0; i < externalSourceBlocks.length; i++) {
       if (externalSourceBlocks[i].name !== "initScreen") {
@@ -144,17 +173,10 @@ export const update = ({ commit, state }) => {
   } catch (error) {
     console.error(error);
 
-    Toastify({
-      text: error,
-      duration: 4000,
-      close: true,
-      gravity: "bottom",
-      stopOnFocus: true,
-      style: {
-        background: "#b62424",
-      },
-    }).showToast();
+    showToast(error);
   }
+
+  if (shouldSetHistory) store.dispatch("setHistory");
 };
 
 export const send = ({ state }) => {
@@ -166,65 +188,72 @@ export const send = ({ state }) => {
       JSON.stringify(state.externalSourceBlocks),
     );
     localStorage.setItem("blocks", JSON.stringify(state.blocks));
-    localStorage.setItem("synthSettings", JSON.stringify(state.synthSettings));
+
+    store.dispatch("setSynthSettings", state.synthSettings);
   }
 };
 
-export const setSynthSettings = ({ commit }, payload) => {
-  commit("setSynthSettings", payload);
+export const setSynthSettings = ({ commit, state }, synthSettings) => {
+  eval(`bpm = ${synthSettings.bpm}`);
+  post(`bpm = ${synthSettings.bpm}`);
+
+  eval(`speed = ${synthSettings.speed}`);
+  post(`speed = ${synthSettings.speed}`);
+
+  const multiplier = (synthSettings.resolution * window.devicePixelRatio) / 100;
+
+  eval(
+    `setResolution(${window.outerHeight * multiplier}, ${
+      window.outerWidth * multiplier
+    })`,
+  );
+  post(
+    `setResolution(${window.outerHeight * multiplier}, ${
+      window.outerWidth * multiplier
+    })`,
+  );
+
+  eval(`fps = ${synthSettings.fps}`);
+  post(`fps = ${synthSettings.fps}`);
+
+  localStorage.setItem("synthSettings", JSON.stringify(synthSettings));
+
+  if (synthSettings === state.synthSettings) return;
+
+  commit("setSynthSettings", synthSettings);
 };
 
-export const setOutput = ({ state, commit }, payload) => {
-  if (state.synthSettings.output === payload) return;
+export const setOutput = ({ state, commit }, output) => {
+  if (state.synthSettings.output === output) return;
 
-  commit("setOutput", payload);
+  commit("setOutput", output);
 
-  store.dispatch("update");
+  store.dispatch("update", false);
 };
 
 // History
 
-export const setHistory = ({ commit, state }) => {
-  const history = state.history;
-
-  commit("setHistory", history);
-  commit("setHistoryIndex", state.historyIndex + 1);
+export const setHistory = ({ commit }) => {
+  commit("setHistory");
+  commit("setHistoryIndex", 0);
 };
 
-export const setHistoryIndex = ({ commit, state }, payload) => {
-  if (state.historyIndex === payload) return;
+/**
+ * @param {Number} direction 1 for undo, -1 for redo
+ */
+export const undoRedo = ({ commit, state }, direction) => {
+  const { history, historyIndex } = state;
+  const newHistoryIndex = historyIndex + direction;
 
-  commit("setHistoryIndex", payload);
-};
+  if (newHistoryIndex < 0 || newHistoryIndex >= history.length) return;
 
-export const undo = ({ commit, state }) => {
-  const historyIndex = deepCopy(state.historyIndex);
-  const history = deepCopy(state.history);
+  commit("setHistoryIndex", newHistoryIndex);
 
-  if (historyIndex < history.length - 1) {
-    commit("setHistoryIndex", historyIndex + 1);
-    commit("setBlocks", {
-      blocks: [
-        ...history[historyIndex + 1].blocks,
-        ...history[historyIndex + 1].externalSourceBlocks,
-      ],
-      isUndoRedo: true,
-    });
-  }
-};
-
-export const redo = ({ commit, state }) => {
-  const historyIndex = deepCopy(state.historyIndex);
-  const history = deepCopy(state.history);
-
-  if (historyIndex > 0) {
-    commit("setHistoryIndex", historyIndex - 1);
-    commit("setBlocks", {
-      blocks: [
-        ...history[historyIndex - 1].blocks,
-        ...history[historyIndex - 1].externalSourceBlocks,
-      ],
-      isUndoRedo: true,
-    });
-  }
+  store.dispatch("setBlocks", {
+    blocks: deepCopy([
+      ...history[newHistoryIndex].blocks,
+      ...history[newHistoryIndex].externalSourceBlocks,
+    ]),
+    shouldSetHistory: false,
+  });
 };

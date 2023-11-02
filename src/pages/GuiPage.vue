@@ -5,7 +5,7 @@
 
   <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
 
-  <div class="playground" @click="() => setFocus(null)" />
+  <div class="playground" @click="() => focused && setFocus(null)" />
 
   <navigation-panel
     :class="{ hidden: areBlocksHidden }"
@@ -20,7 +20,7 @@
       :key="'src-block-' + index"
       :class="['source', { focused: focused === block }]"
     >
-      <div @click="() => setFocus(blocks[index])">
+      <div @click="() => handleHeaderClick(blocks[index])">
         <strong
           class="output-header"
           @mousedown="(e) => moveBlock(e, index, block.type)"
@@ -33,13 +33,16 @@
             />
             <span
               class="delete"
-              @click="deleteBlock({ type: block.type, index })"
+              @click="deleteParent({ type: block.type, index })"
             />
           </div>
         </strong>
         <div v-if="block.name === 'src'" class="param-input-container">
           <label>{{ block.params[0].name }}</label>
-          <select v-model="block.params[0].value">
+          <select
+            v-model="block.params[0].value"
+            @change="() => handleChange()"
+          >
             <option
               v-for="(source, sIndex) in externalSourceBlocks"
               :key="'s' + sIndex"
@@ -63,11 +66,20 @@
           class="param-input-container"
         >
           <label>{{ param.name }}</label>
-          <input v-model="param.value" type="text" @focusout="update" />
+          <input
+            v-model="param.value"
+            type="text"
+            @focusin="setInputFocus(true)"
+            @focusout="() => handleChange()"
+          />
         </div>
       </div>
 
-      <nested-draggable :children="block.blocks" :parent="block" />
+      <nested-draggable
+        :children="block.blocks"
+        :parent="block"
+        :handle-change="() => handleChange()"
+      />
     </div>
 
     <div
@@ -84,7 +96,7 @@
         <div>
           <span
             class="delete"
-            @click="deleteBlock({ type: block.type, index })"
+            @click="deleteParent({ type: block.type, index })"
           />
         </div>
       </strong>
@@ -106,10 +118,16 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-
 import { mapGetters, mapActions } from "vuex";
 
-import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "~/constants";
+import { deepCopy } from "~/utils/object-utils";
+
+import {
+  WELCOME_MODAL_LAST_UPDATE,
+  INITIAL_BLOCKS,
+  TYPE_EXTERNAL,
+  TYPE_SRC,
+} from "~/constants";
 
 import NavigationPanel from "~/components/NavigationPanel";
 import NestedDraggable from "~/components/NestedDraggable";
@@ -129,6 +147,7 @@ export default {
 
   data() {
     return {
+      prevBlocks: null,
       movedBlockCoordinates: { x: 0, y: 0 },
       areBlocksHidden: false,
       isWelcomeModalOpen: false,
@@ -140,18 +159,21 @@ export default {
   computed: {
     ...mapGetters([
       "focused",
+      "isInputFocused",
       "blocks",
       "externalSourceBlocks",
       "synthSettings",
       "history",
+      "historyIndex",
     ]),
   },
 
   mounted() {
     // show welcome modal
-    if (localStorage.getItem("welcomeModalClosed")) {
-      this.isWelcomeModalOpen = false;
-    } else {
+    if (
+      !localStorage.getItem("welcomeModalLastUpdate") ||
+      localStorage.getItem("welcomeModalLastUpdate") < WELCOME_MODAL_LAST_UPDATE
+    ) {
       this.isWelcomeModalOpen = true;
     }
 
@@ -161,35 +183,44 @@ export default {
     if (localStorage.getItem("blocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("blocks")));
     } else {
-      blocks.push(...JSON.parse(INITIAL_BLOCKS));
+      blocks.push(...INITIAL_BLOCKS);
     }
 
     if (localStorage.getItem("externalSourceBlocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("externalSourceBlocks")));
     }
 
-    this.setBlocks({ blocks });
-
     if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
     }
 
-    this.update();
+    this.setBlocks({ blocks });
+
+    // set up history
+    this.prevBlocks = [
+      ...deepCopy(this.blocks),
+      ...deepCopy(this.externalSourceBlocks),
+    ];
 
     // set up keyboard shortcuts
     const onKeyDown = (e) => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.keyCode === 90 && !e.shiftKey) {
-          e.preventDefault();
-          return this.undo();
-        }
+        if (!this.isInputFocused) {
+          // undo
+          if (e.keyCode === 90 && !e.shiftKey) {
+            e.preventDefault();
+            return this.undoRedo(1);
+          }
 
-        if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
-          e.preventDefault();
-          return this.redo();
+          // redo
+          if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
+            e.preventDefault();
+            return this.undoRedo(-1);
+          }
         }
       }
 
+      // toggle blocks
       if (e.key === "Escape") {
         if (this.isSettingsModalOpen) {
           return this.closeSettingsModal();
@@ -198,6 +229,10 @@ export default {
         }
 
         return (this.areBlocksHidden = !this.areBlocksHidden);
+      }
+
+      if (this.isInputFocused && e.key === "Enter") {
+        return this.handleChange(true);
       }
     };
 
@@ -217,15 +252,33 @@ export default {
   methods: {
     ...mapActions([
       "setFocus",
+      "setInputFocus",
       "setBlocks",
       "setBlockPosition",
-      "deleteBlock",
-      "update",
+      "deleteParent",
       "setSynthSettings",
       "setOutput",
-      "undo",
-      "redo",
+      "undoRedo",
     ]),
+
+    handleHeaderClick(clickedBlock) {
+      if (this.focused === clickedBlock) return;
+
+      this.setFocus(clickedBlock);
+    },
+
+    handleChange(isEnterKey = false) {
+      console.log("handleChange", isEnterKey);
+      if (!isEnterKey) this.setInputFocus(false);
+
+      const newBlocks = [...this.blocks, ...this.externalSourceBlocks];
+
+      if (JSON.stringify(newBlocks) === JSON.stringify(this.prevBlocks)) return;
+
+      this.setBlocks({ blocks: newBlocks });
+
+      this.prevBlocks = deepCopy(newBlocks);
+    },
 
     moveBlock(e, index, type, position) {
       let div;
@@ -275,11 +328,6 @@ export default {
           type,
           position: this.movedBlockCoordinates,
         });
-
-        // This is to be able to undo/redo the moving of a block
-        this.setBlocks({
-          blocks: [...this.blocks, ...this.externalSourceBlocks],
-        });
       };
 
       document.addEventListener("mousemove", move);
@@ -288,7 +336,7 @@ export default {
 
     closeWelcomeModal() {
       this.isWelcomeModalOpen = false;
-      localStorage.setItem("welcomeModalClosed", true);
+      localStorage.setItem("welcomeModalLastUpdate", WELCOME_MODAL_LAST_UPDATE);
     },
 
     openThreeModal() {
