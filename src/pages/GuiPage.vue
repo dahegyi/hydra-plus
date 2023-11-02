@@ -174,7 +174,7 @@ export default {
     if (localStorage.getItem("blocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("blocks")));
     } else {
-      blocks.push(...JSON.parse(INITIAL_BLOCKS));
+      blocks.push(...INITIAL_BLOCKS);
     }
 
     if (localStorage.getItem("externalSourceBlocks")) {
