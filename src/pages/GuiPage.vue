@@ -122,7 +122,12 @@ import { mapGetters, mapActions } from "vuex";
 
 import { deepCopy } from "~/utils/object-utils";
 
-import { INITIAL_BLOCKS, TYPE_EXTERNAL, TYPE_SRC } from "~/constants";
+import {
+  WELCOME_MODAL_LAST_UPDATE,
+  INITIAL_BLOCKS,
+  TYPE_EXTERNAL,
+  TYPE_SRC,
+} from "~/constants";
 
 import NavigationPanel from "~/components/NavigationPanel";
 import NestedDraggable from "~/components/NestedDraggable";
@@ -165,9 +170,10 @@ export default {
 
   mounted() {
     // show welcome modal
-    if (localStorage.getItem("welcomeModalClosed")) {
-      this.isWelcomeModalOpen = false;
-    } else {
+    if (
+      !localStorage.getItem("welcomeModalLastUpdate") ||
+      localStorage.getItem("welcomeModalLastUpdate") < WELCOME_MODAL_LAST_UPDATE
+    ) {
       this.isWelcomeModalOpen = true;
     }
 
@@ -330,7 +336,7 @@ export default {
 
     closeWelcomeModal() {
       this.isWelcomeModalOpen = false;
-      localStorage.setItem("welcomeModalClosed", true);
+      localStorage.setItem("welcomeModalLastUpdate", WELCOME_MODAL_LAST_UPDATE);
     },
 
     openThreeModal() {
