@@ -19,6 +19,7 @@ const state = {
   codeString: "",
   history: [],
   historyIndex: 0,
+  isUndoRedo: false,
 };
 
 export default createStore({
@@ -26,5 +27,8 @@ export default createStore({
   getters,
   actions,
   mutations,
-  plugins: process.env.NODE_ENV !== "production" ? [createLogger()] : [],
+  plugins:
+    process.env.NODE_ENV !== "production"
+      ? [createLogger({ logActions: true, logMutations: true })]
+      : [],
 });
