@@ -7,8 +7,5 @@ export const showToast = (error) => {
     close: true,
     gravity: "bottom",
     stopOnFocus: true,
-    style: {
-      background: "#b62424",
-    },
   }).showToast();
 };

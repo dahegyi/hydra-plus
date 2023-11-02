@@ -49,8 +49,6 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 
-import "toastify-js/src/toastify.css";
-
 import {
   TYPE_SRC,
   TYPE_EXTERNAL,

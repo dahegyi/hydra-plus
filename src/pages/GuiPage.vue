@@ -268,7 +268,6 @@ export default {
     },
 
     handleChange(isEnterKey = false) {
-      console.log("handleChange", isEnterKey);
       if (!isEnterKey) this.setInputFocus(false);
 
       const newBlocks = [...this.blocks, ...this.externalSourceBlocks];
