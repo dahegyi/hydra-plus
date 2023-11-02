@@ -24,7 +24,7 @@ export const setInputFocus = ({ commit }, isInputFocused) => {
   commit("setInputFocus", isInputFocused);
 };
 
-export const setBlocks = ({ commit, state }, { blocks, isUndoRedo }) => {
+export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
   if (
     blocks.filter((block) => block.type === TYPE_SRC) === state.blocks &&
     blocks.filter((block) => block.type === TYPE_EXTERNAL) ===
@@ -35,7 +35,7 @@ export const setBlocks = ({ commit, state }, { blocks, isUndoRedo }) => {
 
   commit("setBlocks", blocks);
 
-  store.dispatch("update", isUndoRedo);
+  store.dispatch("update", shouldSetHistory);
 };
 
 /**
@@ -143,7 +143,7 @@ export const setBlockPosition = ({ commit }, payload) => {
   store.dispatch("setHistory");
 };
 
-export const update = ({ commit, state }, isUndoRedo) => {
+export const update = ({ commit, state }, shouldSetHistory = true) => {
   const { blocks, externalSourceBlocks, synthSettings } = state;
 
   let codeString = "";
@@ -151,7 +151,8 @@ export const update = ({ commit, state }, isUndoRedo) => {
   if (blocks.length === 0) {
     codeString = "hush()";
   } else {
-    if (!synthSettings.output) commit("setOutput", 0);
+    if (!synthSettings.output || !blocks[synthSettings.output])
+      commit("setOutput", 0);
 
     for (let i = 0; i < externalSourceBlocks.length; i++) {
       if (externalSourceBlocks[i].name !== "initScreen") {
@@ -175,7 +176,7 @@ export const update = ({ commit, state }, isUndoRedo) => {
     showToast(error);
   }
 
-  if (!isUndoRedo) store.dispatch("setHistory");
+  if (shouldSetHistory) store.dispatch("setHistory");
 };
 
 export const send = ({ state }) => {
@@ -227,7 +228,7 @@ export const setOutput = ({ state, commit }, output) => {
 
   commit("setOutput", output);
 
-  store.dispatch("update");
+  store.dispatch("update", false);
 };
 
 // History
@@ -253,6 +254,6 @@ export const undoRedo = ({ commit, state }, direction) => {
       ...history[newHistoryIndex].blocks,
       ...history[newHistoryIndex].externalSourceBlocks,
     ]),
-    isUndoRedo: true,
+    shouldSetHistory: false,
   });
 };
