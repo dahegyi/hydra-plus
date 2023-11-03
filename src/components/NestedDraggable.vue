@@ -121,12 +121,13 @@ export default {
 $darkblue: #02042c;
 
 .dragArea {
-  min-height: 40px;
+  min-height: 50px;
   padding: 1px 0 0;
+  border-radius: 0 0 10px 10px;
   margin: 0.5rem 0 0;
   background: #00000040;
+  box-shadow: inset 0 0 0 1px #ffffff60;
   list-style: none;
-  outline: 1px dashed #ffffff80;
 
   li {
     padding: 0.65rem;

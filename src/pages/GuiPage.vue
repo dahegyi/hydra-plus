@@ -358,8 +358,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$darkblue: #02042c;
-
 .playground {
   position: fixed;
   z-index: 0;
@@ -373,29 +371,29 @@ $darkblue: #02042c;
   display: none;
 }
 
+$border-radius: 10px;
+
 .source {
   position: absolute;
   display: flex;
   width: fit-content;
   min-width: 320px;
   flex-direction: column;
-  padding: 1rem;
-  border-radius: 12px;
+  border-radius: $border-radius;
   backdrop-filter: blur(6px);
   background: #222222aa;
 
   .output-header {
     display: flex;
     justify-content: space-between;
-    padding: 6px;
-    border: 1px solid $darkblue;
-    border-radius: 6px;
+    padding: 10px 6px;
+    border-radius: $border-radius $border-radius 0 0;
     margin-bottom: 0.5rem;
     background: #fff;
-    color: $darkblue;
+    color: #000;
     cursor: move;
 
-    $iconSize: 21px;
+    $iconSize: 24px;
 
     .activate,
     .delete {
@@ -403,20 +401,27 @@ $darkblue: #02042c;
       width: $iconSize;
       height: $iconSize;
       cursor: pointer;
+
+      &:before,
+      &:after {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        content: "";
+        transform: translate(-50%, -50%);
+      }
     }
 
     .activate {
-      right: calc(2 * $iconSize);
+      right: calc($iconSize + 8px);
 
       &:after {
-        position: absolute;
-        top: 25%;
-        left: 25%;
         width: calc($iconSize / 3);
         height: calc($iconSize / 3);
-        border: 4px solid $darkblue;
+        border: 4px solid #000;
         border-radius: 50%;
-        content: "";
       }
 
       &.active {
@@ -427,16 +432,14 @@ $darkblue: #02042c;
     }
 
     .delete {
-      right: $iconSize;
+      right: 10px;
 
       &:before,
       &:after {
-        position: absolute;
-        top: 50%;
+        top: 10px;
         left: 10%;
-        width: 16px;
-        border-top: 3px solid $darkblue;
-        content: "";
+        width: 17px;
+        border-top: 4px solid #000;
       }
 
       &:before {
@@ -446,6 +449,18 @@ $darkblue: #02042c;
       &:after {
         transform: rotate(-45deg);
       }
+    }
+  }
+
+  .param-input-container {
+    padding: 0 12px;
+
+    &:first-of-type {
+      padding-top: 2px;
+    }
+
+    &:last-of-type {
+      padding-bottom: 14px;
     }
   }
 
