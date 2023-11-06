@@ -1,49 +1,98 @@
 <template>
   <div class="modal">
-    <h2>synth settings</h2>
-
-    <span class="close" @click="close" />
-
-    <div class="row">
-      <label>speed</label>
-      <input v-model="synthSettings.speed" type="number" />
+    <div class="header">
+      <h2>synth settings</h2>
+      <span class="close" @click="close" />
     </div>
 
-    <div class="row">
-      <label>bpm</label>
-      <input v-model="synthSettings.bpm" type="number" />
+    <div class="tab-select">
+      <button :class="{ active: activeTab === 0 }" @click="activeTab = 0">
+        synth settings
+      </button>
+
+      <button :class="{ active: activeTab === 1 }" @click="activeTab = 1">
+        philips hue settings
+      </button>
     </div>
 
-    <div class="row">
-      <label>output</label>
-      <select v-model="synthSettings.output">
-        <option value="">select output</option>
-        <option v-for="(block, index) in blocks" :key="index" :value="index">
-          o{{ index }} - {{ block.name }}
-        </option>
-      </select>
-    </div>
+    <div v-if="activeTab === 0" class="tab-content">
+      <div class="row">
+        <label>speed</label>
+        <input v-model="synthSettings.speed" type="number" />
+      </div>
 
-    <div class="row">
-      <label>resolution</label>
-      <input
-        v-model="synthSettings.resolution"
-        type="range"
-        min="1"
-        max="100"
-        class="slider"
-      />
-    </div>
+      <div class="row">
+        <label>bpm</label>
+        <input v-model="synthSettings.bpm" type="number" />
+      </div>
 
-    <div class="row">
-      <label>fps</label>
-      <input v-model="synthSettings.fps" type="number" />
-    </div>
+      <div class="row">
+        <label>output</label>
+        <select v-model="synthSettings.output">
+          <option value="">select output</option>
+          <option v-for="(block, index) in blocks" :key="index" :value="index">
+            o{{ index }} - {{ block.name }}
+          </option>
+        </select>
+      </div>
 
-    <a href="#" @click="openVisualizer">open visualizer</a>
+      <div class="row">
+        <label>resolution</label>
+        <input
+          v-model="synthSettings.resolution"
+          type="range"
+          min="1"
+          max="100"
+          class="slider"
+        />
+      </div>
 
-    <div>
+      <div class="row">
+        <label>fps</label>
+        <input v-model="synthSettings.fps" type="number" />
+      </div>
+
+      <a href="#" @click="openVisualizer">open visualizer</a>
+
       <button @click="setSynthSettings(synthSettings)">save</button>
+    </div>
+
+    <div v-else-if="activeTab === 1" class="tab-content">
+      <div v-if="arePhilipsHueSettingsAvailabe">
+        <p>philips hue settings - experimental</p>
+
+        <!-- @todo connection settings -->
+
+        <div class="row">
+          <label>red</label>
+          <input
+            v-model="red"
+            type="number"
+            @focusout="updateRGB({ red, green, blue })"
+          />
+        </div>
+
+        <div class="row">
+          <label>green</label>
+          <input
+            v-model="green"
+            type="number"
+            @focusout="updateRGB({ red, green, blue })"
+          />
+        </div>
+
+        <div class="row">
+          <label>blue</label>
+          <input
+            v-model="blue"
+            type="number"
+            @focusout="updateRGB({ red, green, blue })"
+          />
+        </div>
+      </div>
+      <div v-else>
+        <p>not available in production</p>
+      </div>
     </div>
   </div>
 </template>
@@ -53,10 +102,25 @@ import { mapGetters, mapActions } from "vuex";
 export default {
   emits: ["close"],
 
-  computed: mapGetters(["blocks", "synthSettings"]),
+  data() {
+    return {
+      activeTab: 0,
+      red: "1",
+      green: "1",
+      blue: "1",
+    };
+  },
+
+  computed: {
+    ...mapGetters(["blocks", "synthSettings"]),
+
+    arePhilipsHueSettingsAvailabe() {
+      return process.env.NODE_ENV !== "production";
+    },
+  },
 
   methods: {
-    ...mapActions(["setSynthSettings"]),
+    ...mapActions(["setSynthSettings", "updateRGB"]),
 
     close() {
       this.$emit("close");

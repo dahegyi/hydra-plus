@@ -6,6 +6,9 @@ import mutations from "./mutations";
 import { INITIAL_BLOCKS } from "../constants";
 
 const state = {
+  r: "1",
+  g: "1",
+  b: "1",
   focused: null,
   isInputFocused: false,
   blocks: INITIAL_BLOCKS,

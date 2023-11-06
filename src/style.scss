@@ -133,19 +133,50 @@ hr {
     }
   }
 
-  a {
-    margin-bottom: 1rem;
-    color: #fff;
+  .tab-select {
+    display: flex;
+    width: 100%;
+    align-items: start;
 
-    &:hover {
-      color: #fff;
+    button {
+      padding: 0.75rem 1rem;
+      border: none;
+      margin-bottom: -2px;
+      background: none;
+
+      &.active {
+        background: #333;
+      }
     }
   }
 
-  button {
-    width: 120px;
-    border: 2px solid #fff;
-    margin: 10px 0 0;
+  .tab-content {
+    display: flex;
+    width: 100%;
+    min-height: 120px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.5rem;
+    border-radius: 0 0 8px 8px;
+    background: #333;
+
+    a {
+      margin-bottom: 1rem;
+      color: #fff;
+      text-align: center;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    button {
+      display: block;
+      width: 120px;
+      border: 2px solid #fff;
+      margin: 10px auto 0;
+    }
   }
 }
 

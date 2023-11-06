@@ -5,7 +5,7 @@ import { deepCopy, flatten, flattenExternal } from "~/utils/object-utils";
 
 import store from "./";
 
-import { showToast } from "~/utils/index.js";
+import { showToast, setHueLights } from "~/utils";
 
 import {
   MAX_NUMBER_OF_SOURCES,
@@ -15,6 +15,11 @@ import {
   TYPE_THREE,
   TYPE_COMPLEX,
 } from "~/constants";
+
+export const updateRGB = ({ commit }, { red, green, blue }) => {
+  commit("setRGB", { red, green, blue });
+  store.dispatch("update", false);
+};
 
 export const setFocus = ({ commit }, focused) => {
   commit("setFocus", focused);
@@ -143,8 +148,11 @@ export const setBlockPosition = ({ commit }, payload) => {
   store.dispatch("setHistory");
 };
 
-export const update = ({ commit, state }, shouldSetHistory = true) => {
+export const update = async ({ commit, state }, shouldSetHistory = true) => {
   const { blocks, externalSourceBlocks, synthSettings } = state;
+
+  // @todo make a switch for this
+  const isHuePluginEnabled = false && process.env.NODE_ENV !== "production";
 
   let codeString = "";
 
@@ -160,8 +168,18 @@ export const update = ({ commit, state }, shouldSetHistory = true) => {
       }
     }
 
+    if (isHuePluginEnabled) {
+      setHueLights(state);
+    }
+
     for (let i = 0; i < blocks.length; i++) {
-      codeString += `${flatten(blocks[i])}.out(o${i})\n`;
+      codeString += `${flatten(blocks[i])}`;
+
+      if (isHuePluginEnabled) {
+        codeString += `.color(${state.r}, ${state.g}, ${state.b}, 1)`;
+      }
+
+      codeString += `.out(o${i})\n`;
     }
 
     codeString += `window.hydra.render(o${synthSettings.output})`;

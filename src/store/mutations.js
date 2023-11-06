@@ -3,6 +3,14 @@ import { deepCopy } from "~/utils/object-utils";
 import { DEFAULT_POSITION, TYPE_SRC, TYPE_EXTERNAL } from "~/constants";
 
 export default {
+  // RGB
+
+  setRGB(state, { red, green, blue }) {
+    state.r = red;
+    state.g = green;
+    state.b = blue;
+  },
+
   // Focus
 
   setFocus(state, focused) {
