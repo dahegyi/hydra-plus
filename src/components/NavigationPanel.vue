@@ -11,7 +11,6 @@
             v-for="source in sources"
             :key="source.name"
             :class="source.type"
-            :disabled="source.type === TYPE_THREE"
             @click="addParent(source)"
           >
             {{ source.name }}

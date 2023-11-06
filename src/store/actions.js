@@ -51,6 +51,12 @@ export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
  * @param {Object} source source object
  */
 export const addParent = ({ commit, state }, source) => {
+  if (source.type === TYPE_THREE) {
+    return showToast(
+      `Sorry, not yet. You can add Three.js sources only from the editor locally. See App.vue for more info.`,
+    );
+  }
+
   const copiedSource = deepCopy(source);
 
   if (!state.focused) {
