@@ -132,6 +132,36 @@ import {
 import NavigationPanel from "~/components/NavigationPanel";
 import NestedDraggable from "~/components/NestedDraggable";
 
+// // @todo: losing window focus breaks the beat counter
+// let beatHappened = false;
+// let beatCounter = 0;
+// let lastBeatTime = 1; // so that the first beat is always logged
+// const beatLogInterval = 4;
+
+// // eslint-disable-next-line no-undef
+// update = () => {
+//   const { bpm, fps, time } = window.hydra;
+//   const beatInterval = 60 / bpm;
+//   const frameInterval = 1 / fps;
+//   const timeSinceLastBeat = time % beatInterval;
+
+//   if (timeSinceLastBeat < lastBeatTime && !beatHappened) {
+//     beatHappened = true;
+//     beatCounter += 1;
+
+//     if (beatCounter === beatLogInterval) {
+//       console.log("beat");
+//       beatCounter = 0;
+//     }
+//   }
+
+//   lastBeatTime = timeSinceLastBeat;
+
+//   if (timeSinceLastBeat > frameInterval) {
+//     beatHappened = false;
+//   }
+// };
+
 export default {
   components: {
     WelcomeModal: defineAsyncComponent(() =>
