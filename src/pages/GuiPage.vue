@@ -401,7 +401,7 @@ export default {
   display: none;
 }
 
-$border-radius: 10px;
+$border-radius: 14px;
 
 .source {
   position: absolute;
@@ -409,15 +409,16 @@ $border-radius: 10px;
   width: fit-content;
   min-width: 320px;
   flex-direction: column;
-  border-radius: $border-radius;
+  border-radius: $border-radius / 2 $border-radius / 2 0 $border-radius;
   backdrop-filter: blur(6px);
   background: #222222aa;
+  box-shadow: 0 3px 12px #000;
 
   .output-header {
     display: flex;
     justify-content: space-between;
     padding: 10px 6px;
-    border-radius: $border-radius $border-radius 0 0;
+    border-radius: $border-radius / 2 $border-radius / 2 0 0;
     margin-bottom: 0.5rem;
     background: #fff;
     color: #000;

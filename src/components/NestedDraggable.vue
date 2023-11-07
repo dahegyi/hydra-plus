@@ -1,11 +1,12 @@
 <template>
   <draggable
-    class="dragArea"
+    class="drag-area"
     tag="ul"
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
     @end="handleChange"
+    @move="(e) => handleMove(e)"
   >
     <template #item="{ element }">
       <li :class="{ focused: focused === element }">
@@ -56,8 +57,20 @@
           />
         </div>
 
+        <ul
+          v-if="canHaveChild(element.type) && !hasDraggableChild(element)"
+          class="drag-area-button"
+          @click="openAddBlockModal(element)"
+        />
+
         <nested-draggable
-          v-if="hasDraggableChild(element.type)"
+          v-if="canHaveChild(element.type)"
+          :class="[
+            {
+              'button-visible': !hasDraggableChild(element),
+            },
+            element.type,
+          ]"
           :parent="element"
           :children="element.blocks"
           :handle-change="handleChange"
@@ -100,12 +113,16 @@ export default {
   methods: {
     ...mapActions(["setFocus", "setInputFocus", "setBlocks", "deleteChild"]),
 
-    hasDraggableChild(type) {
+    canHaveChild(type) {
       return type === TYPE_SRC || type === TYPE_COMPLEX;
     },
 
+    hasDraggableChild(element) {
+      return element.blocks.length > 0;
+    },
+
     onFocus(element) {
-      const focusedElement = this.hasDraggableChild(element.type)
+      const focusedElement = this.canHaveChild(element.type)
         ? element
         : this.parent;
 
@@ -113,24 +130,76 @@ export default {
 
       this.setFocus(focusedElement, true);
     },
+
+    openAddBlockModal(element) {
+      console.log(element);
+    },
+
+    handleMove(e) {
+      console.log(e.to.parentElement);
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-$darkblue: #02042c;
+$height: 65px;
+$border-radius: 14px;
+$spacing: 8px;
 
-.dragArea {
-  min-height: 50px;
-  padding: 1px 0 0;
-  border-radius: 0 0 10px 10px;
-  margin: 0.5rem 0 0;
+$button-text: "drag & drop or click to add";
+
+@mixin drag-area-after {
+  display: flex;
+  min-height: $height;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 0 $border-radius;
+  margin: 0;
+}
+
+.drag-area-button {
+  position: relative;
+  padding: 0;
+
+  &::after {
+    @include drag-area-after;
+    margin-bottom: -$height;
+    content: "";
+  }
+}
+
+.drag-area {
+  min-height: $height;
+  padding: 0;
+  border-radius: 0 0 0 $border-radius;
+  margin: 0;
   background: #00000040;
-  box-shadow: inset 0 0 0 1px #ffffff60;
+  box-shadow: inset 0 0 0 1px #999;
   list-style: none;
 
+  &.button-visible:empty {
+    &::after {
+      @include drag-area-after;
+    }
+
+    &.source {
+      &::after {
+        content: "#{$button-text} effect";
+      }
+    }
+
+    &.complex {
+      &::after {
+        content: "#{$button-text} source";
+      }
+    }
+  }
+
   li {
-    padding: 0.65rem;
+    padding: $spacing 0 $spacing $spacing;
+    border-radius: 0 0 0 $border-radius;
     border-bottom: 2px solid #222;
 
     &:hover {
@@ -147,6 +216,7 @@ $darkblue: #02042c;
 
     strong {
       display: flex;
+      margin-right: $spacing;
       cursor: pointer;
       user-select: none;
 
@@ -176,6 +246,14 @@ $darkblue: #02042c;
         &:after {
           transform: rotate(-45deg);
         }
+      }
+    }
+
+    .param-input-container {
+      margin-right: $spacing + 2;
+
+      &:last-of-type {
+        margin-bottom: $spacing;
       }
     }
   }
