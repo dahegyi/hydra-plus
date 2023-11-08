@@ -14,105 +14,23 @@
   />
 
   <div :class="{ hidden: areBlocksHidden }">
-    <div
+    <parent-block
       v-for="(block, index) in blocks"
-      :id="'src-block-' + index"
-      :key="'src-block-' + index"
-      :class="['source', { focused: focused === block }]"
-    >
-      <div @click="() => handleHeaderClick(blocks[index])">
-        <strong
-          class="output-header"
-          @mousedown="(e) => moveBlock(e, index, block.type)"
-        >
-          <span>o{{ index }} - {{ block.name }}</span>
-          <div>
-            <span
-              :class="['activate', { active: synthSettings.output === index }]"
-              @click="setOutput(index)"
-            />
-            <span
-              class="delete"
-              @click="deleteParent({ type: block.type, index })"
-            />
-          </div>
-        </strong>
-        <div v-if="block.name === 'src'" class="param-input-container">
-          <label>{{ block.params[0].name }}</label>
-          <select
-            v-model="block.params[0].value"
-            @change="() => handleChange()"
-          >
-            <option
-              v-for="(source, sIndex) in externalSourceBlocks"
-              :key="'s' + sIndex"
-              :value="'s' + sIndex"
-            >
-              s{{ sIndex }} - {{ source.name }}
-            </option>
-            <option
-              v-for="(output, oIndex) in blocks"
-              :key="'o' + oIndex"
-              :value="'o' + oIndex"
-            >
-              o{{ oIndex }} - {{ output.name }}
-            </option>
-          </select>
-        </div>
-        <div
-          v-for="(param, paramIndex) in block.params"
-          v-else
-          :key="paramIndex"
-          class="param-input-container"
-        >
-          <label>{{ param.name }}</label>
-          <input
-            v-model="param.value"
-            type="text"
-            @focusin="setInputFocus(true)"
-            @focusout="() => handleChange()"
-          />
-        </div>
-      </div>
+      :key="index"
+      :index="index"
+      :block="block"
+      :handle-change="handleChange"
+      :move-block="moveBlock"
+    />
 
-      <nested-draggable
-        :children="block.blocks"
-        :parent="block"
-        :handle-change="() => handleChange()"
-      />
-    </div>
-
-    <div
+    <parent-block
       v-for="(block, index) in externalSourceBlocks"
-      :id="'ext-block-' + index"
-      :key="'ext-block-' + index"
-      class="source external"
-    >
-      <strong
-        class="output-header"
-        @mousedown="(e) => moveBlock(e, index, block.type)"
-      >
-        <span>s{{ index }} - {{ block.name }}</span>
-        <div>
-          <span
-            class="delete"
-            @click="deleteParent({ type: block.type, index })"
-          />
-        </div>
-      </strong>
-      <div
-        v-for="(param, paramIndex) in block.params"
-        :key="paramIndex"
-        class="param-input-container"
-      >
-        <label :for="paramIndex">{{ param.name }}</label>
-        <input
-          :id="index + param.name + paramIndex"
-          v-model="param.value"
-          type="text"
-        />
-      </div>
-    </div>
+      :key="index"
+      :index="index"
+      :block="block"
+      :handle-change="handleChange"
+      :move-block="moveBlock"
+    />
   </div>
 </template>
 
@@ -125,12 +43,12 @@ import { deepCopy } from "~/utils/object-utils";
 import {
   WELCOME_MODAL_LAST_UPDATE,
   INITIAL_BLOCKS,
-  TYPE_EXTERNAL,
   TYPE_SRC,
+  TYPE_EXTERNAL,
 } from "~/constants";
 
 import NavigationPanel from "~/components/NavigationPanel";
-import NestedDraggable from "~/components/NestedDraggable";
+import ParentBlock from "../components/ParentBlock.vue";
 
 // // @todo: losing window focus breaks the beat counter
 // let beatHappened = false;
@@ -172,7 +90,7 @@ export default {
       import("~/components/SettingsModal"),
     ),
     NavigationPanel,
-    NestedDraggable,
+    ParentBlock,
   },
 
   data() {
@@ -193,8 +111,6 @@ export default {
       "blocks",
       "externalSourceBlocks",
       "synthSettings",
-      "history",
-      "historyIndex",
     ]),
   },
 
@@ -285,17 +201,9 @@ export default {
       "setInputFocus",
       "setBlocks",
       "setBlockPosition",
-      "deleteParent",
       "setSynthSettings",
-      "setOutput",
       "undoRedo",
     ]),
-
-    handleHeaderClick(clickedBlock) {
-      if (this.focused === clickedBlock) return;
-
-      this.setFocus(clickedBlock);
-    },
 
     handleChange(isEnterKey = false) {
       if (!isEnterKey) this.setInputFocus(false);
@@ -313,11 +221,7 @@ export default {
       let div;
       let positionChanged = false;
 
-      if (type === TYPE_SRC) {
-        div = document.getElementById("src-block-" + index);
-      } else {
-        div = document.getElementById("ext-block-" + index);
-      }
+      div = document.getElementById(`${type}-block-${index}`);
 
       if (position) {
         return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
@@ -399,174 +303,5 @@ export default {
 
 .hidden {
   display: none;
-}
-
-$border-radius: 14px;
-
-.source {
-  position: absolute;
-  display: flex;
-  width: fit-content;
-  min-width: 320px;
-  flex-direction: column;
-  border-radius: $border-radius / 2 $border-radius / 2 0 $border-radius;
-  backdrop-filter: blur(6px);
-  background: #222222aa;
-  box-shadow: 0 3px 12px #000;
-
-  .output-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 6px;
-    border-radius: $border-radius / 2 $border-radius / 2 0 0;
-    margin-bottom: 0.5rem;
-    background: #fff;
-    color: #000;
-    cursor: move;
-
-    $iconSize: 24px;
-
-    .activate,
-    .delete {
-      position: absolute;
-      width: $iconSize;
-      height: $iconSize;
-      cursor: pointer;
-
-      &:before,
-      &:after {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        content: "";
-        transform: translate(-50%, -50%);
-      }
-    }
-
-    .activate {
-      right: calc($iconSize + 8px);
-
-      &:after {
-        width: calc($iconSize / 3);
-        height: calc($iconSize / 3);
-        border: 4px solid #000;
-        border-radius: 50%;
-      }
-
-      &.active {
-        &:after {
-          border-color: #f55858;
-        }
-      }
-    }
-
-    .delete {
-      right: 10px;
-
-      &:before,
-      &:after {
-        top: 10px;
-        left: 10%;
-        width: 17px;
-        border-top: 4px solid #000;
-      }
-
-      &:before {
-        transform: rotate(45deg);
-      }
-
-      &:after {
-        transform: rotate(-45deg);
-      }
-    }
-  }
-
-  .param-input-container {
-    padding: 0 12px;
-
-    &:first-of-type {
-      padding-top: 2px;
-    }
-
-    &:last-of-type {
-      padding-bottom: 14px;
-    }
-  }
-
-  &:not(.external) {
-    $offset-top: -300%;
-    $color: #ffffff;
-    $bottom-color: #38383890;
-    $offset-bottom: 150%;
-
-    @mixin block-colors {
-      background: linear-gradient(
-        180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
-      );
-
-      &.focused {
-        background: linear-gradient(
-          180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
-        );
-      }
-
-      .output-header {
-        background: $color;
-      }
-    }
-
-    &:nth-child(1) {
-      $color: #fff700;
-      @include block-colors();
-    }
-
-    &:nth-child(2) {
-      $color: #b8f770;
-      @include block-colors();
-    }
-
-    &:nth-child(3) {
-      $color: #3bd5f0;
-      @include block-colors();
-    }
-
-    &:nth-child(4) {
-      $color: #ff8fec;
-      @include block-colors();
-    }
-
-    &:nth-child(5) {
-      $color: #9063f3;
-      @include block-colors();
-    }
-
-    &:nth-child(6) {
-      $color: #ef8c56;
-      @include block-colors();
-    }
-
-    &:nth-child(7) {
-      $color: #4282d6;
-      @include block-colors();
-    }
-
-    &:nth-child(8) {
-      $color: #ea7979;
-      @include block-colors();
-    }
-  }
-
-  &.external {
-    .output-header {
-      background: #f1a3a3;
-      color: #000;
-    }
-  }
 }
 </style>
