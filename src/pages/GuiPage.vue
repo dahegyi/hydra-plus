@@ -138,6 +138,12 @@ export default {
 
     if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
+    } else {
+      eval(
+        `setResolution(${window.outerHeight * window.devicePixelRatio}, ${
+          window.outerWidth * window.devicePixelRatio
+        })`,
+      );
     }
 
     this.setBlocks({ blocks });
