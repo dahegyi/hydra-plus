@@ -163,7 +163,7 @@ export default {
   z-index: 1;
   top: 0;
   display: flex;
-  width: calc(100% - 12px);
+  width: 100%;
   align-items: center;
   justify-content: space-between;
   padding: 6px;
