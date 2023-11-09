@@ -3,75 +3,77 @@
     <div class="modal">
       <h2>welcome!</h2>
 
-      <p>
-        <strong>hydra+</strong> is a graphical user interface for
-        <a href="https://hydra.ojack.xyz/" target="_blank">hydra</a>, a
-        javascript library for livecoding visuals.
-      </p>
-      <p>
-        please refer to the
-        <a href="https://hydra.ojack.xyz/api/">hydra api</a> for information on
-        how to use the synthatizer.
-      </p>
+      <div class="content">
+        <p>
+          <strong>hydra+</strong> is a graphical user interface for
+          <a href="https://hydra.ojack.xyz/" target="_blank">hydra</a>, a
+          javascript library for livecoding visuals.
+        </p>
+        <p>
+          please refer to the
+          <a href="https://hydra.ojack.xyz/api/">hydra api</a> for information
+          on how to use the synthatizer.
+        </p>
 
-      <hr />
+        <hr />
 
-      <p>
-        it is strongly recommended to use the app on a desktop computer with a
-        keyboard.<br />
-        the app is not optimized for touchscreen devices.
-      </p>
+        <p>
+          it is strongly recommended to use the app on a desktop computer with a
+          keyboard.<br />
+          the app is not optimized for touchscreen devices.
+        </p>
 
-      <hr />
+        <hr />
 
-      <h3>usable key combos:</h3>
+        <h3>usable key combos:</h3>
 
-      <div class="feature">
-        <span class="description">update:</span>
-        <div>
-          <span class="key" data-type="enter">↵</span>
+        <div class="feature">
+          <span class="description">update:</span>
+          <div>
+            <span class="key" data-type="enter">↵</span>
+          </div>
         </div>
+        <div class="feature">
+          <span class="description">undo:</span>
+          <div>
+            <span class="key">{{ modifierKey }}</span> +
+            <span class="key">z</span>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="description">redo:</span>
+          <div>
+            <span class="key">{{ modifierKey }}</span> +
+            <span class="key">y</span>
+          </div>
+          <div>
+            <span class="or-text">or</span>
+            <span class="key">{{ modifierKey }}</span> +
+            <span class="key">shift</span> + <span class="key">z</span>
+          </div>
+        </div>
+        <div class="feature">
+          <span class="description">toggle ui visibility:</span>
+          <div>
+            <span class="key">esc</span>
+          </div>
+        </div>
+
+        <hr />
+        <p>
+          <strong>
+            please report bugs or feature requests on
+            <a
+              href="https://github.com/dahegyi/hydra-plus/issues"
+              target="_blank"
+            >
+              github</a
+            >.
+          </strong>
+        </p>
+
+        <button @click="close">close</button>
       </div>
-      <div class="feature">
-        <span class="description">undo:</span>
-        <div>
-          <span class="key">{{ modifierKey }}</span> +
-          <span class="key">z</span>
-        </div>
-      </div>
-      <div class="feature">
-        <span class="description">redo:</span>
-        <div>
-          <span class="key">{{ modifierKey }}</span> +
-          <span class="key">y</span>
-        </div>
-        <div>
-          <span class="or-text">or</span>
-          <span class="key">{{ modifierKey }}</span> +
-          <span class="key">shift</span> + <span class="key">z</span>
-        </div>
-      </div>
-      <div class="feature">
-        <span class="description">toggle ui visibility:</span>
-        <div>
-          <span class="key">esc</span>
-        </div>
-      </div>
-
-      <hr />
-      <p>
-        <strong>
-          please report bugs or feature requests on
-          <a
-            href="https://github.com/dahegyi/hydra-plus/issues"
-            target="_blank"
-          >
-            github</a
-          >.
-        </strong>
-      </p>
-
-      <button @click="close">close</button>
     </div>
   </div>
 </template>
@@ -95,8 +97,9 @@ export default {
 
 <style lang="scss" scoped>
 .modal {
+  width: 520px;
   h2 {
-    margin: 20px auto 28px;
+    margin: 2rem auto 1rem;
   }
 
   p {

@@ -161,15 +161,12 @@ export default {
 
 .tab-content {
   display: flex;
-  overflow: scroll;
   width: 100%;
-  min-height: 120px;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 1rem 0.5rem;
-  border-radius: 0 0 8px 8px;
+  padding: 1rem;
   background: #333;
+  overflow-y: auto;
 
   a {
     margin-bottom: 1rem;
