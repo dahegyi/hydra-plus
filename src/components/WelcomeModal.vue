@@ -19,39 +19,56 @@
       <p>
         it is strongly recommended to use the app on a desktop computer with a
         keyboard.<br />
-        <strong>the app is not optimized for touchscreen devices.</strong>
+        the app is not optimized for touchscreen devices.
       </p>
 
       <hr />
 
-      <h4>usable key combos:</h4>
+      <h3>usable key combos:</h3>
 
       <div class="feature">
         <span class="description">update:</span>
-        <span class="key" data-type="enter">↵</span>
+        <div>
+          <span class="key" data-type="enter">↵</span>
+        </div>
       </div>
       <div class="feature">
         <span class="description">undo:</span>
-        <span class="key">{{ modifierKey }}</span> + <span class="key">z</span>
+        <div>
+          <span class="key">{{ modifierKey }}</span> +
+          <span class="key">z</span>
+        </div>
       </div>
       <div class="feature">
         <span class="description">redo:</span>
-        <span class="key">{{ modifierKey }}</span> + <span class="key">y</span>
-        <span class="or-text">or</span>
-        <span class="key">{{ modifierKey }}</span> +
-        <span class="key">shift</span> + <span class="key">z</span>
+        <div>
+          <span class="key">{{ modifierKey }}</span> +
+          <span class="key">y</span>
+        </div>
+        <div>
+          <span class="or-text">or</span>
+          <span class="key">{{ modifierKey }}</span> +
+          <span class="key">shift</span> + <span class="key">z</span>
+        </div>
       </div>
       <div class="feature">
         <span class="description">toggle ui visibility:</span>
-        <span class="key">esc</span>
+        <div>
+          <span class="key">esc</span>
+        </div>
       </div>
 
       <hr />
       <p>
-        please report bugs or feature requests on
-        <a href="https://github.com/dahegyi/hydra-plus/issues" target="_blank">
-          github </a
-        >.
+        <strong>
+          please report bugs or feature requests on
+          <a
+            href="https://github.com/dahegyi/hydra-plus/issues"
+            target="_blank"
+          >
+            github</a
+          >.
+        </strong>
       </p>
 
       <button @click="close">close</button>
@@ -78,14 +95,12 @@ export default {
 
 <style lang="scss" scoped>
 .modal {
-  align-items: start;
-
   h2 {
-    margin: 0.5rem auto 1rem;
+    margin: 20px auto 28px;
   }
 
   p {
-    margin: 0.5rem 0;
+    margin: 8px 0;
     text-align: left;
   }
 
@@ -94,7 +109,7 @@ export default {
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 8px;
+    padding: 12px 8px 14px;
 
     &:nth-child(2n) {
       background: #1a1a1a;
@@ -102,29 +117,56 @@ export default {
 
     .description {
       flex-grow: 1;
+      margin-top: 2px;
       text-align: left;
     }
 
     .key {
-      padding: 2px 10px;
+      padding: 6px 10px;
       border-radius: 5px;
-      margin: 0 5px;
+      margin: 0 4px;
       background: #333;
-      box-shadow: 0 2px 0 #999;
+      box-shadow: 0 2px 0 #777;
       font-size: 0.9rem;
 
       &[data-type="enter"] {
-        padding: 2px 25px;
+        padding: 6px 25px;
       }
     }
 
     .or-text {
-      margin: 0 6px;
+      margin: 0 8px;
+    }
+
+    @media screen and (max-width: 500px) {
+      flex-direction: column;
+      padding-bottom: 20px;
+
+      > div {
+        margin-bottom: 20px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      .description {
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      .key {
+        margin: 0;
+      }
+
+      .or-text {
+        display: none;
+      }
     }
   }
 
   button {
-    margin: 1rem auto 0;
+    margin: 16px auto 10px;
   }
 }
 </style>

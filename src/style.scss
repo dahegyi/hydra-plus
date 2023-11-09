@@ -21,6 +21,15 @@ body {
   margin: 0;
 }
 
+a {
+  color: #ffbbee;
+  font-weight: bold;
+
+  &:visited {
+    color: #ffbbee;
+  }
+}
+
 button {
   padding: 0.5rem 1rem;
   border: 1px solid #111;
@@ -102,38 +111,53 @@ hr {
   height: 100vh;
   align-items: center;
   justify-content: center;
+  padding: 15px;
   backdrop-filter: blur(5px);
   background: rgba(0, 0, 0, 0.5);
-}
 
-.modal {
-  z-index: 999;
-  display: flex;
-  width: 380px;
-  max-width: 100%;
-  min-height: 200px;
-  max-height: 100%;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 30px;
-  border-radius: 15px;
-  background: #222;
-  overflow-y: scroll;
+  .modal {
+    z-index: 999;
+    display: flex;
+    width: 500px;
+    max-width: 100%;
+    min-height: 200px;
+    max-height: 100%;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 30px;
+    // @todo variable for border radius
+    border-radius: 28px 0;
+    background: #222;
+    box-shadow: 0 3px 20px 10px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
 
-  h2 {
-    margin-top: 0;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .close {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      margin: 1rem;
+      cursor: pointer;
+      font-size: 2rem;
+
+      &:before {
+        content: "×";
+      }
+    }
   }
 
-  .close {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    margin: 1rem;
-    cursor: pointer;
-    font-size: 2rem;
+  @media screen and (max-width: 500px) {
+    padding: 0;
 
-    &:before {
-      content: "×";
+    .modal {
+      border-radius: 0;
     }
   }
 }
