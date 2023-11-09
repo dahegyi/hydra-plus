@@ -54,7 +54,7 @@ export const INITIAL_BLOCKS = [
           },
         ],
         params: [
-          { name: "multiple", value: "1,5" },
+          { name: "multiple", value: "1" },
           { name: "offset", value: "0" },
         ],
         type: "complex",
