@@ -1,10 +1,17 @@
 <template>
   <draggable
-    class="drag-area"
+    :class="[
+      'drag-area',
+      {
+        'button-visible': !hasDraggableChild(parent),
+      },
+      parent.type,
+    ]"
     tag="ul"
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
+    @click="openAddBlockModal(parent)"
     @end="handleChange"
     @move="(e) => handleMove(e)"
   >
@@ -14,7 +21,7 @@
           <span class="name" @click="onFocus(element)">{{ element.name }}</span>
           <span
             class="delete"
-            @click="deleteChild({ element, children, parent })"
+            @click.stop="deleteChild({ element, children, parent })"
           />
         </strong>
 
@@ -65,12 +72,6 @@
 
         <nested-draggable
           v-if="canHaveChild(element.type)"
-          :class="[
-            {
-              'button-visible': !hasDraggableChild(element),
-            },
-            element.type,
-          ]"
           :parent="element"
           :children="element.blocks"
           :handle-change="handleChange"
@@ -132,6 +133,8 @@ export default {
     },
 
     openAddBlockModal(element) {
+      if (this.hasDraggableChild(element)) return;
+
       console.log(element);
     },
 
@@ -157,6 +160,7 @@ $button-text: "drag & drop or click to add";
   justify-content: center;
   border-radius: 0 0 0 $border-radius;
   margin: 0;
+  cursor: pointer;
 }
 
 .drag-area-button {
