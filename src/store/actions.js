@@ -44,46 +44,36 @@ export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
 };
 
 /**
- * Adds source to the main code block or to a child block.
+ * Adds source to the main code block.
  * Deep copy is needed because we want to handle the input parameters
  * differently for different sources.
  *
  * @param {Object} source source object
  */
 export const addParent = ({ commit, state }, source) => {
-  if (source.type === TYPE_THREE) {
+  const copiedSource = deepCopy(source);
+
+  if (
+    source.type === TYPE_SRC &&
+    state.blocks.length >= MAX_NUMBER_OF_SOURCES
+  ) {
     return showToast(
-      `Sorry, not yet. You can add Three.js sources only from the editor locally. See App.vue for more info.`,
+      `You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`,
     );
   }
 
-  const copiedSource = deepCopy(source);
-
-  if (!state.focused) {
-    if (
-      source.type === TYPE_SRC &&
-      state.blocks.length >= MAX_NUMBER_OF_SOURCES
-    ) {
-      return showToast(
-        `You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`,
-      );
-    }
-
-    if (
-      (source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
-      state.externalSourceBlocks.length >= MAX_NUMBER_OF_EXTERNALS
-    ) {
-      return showToast(
-        `You can't add more than ${MAX_NUMBER_OF_EXTERNALS} externals.`,
-      );
-    }
-
-    commit("addParent", copiedSource);
-    commit("setFocus", state.blocks[state.blocks.length - 1]);
-    commit("setOutput", state.blocks.length - 1);
-  } else {
-    commit("addChild", copiedSource);
+  if (
+    (source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
+    state.externalSourceBlocks.length >= MAX_NUMBER_OF_EXTERNALS
+  ) {
+    return showToast(
+      `You can't add more than ${MAX_NUMBER_OF_EXTERNALS} externals.`,
+    );
   }
+
+  commit("addParent", copiedSource);
+  commit("setFocus", state.blocks[state.blocks.length - 1]);
+  commit("setOutput", state.blocks.length - 1);
 
   if (source.type === TYPE_EXTERNAL) {
     const addedExternal = flattenExternal(

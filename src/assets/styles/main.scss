@@ -1,3 +1,5 @@
+@import "variables";
+
 :root {
   background-color: #282828;
   color: rgba(255, 255, 255, 0.87);
@@ -113,7 +115,8 @@ hr {
   justify-content: center;
   padding: 15px;
   animation: opacity 0.1s ease-in-out;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   background: rgba(0, 0, 0, 0.3);
 
   .modal {
@@ -125,8 +128,7 @@ hr {
     max-height: min(100%, 800px);
     flex-direction: column;
     align-items: center;
-    // @todo variable for border radius
-    border-radius: 28px 0;
+    border-radius: $border-radius 0;
     animation:
       slide-up 0.15s ease-in-out,
       opacity 0.15s ease-in-out;
@@ -156,10 +158,10 @@ hr {
         margin: 0 0 0 12px;
         background: #111;
         cursor: pointer;
-        font-size: 2rem;
+        font-size: 1.8rem;
 
         &:before {
-          color: #e19696;
+          color: $color-red;
           content: "×";
         }
       }
@@ -224,11 +226,15 @@ hr {
 }
 
 .toast-close {
-  padding: 5px 10px;
+  padding: 6px 8px 5px;
   border: none;
   margin-left: 15px;
   background: none;
   cursor: pointer;
   font-size: 1em;
   opacity: 0.4;
+
+  &:hover {
+    background: #00000040;
+  }
 }

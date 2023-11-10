@@ -1,7 +1,6 @@
 <template>
   <draggable
     :class="[
-      'drag-area',
       {
         'button-visible': canHaveChild(parent),
       },
@@ -172,13 +171,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "~/assets/styles/variables";
+
 $height: 65px;
-$border-radius: 14px;
 $spacing: 7px;
 
 $button-text: "drag & drop or click to add";
 
-.drag-area {
+ul {
   min-height: $height;
   padding: 0;
   border-radius: 0 0 0 $border-radius;
@@ -200,10 +200,11 @@ $button-text: "drag & drop or click to add";
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      border-radius: 0 0 0 $border-radius;
-      border-top: 1px solid #999;
-      margin: 0;
+      border-radius: 0 0 0 $border-radius-sm;
+      margin: 0 0;
+      color: #ddd;
       cursor: pointer;
+      font-size: 0.9rem;
     }
 
     &.source {
@@ -218,23 +219,23 @@ $button-text: "drag & drop or click to add";
       }
 
       + li {
-        border-radius: 0 0 0 $border-radius;
+        border-radius: 0 0 0 $border-radius-sm;
       }
     }
   }
 
   &.complex {
     li {
-      padding: 0;
-
-      .params {
-        padding: $spacing;
-      }
+      padding: $spacing 0 0;
     }
 
     > li:first-of-type {
-      border-radius: 0 0 0 $border-radius;
+      border-radius: 0 0 0 $border-radius-sm;
     }
+  }
+
+  ul {
+    border-radius: 0 0 0 $border-radius-sm;
   }
 
   li {
@@ -247,16 +248,32 @@ $button-text: "drag & drop or click to add";
 
     &:last-child {
       border-bottom: none;
-      // border-radius: 0 0 0 $border-radius;
     }
 
     &.focused {
       background: #ffffff40;
     }
 
+    .params {
+      strong {
+        padding: 0 $spacing;
+      }
+
+      div {
+        padding: 0 $spacing;
+
+        &:first-of-type {
+          padding-top: $spacing;
+        }
+
+        &:last-of-type {
+          padding-bottom: $spacing;
+        }
+      }
+    }
+
     strong {
       display: flex;
-      margin-right: $spacing;
       cursor: pointer;
       user-select: none;
 
@@ -286,14 +303,6 @@ $button-text: "drag & drop or click to add";
         &:after {
           transform: rotate(-45deg);
         }
-      }
-    }
-
-    .param-input-container {
-      margin-right: $spacing + 2;
-
-      &:last-of-type {
-        margin-bottom: $spacing;
       }
     }
   }

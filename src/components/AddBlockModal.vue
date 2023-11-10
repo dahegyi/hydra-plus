@@ -6,9 +6,11 @@ import { createDispatchAction } from "~/utils/vuex-utils";
 
 import {
   TYPE_SRC,
+  TYPE_EXTERNAL,
   TYPE_SIMPLE,
   TYPE_COMPLEX,
   SOURCE_FUNCTIONS,
+  EXTERNAL_SOURCE_FUNCTIONS,
   GEOMETRY_FUNCTIONS,
   COLOR_FUNCTIONS,
   BLEND_FUNCTIONS,
@@ -26,6 +28,14 @@ const sources = computed(() =>
   SOURCE_FUNCTIONS.map((fn) => ({
     ...fn,
     type: TYPE_SRC,
+    blocks: [],
+  })),
+);
+
+const externalSources = computed(() =>
+  EXTERNAL_SOURCE_FUNCTIONS.map((fn) => ({
+    ...fn,
+    type: TYPE_EXTERNAL,
     blocks: [],
   })),
 );
@@ -57,6 +67,8 @@ const header = computed(() =>
 
 const functionsBlocks = computed(() => {
   if (isAddSource.value) {
+    if (!props.parent) return [...sources.value, ...externalSources.value];
+
     return sources.value;
   }
 
@@ -75,7 +87,9 @@ const addParent = dispatchAction("addParent");
 const addChild = dispatchAction("addChild");
 
 const handleAddBlock = (parentType, fn) => {
-  if (!props.parent) {
+  console.log(props.parent);
+
+  if (props.parent === null) {
     addParent(fn);
   } else {
     if (parentType !== props.parent.type) {
@@ -132,6 +146,7 @@ const handleAddBlock = (parentType, fn) => {
 </template>
 
 <style lang="scss" scoped>
+@import "~/assets/styles/variables";
 .modal {
   width: 600px;
 
@@ -180,7 +195,7 @@ const handleAddBlock = (parentType, fn) => {
       }
 
       input:checked + .slider {
-        background-color: #a75dcf;
+        background-color: $color-purple;
       }
 
       input:focus + .slider {

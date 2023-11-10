@@ -40,6 +40,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "~/assets/styles/variables";
+
 .navigation {
   position: fixed;
   z-index: 1;
@@ -47,6 +49,7 @@ export default {
   width: 100%;
   justify-content: space-between;
   padding: 6px;
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   background: #151515dd;
 
@@ -69,7 +72,7 @@ export default {
     }
 
     &.send {
-      border: 3px solid #b62424;
+      border: 3px solid $color-red;
     }
   }
 }

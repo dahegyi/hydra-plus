@@ -58,11 +58,6 @@ const handleHeaderClick = (clickedBlock) => {
   if (props.focused === clickedBlock) return;
   setFocus(clickedBlock);
 };
-
-const handleAddBlockModal = (element) => {
-  setFocus(element);
-  props.openAddBlockModal(element);
-};
 </script>
 
 <template>
@@ -143,17 +138,11 @@ const handleAddBlockModal = (element) => {
       :handle-change="() => props.handleChange()"
       :open-add-block-modal="props.openAddBlockModal"
     />
-
-    <ul
-      v-if="props.block.type === TYPE_SRC"
-      class="drag-area-button"
-      @click.stop="handleAddBlockModal(props.block)"
-    />
   </div>
 </template>
 
 <style lang="scss" scoped>
-$border-radius: 14px;
+@import "~/assets/styles/variables";
 
 .parent-block {
   position: absolute;
@@ -162,6 +151,7 @@ $border-radius: 14px;
   min-width: 320px;
   flex-direction: column;
   border-radius: 0 $border-radius 0 $border-radius;
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   background: #222222aa;
   box-shadow: 0 3px 12px #00000080;
@@ -209,7 +199,7 @@ $border-radius: 14px;
 
       &.active {
         &:after {
-          border-color: #f55858;
+          border-color: $color-red;
         }
       }
     }
@@ -311,17 +301,6 @@ $border-radius: 14px;
     &:nth-child(8) {
       $color: #ea7979;
       @include block-colors();
-    }
-
-    // @todo refactor crappy css like this
-    ul.drag-area-button {
-      position: relative;
-      z-index: -1;
-      height: 65px;
-      padding: 0;
-      margin: 0;
-      margin-top: -65px;
-      cursor: pointer;
     }
   }
 

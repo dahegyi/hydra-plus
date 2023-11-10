@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import store from "./store";
 
-import "./style.scss";
+import "./assets/styles/main.scss";
 import App from "./App";
 
 const GuiPage = () => import("./pages/GuiPage");
