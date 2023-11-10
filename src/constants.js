@@ -233,6 +233,100 @@ export const THREE_FUNCTIONS = [
 
 export const GEOMETRY_FUNCTIONS = [
   {
+    name: "repeat",
+    params: [
+      {
+        name: "repeatX",
+        value: 3,
+      },
+      {
+        name: "repeatY",
+        value: 3,
+      },
+      {
+        name: "offsetX",
+        value: 0.5,
+      },
+      {
+        name: "offsetY",
+        value: 0,
+      },
+    ],
+  },
+  {
+    name: "repeatX",
+    params: [
+      {
+        name: "reps",
+        value: 3,
+      },
+      {
+        name: "offset",
+        value: 0.5,
+      },
+    ],
+  },
+  {
+    name: "repeatY",
+    params: [
+      {
+        name: "reps",
+        value: 3,
+      },
+      {
+        name: "offset",
+        value: 0.5,
+      },
+    ],
+  },
+  {
+    name: "scroll",
+    params: [
+      {
+        name: "scrollX",
+        value: 0.5,
+      },
+      {
+        name: "scrollY",
+        value: 0.5,
+      },
+      {
+        name: "speedX",
+        value: 0.5,
+      },
+      {
+        name: "speedY",
+        value: 0,
+      },
+    ],
+  },
+  {
+    name: "scrollX",
+    params: [
+      {
+        name: "scrollX",
+        value: 0.5,
+      },
+      {
+        name: "speed",
+        value: 0.5,
+      },
+    ],
+  },
+  {
+    name: "scrollY",
+    params: [
+      {
+        name: "scrollY",
+        value: 0.5,
+      },
+      {
+        name: "speed",
+        value: 0.5,
+      },
+    ],
+  },
+  {
     name: "rotate",
     params: [
       {
@@ -284,53 +378,6 @@ export const GEOMETRY_FUNCTIONS = [
     ],
   },
   {
-    name: "repeat",
-    params: [
-      {
-        name: "repeatX",
-        value: 3,
-      },
-      {
-        name: "repeatY",
-        value: 3,
-      },
-      {
-        name: "offsetX",
-        value: 0.5,
-      },
-      {
-        name: "offsetY",
-        value: 0,
-      },
-    ],
-  },
-  {
-    name: "repeatX",
-    params: [
-      {
-        name: "reps",
-        value: 3,
-      },
-      {
-        name: "offset",
-        value: 0.5,
-      },
-    ],
-  },
-  {
-    name: "repeatY",
-    params: [
-      {
-        name: "reps",
-        value: 3,
-      },
-      {
-        name: "offset",
-        value: 0.5,
-      },
-    ],
-  },
-  {
     name: "kaleid",
     params: [
       {
@@ -339,56 +386,87 @@ export const GEOMETRY_FUNCTIONS = [
       },
     ],
   },
+];
+
+export const COLOR_FUNCTIONS = [
   {
-    name: "scroll",
+    name: "r",
     params: [
       {
-        name: "scrollX",
-        value: 0.5,
+        name: "scale",
+        value: 1,
       },
       {
-        name: "scrollY",
-        value: 0.5,
-      },
-      {
-        name: "speedX",
-        value: 0.5,
-      },
-      {
-        name: "speedY",
+        name: "offset",
         value: 0,
       },
     ],
   },
   {
-    name: "scrollX",
+    name: "g",
     params: [
       {
-        name: "scrollX",
-        value: 0.5,
+        name: "scale",
+        value: 1,
       },
       {
-        name: "speed",
-        value: 0.5,
+        name: "offset",
+        value: 0,
       },
     ],
   },
   {
-    name: "scrollY",
+    name: "b",
     params: [
       {
-        name: "scrollY",
-        value: 0.5,
+        name: "scale",
+        value: 1,
       },
       {
-        name: "speed",
-        value: 0.5,
+        name: "offset",
+        value: 0,
       },
     ],
   },
-];
-
-export const COLOR_FUNCTIONS = [
+  {
+    name: "color",
+    params: [
+      {
+        name: "r",
+        value: 1,
+      },
+      {
+        name: "g",
+        value: 0,
+      },
+      {
+        name: "b",
+        value: 1,
+      },
+      {
+        name: "a",
+        value: 1,
+      },
+    ],
+  },
+  {
+    name: "saturate",
+    params: [
+      {
+        name: "amount",
+        value: 2,
+      },
+    ],
+  },
+  {
+    name: "hue",
+    params: [
+      {
+        name: "hue",
+        value: 0.4,
+      },
+    ],
+  },
   {
     name: "posterize",
     params: [
@@ -477,89 +555,11 @@ export const COLOR_FUNCTIONS = [
     ],
   },
   {
-    name: "color",
-    params: [
-      {
-        name: "r",
-        value: 1,
-      },
-      {
-        name: "g",
-        value: 0,
-      },
-      {
-        name: "b",
-        value: 1,
-      },
-      {
-        name: "a",
-        value: 1,
-      },
-    ],
-  },
-  {
-    name: "saturate",
-    params: [
-      {
-        name: "amount",
-        value: 2,
-      },
-    ],
-  },
-  {
-    name: "hue",
-    params: [
-      {
-        name: "hue",
-        value: 0.4,
-      },
-    ],
-  },
-  {
     name: "colorama",
     params: [
       {
         name: "amount",
         value: 0.005,
-      },
-    ],
-  },
-  {
-    name: "r",
-    params: [
-      {
-        name: "scale",
-        value: 1,
-      },
-      {
-        name: "offset",
-        value: 0,
-      },
-    ],
-  },
-  {
-    name: "g",
-    params: [
-      {
-        name: "scale",
-        value: 1,
-      },
-      {
-        name: "offset",
-        value: 0,
-      },
-    ],
-  },
-  {
-    name: "b",
-    params: [
-      {
-        name: "scale",
-        value: 1,
-      },
-      {
-        name: "offset",
-        value: 0,
       },
     ],
   },
