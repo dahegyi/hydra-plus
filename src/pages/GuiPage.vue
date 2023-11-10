@@ -1,6 +1,12 @@
 <template>
   <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
 
+  <add-block-modal
+    v-if="isAddBlockModalOpen"
+    :parent="addBlockModalParent"
+    @close="closeAddBlockModal"
+  />
+
   <three-modal v-if="isThreeModalOpen" @close="closeThreeModal" />
 
   <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
@@ -21,6 +27,7 @@
       :block="block"
       :handle-change="handleChange"
       :move-block="moveBlock"
+      :open-add-block-modal="openAddBlockModal"
     />
 
     <parent-block
@@ -85,6 +92,9 @@ export default {
     WelcomeModal: defineAsyncComponent(() =>
       import("~/components/WelcomeModal"),
     ),
+    AddBlockModal: defineAsyncComponent(() =>
+      import("~/components/AddBlockModal"),
+    ),
     ThreeModal: defineAsyncComponent(() => import("~/components/ThreeModal")),
     SettingsModal: defineAsyncComponent(() =>
       import("~/components/SettingsModal"),
@@ -98,7 +108,9 @@ export default {
       prevBlocks: null,
       movedBlockCoordinates: { x: 0, y: 0 },
       areBlocksHidden: false,
+      addBlockModalParent: null,
       isWelcomeModalOpen: false,
+      isAddBlockModalOpen: false,
       isThreeModalOpen: false,
       isSettingsModalOpen: false,
     };
@@ -276,6 +288,15 @@ export default {
     closeWelcomeModal() {
       this.isWelcomeModalOpen = false;
       localStorage.setItem("welcomeModalLastUpdate", WELCOME_MODAL_LAST_UPDATE);
+    },
+
+    openAddBlockModal(parent) {
+      this.addBlockModalParent = parent;
+      this.isAddBlockModalOpen = true;
+    },
+
+    closeAddBlockModal() {
+      this.isAddBlockModalOpen = false;
     },
 
     openThreeModal() {

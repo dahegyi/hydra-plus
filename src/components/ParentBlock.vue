@@ -27,6 +27,11 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+
+  openAddBlockModal: {
+    type: Function,
+    default: () => {},
+  },
 });
 
 const store = useStore();
@@ -131,6 +136,7 @@ const handleHeaderClick = (clickedBlock) => {
       :children="props.block.blocks"
       :parent="props.block"
       :handle-change="() => props.handleChange()"
+      :open-add-block-modal="props.openAddBlockModal"
     />
   </div>
 </template>

@@ -11,7 +11,7 @@
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
-    @click="openAddBlockModal(parent)"
+    @click="handleAddBlockModal(parent)"
     @end="handleChange"
     @move="(e) => handleMove(e)"
   >
@@ -67,7 +67,7 @@
         <ul
           v-if="canHaveChild(element.type) && !hasDraggableChild(element)"
           class="drag-area-button"
-          @click="openAddBlockModal(element)"
+          @click="handleAddBlockModal(element)"
         />
 
         <nested-draggable
@@ -75,6 +75,7 @@
           :parent="element"
           :children="element.blocks"
           :handle-change="handleChange"
+          :open-add-block-modal="openAddBlockModal"
         />
       </li>
     </template>
@@ -107,6 +108,11 @@ export default {
       required: true,
       type: Function,
     },
+
+    openAddBlockModal: {
+      type: Function,
+      required: true,
+    },
   },
 
   computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
@@ -132,10 +138,11 @@ export default {
       this.setFocus(focusedElement, true);
     },
 
-    openAddBlockModal(element) {
+    handleAddBlockModal(element) {
       if (this.hasDraggableChild(element)) return;
 
-      console.log(element);
+      this.onFocus(element);
+      this.openAddBlockModal(element);
     },
 
     handleMove(e) {
