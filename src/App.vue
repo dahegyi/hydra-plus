@@ -16,8 +16,8 @@ import { MAX_NUMBER_OF_SOURCES, MAX_NUMBER_OF_EXTERNALS } from "./constants";
 export default {
   data() {
     return {
-      height: (window.innerHeight * window.devicePixelRatio) / 16,
-      width: (window.innerWidth * window.devicePixelRatio) / 16,
+      height: window.innerHeight * window.devicePixelRatio,
+      width: window.innerWidth * window.devicePixelRatio,
     };
   },
 
