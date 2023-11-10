@@ -18,7 +18,7 @@ import {
 const props = defineProps({
   parent: {
     type: Object,
-    required: true,
+    default: null,
   },
 });
 
@@ -49,7 +49,7 @@ const effectGroups = computed(() => [
   },
 ]);
 
-const isAddSource = computed(() => props.parent.type !== TYPE_SRC);
+const isAddSource = computed(() => props.parent?.type !== TYPE_SRC);
 
 const header = computed(() =>
   isAddSource.value ? "add source" : "add effect",
@@ -71,14 +71,20 @@ const close = () => {
 
 const store = useStore();
 const dispatchAction = createDispatchAction(store);
+const addParent = dispatchAction("addParent");
 const addChild = dispatchAction("addChild");
 
 const handleAddBlock = (parentType, fn) => {
-  if (parentType !== props.parent.type) {
-    return;
+  if (!props.parent) {
+    addParent(fn);
+  } else {
+    if (parentType !== props.parent.type) {
+      return;
+    }
+
+    addChild(fn);
   }
 
-  addChild(fn);
   close();
 };
 </script>

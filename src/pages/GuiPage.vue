@@ -15,6 +15,7 @@
 
   <navigation-panel
     :class="{ hidden: areBlocksHidden }"
+    @open-add-block-modal="openAddBlockModal"
     @open-three-modal="openThreeModal"
     @open-settings-modal="openSettingsModal"
   />
@@ -55,7 +56,7 @@ import {
 } from "~/constants";
 
 import NavigationPanel from "~/components/NavigationPanel";
-import ParentBlock from "../components/ParentBlock.vue";
+import ParentBlock from "../components/ParentBlock";
 
 // // @todo: losing window focus breaks the beat counter
 // let beatHappened = false;
@@ -290,7 +291,7 @@ export default {
       localStorage.setItem("welcomeModalLastUpdate", WELCOME_MODAL_LAST_UPDATE);
     },
 
-    openAddBlockModal(parent) {
+    openAddBlockModal(parent = null) {
       this.addBlockModalParent = parent;
       this.isAddBlockModalOpen = true;
     },
