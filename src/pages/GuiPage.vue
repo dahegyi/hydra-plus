@@ -250,8 +250,8 @@ export default {
 
       const divRect = div.getBoundingClientRect();
 
-      const offsetX = e.clientX - divRect.left;
-      const offsetY = e.clientY - divRect.top;
+      const offsetX = e.clientX - divRect.left - window.scrollX;
+      const offsetY = e.clientY - divRect.top - window.scrollY;
 
       const x = e.clientX - offsetX;
       const y = e.clientY - offsetY;
