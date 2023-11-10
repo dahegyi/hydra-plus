@@ -184,7 +184,7 @@ ul {
   border-radius: 0 0 0 $border-radius;
   margin: 0;
   background: #00000040;
-  // box-shadow: inset 0 0 0 1px #999;
+  box-shadow: inset 0 0 0 1px #999;
   list-style: none;
 
   &.button-visible {
@@ -236,7 +236,7 @@ ul {
 
   &.source {
     > li {
-      padding: $spacing 0 0 $spacing;
+      padding: $spacing 0 $spacing $spacing;
     }
   }
 
@@ -246,7 +246,14 @@ ul {
 
   li {
     padding: $spacing 0 $spacing $spacing;
-    border-bottom: 1px solid #999;
+
+    &:nth-child(odd) {
+      background: #22222210;
+    }
+
+    &:nth-child(even) {
+      background: #ffffff10;
+    }
 
     &:hover {
       background: #ffffff25;
@@ -261,13 +268,13 @@ ul {
     }
 
     .params {
+      padding: 0 $spacing;
+
       strong {
-        padding: 0 $spacing;
+        padding: 0 0 $spacing / 2;
       }
 
       div {
-        padding: 0 $spacing;
-
         &:first-of-type {
           padding-top: $spacing;
         }
