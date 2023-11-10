@@ -187,7 +187,9 @@ export default {
 
       // toggle blocks
       if (e.key === "Escape") {
-        if (this.isSettingsModalOpen) {
+        if (this.isAddBlockModalOpen) {
+          return this.closeAddBlockModal();
+        } else if (this.isSettingsModalOpen) {
           return this.closeSettingsModal();
         } else if (this.isThreeModalOpen) {
           return this.closeThreeModal();
