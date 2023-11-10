@@ -148,7 +148,7 @@ const handleHeaderClick = (clickedBlock) => {
   position: absolute;
   display: flex;
   width: fit-content;
-  min-width: 320px;
+  width: min(360px, 80%);
   flex-direction: column;
   border-radius: 0 $border-radius 0 $border-radius;
   -webkit-backdrop-filter: blur(6px);
@@ -161,7 +161,7 @@ const handleHeaderClick = (clickedBlock) => {
     justify-content: space-between;
     padding: 10px 6px;
     border-radius: 0 $border-radius 0 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
     background: #fff;
     color: #000;
     cursor: move;
@@ -229,11 +229,11 @@ const handleHeaderClick = (clickedBlock) => {
     padding: 0 12px;
 
     &:first-of-type {
-      padding-top: 2px;
+      padding-top: 0;
     }
 
     &:last-of-type {
-      padding-bottom: 14px;
+      padding-bottom: 8px;
     }
   }
 

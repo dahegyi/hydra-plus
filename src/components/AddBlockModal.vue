@@ -123,11 +123,9 @@ const handleAddBlock = (parentType, fn) => {
           v-for="functionBlock in functionsBlocks"
           :key="functionBlock.name"
           :class="isAddSource ? 'item' : 'group'"
+          @click="handleAddBlock(TYPE_COMPLEX, functionBlock)"
         >
-          <span
-            :class="{ name: isAddSource }"
-            @click="handleAddBlock(TYPE_COMPLEX, functionBlock)"
-          >
+          <span :class="{ name: isAddSource }">
             {{ functionBlock.name }}
           </span>
 

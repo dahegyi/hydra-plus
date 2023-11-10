@@ -174,7 +174,7 @@ export default {
 @import "~/assets/styles/variables";
 
 $height: 65px;
-$spacing: 7px;
+$spacing: 8px;
 
 $button-text: "drag & drop or click to add";
 
@@ -184,7 +184,7 @@ ul {
   border-radius: 0 0 0 $border-radius;
   margin: 0;
   background: #00000040;
-  box-shadow: inset 0 0 0 1px #999;
+  // box-shadow: inset 0 0 0 1px #999;
   list-style: none;
 
   &.button-visible {
@@ -231,6 +231,12 @@ ul {
 
     > li:first-of-type {
       border-radius: 0 0 0 $border-radius-sm;
+    }
+  }
+
+  &.source {
+    > li {
+      padding: $spacing 0 0 $spacing;
     }
   }
 
