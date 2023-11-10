@@ -58,6 +58,11 @@ const handleHeaderClick = (clickedBlock) => {
   if (props.focused === clickedBlock) return;
   setFocus(clickedBlock);
 };
+
+const handleAddBlockModal = (element) => {
+  setFocus(element);
+  props.openAddBlockModal(element);
+};
 </script>
 
 <template>
@@ -137,6 +142,12 @@ const handleHeaderClick = (clickedBlock) => {
       :parent="props.block"
       :handle-change="() => props.handleChange()"
       :open-add-block-modal="props.openAddBlockModal"
+    />
+
+    <ul
+      v-if="props.block.type === TYPE_SRC"
+      class="drag-area-button"
+      @click.stop="handleAddBlockModal(props.block)"
     />
   </div>
 </template>
@@ -300,6 +311,17 @@ $border-radius: 14px;
     &:nth-child(8) {
       $color: #ea7979;
       @include block-colors();
+    }
+
+    // @todo refactor crappy css like this
+    ul.drag-area-button {
+      position: relative;
+      z-index: -1;
+      height: 65px;
+      padding: 0;
+      margin: 0;
+      margin-top: -65px;
+      cursor: pointer;
     }
   }
 

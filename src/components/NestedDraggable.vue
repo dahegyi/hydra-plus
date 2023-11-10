@@ -3,7 +3,7 @@
     :class="[
       'drag-area',
       {
-        'button-visible': !hasDraggableChild(parent),
+        'button-visible': canHaveChild(parent),
       },
       parent.type,
     ]"
@@ -11,67 +11,65 @@
     :list="children"
     :group="{ name: 'g1' }"
     item-key="name"
-    @click="handleAddBlockModal(parent)"
-    @end="handleChange"
+    @click.stop="handleAddBlockModal(parent)"
     @move="(e) => handleMove(e)"
+    @end="handleEnd"
   >
     <template #item="{ element }">
-      <li :class="{ focused: focused === element }">
-        <strong>
-          <span class="name" @click="onFocus(element)">{{ element.name }}</span>
-          <span
-            class="delete"
-            @click.stop="deleteChild({ element, children, parent })"
-          />
-        </strong>
+      <li :class="{ focused: focused === element }" @click.stop="">
+        <div class="params">
+          <strong>
+            <span class="name" @click.stop="onFocus(element)">
+              {{ element.name }}
+            </span>
+            <span
+              class="delete"
+              @click.stop="deleteChild({ element, children, parent })"
+            />
+          </strong>
 
-        <div
-          v-if="element.name === 'src'"
-          class="param-input-container"
-          @click="onFocus(element)"
-        >
-          <label>{{ element.params[0].name }}</label>
-          <select v-model="element.params[0].value" @change="handleChange">
-            <option
-              v-for="(source, sIndex) in externalSourceBlocks"
-              :key="sIndex"
-              :value="'s' + sIndex"
-            >
-              s{{ sIndex }} - {{ source.name }}
-            </option>
-            <option
-              v-for="(output, oIndex) in blocks"
-              :key="oIndex"
-              :value="'o' + oIndex"
-            >
-              o{{ oIndex }} - {{ output.name }}
-            </option>
-          </select>
+          <div
+            v-if="element.name === 'src'"
+            class="param-input-container"
+            @click.stop="onFocus(element)"
+          >
+            <label>{{ element.params[0].name }}</label>
+            <select v-model="element.params[0].value" @change="handleChange">
+              <option
+                v-for="(source, sIndex) in externalSourceBlocks"
+                :key="sIndex"
+                :value="'s' + sIndex"
+              >
+                s{{ sIndex }} - {{ source.name }}
+              </option>
+              <option
+                v-for="(output, oIndex) in blocks"
+                :key="oIndex"
+                :value="'o' + oIndex"
+              >
+                o{{ oIndex }} - {{ output.name }}
+              </option>
+            </select>
+          </div>
+          <div
+            v-for="(param, paramIndex) in element.params"
+            v-else
+            :key="paramIndex"
+            class="param-input-container"
+            @click.stop="onFocus(element)"
+          >
+            <label>{{ param.name }}</label>
+            <input
+              v-model="param.value"
+              type="text"
+              @focusin="setInputFocus(true)"
+              @focusout="handleChange"
+            />
+          </div>
         </div>
-        <div
-          v-for="(param, paramIndex) in element.params"
-          v-else
-          :key="paramIndex"
-          class="param-input-container"
-          @click="onFocus(element)"
-        >
-          <label>{{ param.name }}</label>
-          <input
-            v-model="param.value"
-            type="text"
-            @focusin="setInputFocus(true)"
-            @focusout="handleChange"
-          />
-        </div>
-
-        <ul
-          v-if="canHaveChild(element.type) && !hasDraggableChild(element)"
-          class="drag-area-button"
-          @click="handleAddBlockModal(element)"
-        />
 
         <nested-draggable
-          v-if="canHaveChild(element.type)"
+          v-if="element.blocks"
           :parent="element"
           :children="element.blocks"
           :handle-change="handleChange"
@@ -115,23 +113,26 @@ export default {
     },
   },
 
+  data() {
+    return {
+      previouslyDraggedTo: null,
+    };
+  },
+
   computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
 
   methods: {
     ...mapActions(["setFocus", "setInputFocus", "setBlocks", "deleteChild"]),
 
-    canHaveChild(type) {
-      return type === TYPE_SRC || type === TYPE_COMPLEX;
-    },
-
-    hasDraggableChild(element) {
-      return element.blocks.length > 0;
+    canHaveChild(element) {
+      return (
+        element.type === TYPE_SRC ||
+        (element.type === TYPE_COMPLEX && element.blocks.length === 0)
+      );
     },
 
     onFocus(element) {
-      const focusedElement = this.canHaveChild(element.type)
-        ? element
-        : this.parent;
+      const focusedElement = this.canHaveChild(element) ? element : this.parent;
 
       if (this.focused === focusedElement) return;
 
@@ -139,14 +140,32 @@ export default {
     },
 
     handleAddBlockModal(element) {
-      if (this.hasDraggableChild(element)) return;
-
       this.onFocus(element);
       this.openAddBlockModal(element);
     },
 
     handleMove(e) {
-      console.log(e.to.parentElement);
+      if (this.previouslyDraggedTo) {
+        this.previouslyDraggedTo.classList.remove("dragging");
+      }
+
+      this.previouslyDraggedTo = e.to;
+
+      if (
+        e.to !== e.from &&
+        e.to.classList.contains("button-visible") &&
+        !e.to.classList.contains("dragging")
+      ) {
+        e.to.classList.add("dragging");
+      }
+    },
+
+    handleEnd() {
+      if (this.previouslyDraggedTo) {
+        this.previouslyDraggedTo.classList.remove("dragging");
+      }
+
+      this.handleChange();
     },
   },
 };
@@ -155,31 +174,9 @@ export default {
 <style lang="scss" scoped>
 $height: 65px;
 $border-radius: 14px;
-$spacing: 8px;
+$spacing: 7px;
 
 $button-text: "drag & drop or click to add";
-
-@mixin drag-area-after {
-  display: flex;
-  min-height: $height;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0 0 0 $border-radius;
-  margin: 0;
-  cursor: pointer;
-}
-
-.drag-area-button {
-  position: relative;
-  padding: 0;
-
-  &::after {
-    @include drag-area-after;
-    margin-bottom: -$height;
-    content: "";
-  }
-}
 
 .drag-area {
   min-height: $height;
@@ -190,9 +187,23 @@ $button-text: "drag & drop or click to add";
   box-shadow: inset 0 0 0 1px #999;
   list-style: none;
 
-  &.button-visible:empty {
+  &.button-visible {
+    &.dragging {
+      &::after {
+        display: none;
+      }
+    }
+
     &::after {
-      @include drag-area-after;
+      display: flex;
+      min-height: $height;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 0 0 $border-radius;
+      border-top: 1px solid #999;
+      margin: 0;
+      cursor: pointer;
     }
 
     &.source {
@@ -205,13 +216,30 @@ $button-text: "drag & drop or click to add";
       &::after {
         content: "#{$button-text} source";
       }
+
+      + li {
+        border-radius: 0 0 0 $border-radius;
+      }
+    }
+  }
+
+  &.complex {
+    li {
+      padding: 0;
+
+      .params {
+        padding: $spacing;
+      }
+    }
+
+    > li:first-of-type {
+      border-radius: 0 0 0 $border-radius;
     }
   }
 
   li {
     padding: $spacing 0 $spacing $spacing;
-    border-radius: 0 0 0 $border-radius;
-    border-bottom: 2px solid #222;
+    border-bottom: 1px solid #999;
 
     &:hover {
       background: #ffffff25;
@@ -219,6 +247,7 @@ $button-text: "drag & drop or click to add";
 
     &:last-child {
       border-bottom: none;
+      // border-radius: 0 0 0 $border-radius;
     }
 
     &.focused {
