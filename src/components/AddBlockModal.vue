@@ -1,8 +1,12 @@
 <script setup>
-import { computed, defineProps, defineEmits } from "vue";
+import { computed, defineProps, defineEmits, ref } from "vue";
 import { useStore } from "vuex";
 
 import { createDispatchAction } from "~/utils/vuex-utils";
+
+import { createPopper } from "@popperjs/core";
+
+import Hydra from "hydra-synth";
 
 import {
   TYPE_SRC,
@@ -81,14 +85,47 @@ const close = () => {
   emit("close");
 };
 
+const selectedFunction = ref(null);
+
 const store = useStore();
 const dispatchAction = createDispatchAction(store);
 const addParent = dispatchAction("addParent");
 const addChild = dispatchAction("addChild");
 
-const handleAddBlock = (parentType, fn) => {
-  console.log(props.parent);
+const handleMouseenter = (fn) => {
+  if (selectedFunction.value === fn.name) {
+    selectedFunction.value = null;
+    return;
+  }
 
+  selectedFunction.value = fn.name;
+
+  const effect = document.getElementById(fn.name).querySelector(".info");
+  const tooltip = document.querySelector(`#${fn.name}-tooltip`);
+  createPopper(effect, tooltip);
+
+  if (tooltip.querySelector("canvas")) return;
+
+  const canvas = document.createElement("canvas");
+  tooltip.appendChild(canvas);
+
+  const hydra = new Hydra({
+    height: 100,
+    width: 100,
+    numSources: 1,
+    numOutputs: 1,
+    makeGlobal: false,
+    detectAudio: false,
+    enableStreamCapture: false,
+    canvas,
+    precision: "lowp",
+  }).synth;
+
+  const { osc } = hydra;
+  osc(10).scale([0.5, 1.5].smooth()).out();
+};
+
+const handleAddBlock = (parentType, fn) => {
   if (props.parent === null) {
     addParent(fn);
   } else {
@@ -108,14 +145,7 @@ const handleAddBlock = (parentType, fn) => {
     <div class="modal">
       <div class="header">
         <h2>{{ header }}</h2>
-        <div>
-          <h5>enable help</h5>
-          <label class="switch">
-            <input type="checkbox" />
-            <span class="slider" />
-          </label>
-          <span class="close" @click="close" />
-        </div>
+        <span class="close" @click="close" />
       </div>
 
       <div class="content">
@@ -125,17 +155,27 @@ const handleAddBlock = (parentType, fn) => {
           :class="isAddSource ? 'item' : 'group'"
           @click="handleAddBlock(TYPE_COMPLEX, functionBlock)"
         >
-          <span :class="{ name: isAddSource }">
+          <span class="name">
             {{ functionBlock.name }}
           </span>
 
-          <div
-            v-for="fn in functionBlock.fns"
-            :key="fn.name"
-            class="item"
-            @click="handleAddBlock(TYPE_SRC, fn)"
-          >
-            <span class="name">{{ fn.name }}</span>
+          <div v-for="fn in functionBlock.fns" :id="fn.name" :key="fn.name">
+            <div class="item">
+              <span class="name" @click="handleAddBlock(TYPE_SRC, fn)">
+                {{ fn.name }}
+              </span>
+              <span class="info" @click="handleMouseenter(fn)" />
+            </div>
+
+            <div
+              v-show="selectedFunction === fn.name"
+              :id="`${fn.name}-tooltip`"
+              class="tooltip"
+              role="tooltip"
+            >
+              <span>{{ fn.description }} description</span>
+              <div id="arrow" data-popper-arrow></div>
+            </div>
           </div>
         </div>
       </div>
@@ -148,60 +188,24 @@ const handleAddBlock = (parentType, fn) => {
 .modal {
   width: 600px;
 
-  .header {
-    div {
-      display: flex;
-      align-items: center;
+  .item {
+    display: flex;
+    min-width: 50%;
+    align-items: center;
 
-      * {
-        margin: 0 3px;
-      }
-    }
+    justify-content: space-between;
 
-    .switch {
-      position: relative;
-      display: flex;
-      width: 40px;
-      height: 20px;
+    margin: 0 10px 20px;
 
-      input {
-        opacity: 0;
-      }
+    .name {
+      width: 100%;
+      padding: 10px;
+      border-radius: $border-radius-xs;
+      background: #151515;
+      cursor: pointer;
 
-      .slider {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        border-radius: 10px;
-        background-color: #999;
-        cursor: pointer;
-        transition: 0.2s;
-
-        &:before {
-          position: absolute;
-          bottom: 4px;
-          left: 4px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background-color: white;
-          content: "";
-          transition: 0.2s;
-        }
-      }
-
-      input:checked + .slider {
-        background-color: $color-purple;
-      }
-
-      input:focus + .slider {
-        box-shadow: 0 0 1px #000;
-      }
-
-      input:checked + .slider:before {
-        transform: translateX(14px);
+      &:hover {
+        background: #111;
       }
     }
   }
@@ -216,24 +220,72 @@ const handleAddBlock = (parentType, fn) => {
       font-weight: bold;
       grid-column: 1 / -1;
     }
-  }
 
-  .item {
-    min-width: 50%;
-    padding: 10px;
-    border-radius: 4px;
-    margin: 0 10px 20px;
-    background: #151515;
-    cursor: pointer;
+    .item {
+      .name {
+        width: calc(100% - 30px);
+        border-radius: $border-radius-xs 0 0 $border-radius-xs;
+      }
 
-    &:hover {
-      background: #151515dd;
+      .info {
+        width: 30px;
+        padding: 10px 0;
+        border-radius: 50%;
+        border-radius: 0 $border-radius-xs $border-radius-xs 0;
+        background: #333;
+        cursor: pointer;
+
+        &:after {
+          content: "i";
+          font-weight: bold;
+        }
+      }
     }
-
-    .name {
-      font-size: 1rem;
-      font-weight: bold;
-    }
   }
+}
+
+.tooltip {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #643045;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#arrow,
+#arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+}
+
+#arrow {
+  visibility: hidden;
+}
+
+#arrow::before {
+  content: "";
+  transform: rotate(45deg);
+  visibility: visible;
+}
+
+.tooltip[data-popper-placement^="top"] > #arrow {
+  bottom: -4px;
+}
+
+.tooltip[data-popper-placement^="bottom"] > #arrow {
+  top: -4px;
+}
+
+.tooltip[data-popper-placement^="left"] > #arrow {
+  right: -4px;
+}
+
+.tooltip[data-popper-placement^="right"] > #arrow {
+  left: -4px;
 }
 </style>

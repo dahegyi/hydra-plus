@@ -10,7 +10,6 @@ import Hydra from "hydra-synth";
 
 import { MAX_NUMBER_OF_SOURCES, MAX_NUMBER_OF_EXTERNALS } from "./constants";
 
-// import * as three from "three";
 // import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 
 export default {
@@ -74,7 +73,7 @@ export default {
 // };
 </script>
 
-<style>
+<style scoped>
 canvas {
   position: fixed;
   z-index: -1;
