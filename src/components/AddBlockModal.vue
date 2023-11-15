@@ -2,7 +2,9 @@
 import { computed, defineProps, defineEmits, ref } from "vue";
 import { useStore } from "vuex";
 
-import { createDispatchAction } from "~/utils/vuex-utils";
+import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
+
+import { INFO_MAPPINGS } from "~/constants";
 
 import { createPopper } from "@popperjs/core";
 
@@ -88,6 +90,10 @@ const close = () => {
 const selectedFunction = ref(null);
 
 const store = useStore();
+const state = store.state;
+
+const { activeBlockCode } = stateToProps(state, ["activeBlockCode"]);
+
 const dispatchAction = createDispatchAction(store);
 const addParent = dispatchAction("addParent");
 const addChild = dispatchAction("addChild");
@@ -109,6 +115,8 @@ const handleMouseenter = (fn) => {
   const canvas = document.createElement("canvas");
   tooltip.appendChild(canvas);
 
+  // used in eval but eslint doesn't recognize it
+  // eslint-disable-next-line no-unused-vars
   const hydra = new Hydra({
     height: 100,
     width: 100,
@@ -118,11 +126,10 @@ const handleMouseenter = (fn) => {
     detectAudio: false,
     enableStreamCapture: false,
     canvas,
-    precision: "lowp",
   }).synth;
 
-  const { osc } = hydra;
-  osc(10).scale([0.5, 1.5].smooth()).out();
+  // @todo: the selected function is not always at the end of the chain
+  eval(`hydra.${activeBlockCode.value}${INFO_MAPPINGS[fn.name].code}.out()`);
 };
 
 const handleAddBlock = (parentType, fn) => {
@@ -173,7 +180,9 @@ const handleAddBlock = (parentType, fn) => {
               class="tooltip"
               role="tooltip"
             >
-              <span>{{ fn.description }} description</span>
+              <span>
+                {{ INFO_MAPPINGS[fn.name].description }}
+              </span>
               <div id="arrow" data-popper-arrow></div>
             </div>
           </div>
@@ -185,6 +194,7 @@ const handleAddBlock = (parentType, fn) => {
 
 <style lang="scss" scoped>
 @import "~/assets/styles/variables";
+
 .modal {
   width: 600px;
 
@@ -230,7 +240,6 @@ const handleAddBlock = (parentType, fn) => {
       .info {
         width: 30px;
         padding: 10px 0;
-        border-radius: 50%;
         border-radius: 0 $border-radius-xs $border-radius-xs 0;
         background: #333;
         cursor: pointer;

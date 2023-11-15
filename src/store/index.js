@@ -21,6 +21,7 @@ const state = {
     fps: 60,
   },
   codeString: "",
+  activeBlockCode: "",
   history: [],
   historyIndex: 0,
 };

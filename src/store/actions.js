@@ -171,6 +171,11 @@ export const update = async ({ commit, state }, shouldSetHistory = true) => {
     for (let i = 0; i < blocks.length; i++) {
       codeString += `${flatten(blocks[i])}`;
 
+      // @todo this should be in mutations
+      if (i === synthSettings.output) {
+        state.activeBlockCode = flatten(blocks[i]);
+      }
+
       if (isHuePluginEnabled) {
         codeString += `.color(${state.r}, ${state.g}, ${state.b}, 1)`;
       }
