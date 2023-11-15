@@ -51,7 +51,7 @@
             </select>
           </div>
           <div
-            v-for="(param, paramIndex) in element.params.length"
+            v-for="(param, paramIndex) in element.params?.length"
             v-else
             :key="paramIndex"
             class="param-input-container"
