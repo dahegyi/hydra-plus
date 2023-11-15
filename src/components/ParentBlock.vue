@@ -104,7 +104,7 @@ const handleHeaderClick = (clickedBlock) => {
       </strong>
 
       <div
-        v-for="paramIndex in props.block.params.length - 1"
+        v-for="(param, paramIndex) in props.block.params.length"
         :key="paramIndex"
         class="param-input-container"
       >
