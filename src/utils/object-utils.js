@@ -1,4 +1,4 @@
-import { TYPE_SRC, TYPE_COMPLEX } from "~/constants";
+import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "~/constants";
 
 export const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
@@ -8,6 +8,36 @@ export const flattenExternal = (obj, index) => {
   return `s${index}.${obj.name}(${
     obj.params && obj.params[0] ? `"${obj.params[0].value}"` : ""
   })\n`;
+};
+
+/**
+ * Returns a block with mapped parameters
+ */
+export const mapParams = (blocks) => {
+  const mappedBlocks = [];
+
+  if (!blocks) {
+    return;
+  }
+
+  for (const block of blocks) {
+    const mapping = PARAM_MAPPINGS[block.name];
+
+    const mappedParams = block.params.map((value, index) => ({
+      name: mapping[index],
+      value,
+    }));
+
+    const mappedChildren = mapParams(block.blocks);
+
+    mappedBlocks.push({
+      ...block,
+      params: mappedParams,
+      blocks: mappedChildren,
+    });
+  }
+
+  return mappedBlocks;
 };
 
 /**
@@ -40,7 +70,7 @@ export const flatten = (obj) => {
     }
 
     for (const param of obj.params || []) {
-      source += param.value;
+      source += param;
 
       if (param !== obj.params[obj.params.length - 1]) {
         source += ",";

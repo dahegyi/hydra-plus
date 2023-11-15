@@ -32,8 +32,8 @@
             class="param-input-container"
             @click.stop="onFocus(element)"
           >
-            <label>{{ element.params[0].name }}</label>
-            <select v-model="element.params[0].value" @change="handleChange">
+            <label>{{ PARAM_MAPPINGS[element.name][0] }}</label>
+            <select v-model="element.params[0]" @change="handleChange">
               <option
                 v-for="(source, sIndex) in externalSourceBlocks"
                 :key="sIndex"
@@ -51,15 +51,15 @@
             </select>
           </div>
           <div
-            v-for="(param, paramIndex) in element.params"
+            v-for="paramIndex in element.params.length - 1"
             v-else
             :key="paramIndex"
             class="param-input-container"
             @click.stop="onFocus(element)"
           >
-            <label>{{ param.name }}</label>
+            <label>{{ PARAM_MAPPINGS[element.name][paramIndex] }}</label>
             <input
-              v-model="param.value"
+              v-model="element.params[paramIndex]"
               type="text"
               @focusin="setInputFocus(true)"
               @focusout="handleChange"
@@ -83,7 +83,7 @@ import { mapGetters, mapActions } from "vuex";
 
 import draggable from "vuedraggable";
 
-import { TYPE_SRC, TYPE_COMPLEX } from "~/constants";
+import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "~/constants";
 
 export default {
   components: {
@@ -115,6 +115,7 @@ export default {
   data() {
     return {
       previouslyDraggedTo: null,
+      PARAM_MAPPINGS, // @todo: can be removed when component is in options api format
     };
   },
 
@@ -179,6 +180,7 @@ $spacing: 8px;
 $button-text: "drag & drop or click to add";
 
 ul {
+  display: block;
   min-height: $height;
   padding: 0;
   border-radius: 0 0 0 $border-radius;

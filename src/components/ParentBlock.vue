@@ -2,7 +2,7 @@
 import { useStore } from "vuex";
 import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
 
-import { TYPE_SRC } from "~/constants";
+import { TYPE_SRC, PARAM_MAPPINGS } from "~/constants";
 
 import NestedDraggable from "~/components/NestedDraggable";
 import { computed } from "vue";
@@ -60,6 +60,16 @@ const handleHeaderClick = (clickedBlock) => {
 };
 </script>
 
+<!-- 
+  eslint-disable vue/no-mutating-props
+
+  'vue/no-mutating-props' is disabled because the props are not displayed anywhere else in the app.
+  The state has to be updated on input change, but the update should be only called when exiting the input focus.
+  I concider this applicable for this case.
+
+  @todo: param component
+-->
+
 <template>
   <div
     :id="`${props.block.type}-block-${props.index}`"
@@ -94,15 +104,15 @@ const handleHeaderClick = (clickedBlock) => {
       </strong>
 
       <div
-        v-for="(param, paramIndex) in props.block.params"
+        v-for="paramIndex in props.block.params.length - 1"
         :key="paramIndex"
         class="param-input-container"
       >
-        <label>{{ param.name }}</label>
+        <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
 
         <select
-          v-if="param.name === 'src'"
-          v-model="param.value"
+          v-if="props.block.name === 'src'"
+          v-model="props.block.params[paramIndex]"
           @change="() => props.handleChange()"
         >
           <option
@@ -123,7 +133,7 @@ const handleHeaderClick = (clickedBlock) => {
 
         <input
           v-else
-          v-model="param.value"
+          v-model="props.block.params[paramIndex]"
           type="text"
           @focusin="setInputFocus(true)"
           @focusout="() => props.handleChange()"
