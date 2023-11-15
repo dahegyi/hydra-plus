@@ -277,10 +277,6 @@ ul {
       }
 
       div {
-        &:first-of-type {
-          padding-top: $spacing;
-        }
-
         &:last-of-type {
           padding-bottom: $spacing;
         }
