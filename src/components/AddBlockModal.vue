@@ -1,13 +1,11 @@
 <script setup>
-import { computed, defineProps, defineEmits, ref } from "vue";
+import { computed, defineProps, defineEmits, ref, onMounted } from "vue";
 import { useStore } from "vuex";
-
 import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
 
 import { INFO_MAPPINGS } from "~/constants";
 
 import { createPopper } from "@popperjs/core";
-
 import Hydra from "hydra-synth";
 
 import {
@@ -88,6 +86,23 @@ const close = () => {
 
 const selectedFunction = ref(null);
 
+const hydra = ref(null);
+const canvas = ref(null);
+
+onMounted(() => {
+  canvas.value = document.createElement("canvas");
+  hydra.value = new Hydra({
+    height: 100,
+    width: 100,
+    numSources: 1,
+    numOutputs: 1,
+    makeGlobal: false,
+    detectAudio: false,
+    enableStreamCapture: false,
+    canvas: canvas.value,
+  }).synth;
+});
+
 const store = useStore();
 const state = store.state;
 
@@ -109,26 +124,14 @@ const handleMouseenter = (fn) => {
   const tooltip = document.querySelector(`#${fn.name}-tooltip`);
   createPopper(effect, tooltip);
 
-  if (tooltip.querySelector("canvas")) return;
-
-  const canvas = document.createElement("canvas");
-  tooltip.appendChild(canvas);
-
-  // used in eval but eslint doesn't recognize it
-  // eslint-disable-next-line no-unused-vars
-  const hydra = new Hydra({
-    height: 100,
-    width: 100,
-    numSources: 1,
-    numOutputs: 1,
-    makeGlobal: false,
-    detectAudio: false,
-    enableStreamCapture: false,
-    canvas,
-  }).synth;
+  if (!tooltip.contains(canvas.value)) {
+    tooltip.appendChild(canvas.value);
+  }
 
   // @todo: the selected function is not always at the end of the chain
-  eval(`hydra.${activeBlockCode.value}${INFO_MAPPINGS[fn.name].code}.out()`);
+  eval(
+    `hydra.value.${activeBlockCode.value}${INFO_MAPPINGS[fn.name].code}.out()`,
+  );
 };
 
 const handleAddBlock = (parentType, fn) => {
@@ -201,9 +204,7 @@ const handleAddBlock = (parentType, fn) => {
     display: flex;
     min-width: 50%;
     align-items: center;
-
     justify-content: space-between;
-
     margin: 0 10px 20px;
 
     .name {
