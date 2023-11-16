@@ -80,11 +80,14 @@ const handleHeaderClick = (clickedBlock) => {
     ]"
   >
     <div @click="handleHeaderClick(blocks[props.index])">
-      <strong
+      <div
         class="output-header"
         @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
       >
-        <span>{{ blockHeader }}</span>
+        <div id="drag-handle" class="drag-handle" />
+
+        {{ blockHeader }}
+
         <div>
           <span
             v-if="props.block.type === TYPE_SRC"
@@ -101,7 +104,7 @@ const handleHeaderClick = (clickedBlock) => {
             "
           />
         </div>
-      </strong>
+      </div>
 
       <div
         v-for="(param, paramIndex) in props.block.params?.length"
@@ -175,8 +178,18 @@ const handleHeaderClick = (clickedBlock) => {
     background: #fff;
     color: #000;
     cursor: move;
+    font-weight: bold;
 
     $iconSize: 24px;
+
+    .drag-handle {
+      top: 0;
+      left: 0;
+      width: $iconSize;
+      height: $iconSize;
+      margin-right: -$iconSize;
+      cursor: grab;
+    }
 
     .activate,
     .delete {
