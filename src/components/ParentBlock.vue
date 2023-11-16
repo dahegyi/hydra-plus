@@ -106,41 +106,43 @@ const handleHeaderClick = (clickedBlock) => {
         </div>
       </div>
 
-      <div
-        v-for="(param, paramIndex) in props.block.params?.length"
-        :key="paramIndex"
-        class="param-input-container"
-      >
-        <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
-
-        <select
-          v-if="props.block.name === 'src'"
-          v-model="props.block.params[paramIndex]"
-          @change="() => props.handleChange()"
+      <div>
+        <div
+          v-for="(param, paramIndex) in props.block.params?.length"
+          :key="paramIndex"
+          class="param-input-container"
         >
-          <option
-            v-for="(source, sIndex) in externalSourceBlocks"
-            :key="'s' + sIndex"
-            :value="'s' + sIndex"
-          >
-            s{{ sIndex }} - {{ source.name }}
-          </option>
-          <option
-            v-for="(output, oIndex) in blocks"
-            :key="'o' + oIndex"
-            :value="'o' + oIndex"
-          >
-            o{{ oIndex }} - {{ output.name }}
-          </option>
-        </select>
+          <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
 
-        <input
-          v-else
-          v-model="props.block.params[paramIndex]"
-          type="text"
-          @focusin="setInputFocus(true)"
-          @focusout="() => props.handleChange()"
-        />
+          <select
+            v-if="props.block.name === 'src'"
+            v-model="props.block.params[paramIndex]"
+            @change="() => props.handleChange()"
+          >
+            <option
+              v-for="(source, sIndex) in externalSourceBlocks"
+              :key="'s' + sIndex"
+              :value="'s' + sIndex"
+            >
+              s{{ sIndex }} - {{ source.name }}
+            </option>
+            <option
+              v-for="(output, oIndex) in blocks"
+              :key="'o' + oIndex"
+              :value="'o' + oIndex"
+            >
+              o{{ oIndex }} - {{ output.name }}
+            </option>
+          </select>
+
+          <input
+            v-else
+            v-model="props.block.params[paramIndex]"
+            type="text"
+            @focusin="setInputFocus(true)"
+            @focusout="() => props.handleChange()"
+          />
+        </div>
       </div>
     </div>
 
@@ -157,6 +159,8 @@ const handleHeaderClick = (clickedBlock) => {
 <style lang="scss" scoped>
 @import "~/assets/styles/variables";
 
+$spacing: 8px;
+
 .parent-block {
   position: absolute;
   display: flex;
@@ -172,15 +176,14 @@ const handleHeaderClick = (clickedBlock) => {
   .output-header {
     display: flex;
     justify-content: space-between;
-    padding: 10px 6px;
+    padding: $spacing calc($spacing / 2);
     border-radius: 0 $border-radius 0 0;
-    margin-bottom: 8px;
     background: #fff;
     color: #000;
     cursor: move;
     font-weight: bold;
 
-    $iconSize: 24px;
+    $iconSize: 3 * $spacing;
 
     .drag-handle {
       top: 0;
@@ -211,12 +214,13 @@ const handleHeaderClick = (clickedBlock) => {
     }
 
     .activate {
-      right: calc($iconSize + 8px);
+      right: calc($iconSize + $spacing);
+      width: calc($spacing * 2.5);
 
       &:after {
         width: calc($iconSize / 3);
         height: calc($iconSize / 3);
-        border: 4px solid #000;
+        border: calc($spacing / 2) solid #000;
         border-radius: 50%;
       }
 
@@ -228,14 +232,15 @@ const handleHeaderClick = (clickedBlock) => {
     }
 
     .delete {
-      right: 10px;
+      right: calc($spacing * 1.5);
+      width: calc($spacing * 2.5);
 
       &:before,
       &:after {
-        top: 10px;
-        left: 10%;
-        width: 17px;
-        border-top: 4px solid #000;
+        top: calc($spacing * 1.25);
+        left: calc($spacing / 4);
+        width: calc($spacing * 2);
+        border-top: calc($spacing / 2) solid #000;
       }
 
       &:before {
@@ -249,14 +254,14 @@ const handleHeaderClick = (clickedBlock) => {
   }
 
   .param-input-container {
-    padding: 0 12px;
+    padding: calc($spacing / 4) $spacing;
 
     &:first-of-type {
-      padding-top: 0;
+      padding-top: $spacing;
     }
 
     &:last-of-type {
-      padding-bottom: 8px;
+      padding-bottom: $spacing;
     }
   }
 
@@ -330,7 +335,11 @@ const handleHeaderClick = (clickedBlock) => {
   &.external {
     .output-header {
       background: #f1a3a3;
-      color: #000;
+    }
+
+    .param-input-container {
+      padding: calc($spacing * 1.5) $spacing calc($spacing * 1.5)
+        calc($spacing * 1.5);
     }
   }
 }

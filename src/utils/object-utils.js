@@ -6,7 +6,7 @@ export const deepCopy = (obj) => {
 
 export const flattenExternal = (obj, index) => {
   return `s${index}.${obj.name}(${
-    obj.params && obj.params[0] ? `"${obj.params[0].value}"` : ""
+    obj.params && obj.params[0] ? `"${obj.params[0]}"` : ""
   })\n`;
 };
 

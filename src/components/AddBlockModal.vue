@@ -42,7 +42,6 @@ const externalSources = computed(() =>
   EXTERNAL_SOURCE_FUNCTIONS.map((fn) => ({
     ...fn,
     type: TYPE_EXTERNAL,
-    blocks: [],
   })),
 );
 

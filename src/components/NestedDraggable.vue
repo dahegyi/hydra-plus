@@ -228,7 +228,11 @@ ul {
 
   &.complex {
     li {
-      padding: $spacing 0 0;
+      padding: $spacing 0 0 $spacing;
+
+      > ul {
+        margin-left: -$spacing;
+      }
     }
 
     > li:first-of-type {
@@ -270,7 +274,7 @@ ul {
     }
 
     .params {
-      padding: 0 $spacing;
+      padding: 0 $spacing 0 0;
 
       strong {
         padding: 0 0 $spacing / 2;
