@@ -218,6 +218,11 @@ export default {
         return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
       }
 
+      if (e.type === "touchstart") {
+        e.preventDefault();
+        e = e.touches[0];
+      }
+
       const divRect = div.getBoundingClientRect();
 
       const offsetX = e.clientX - divRect.left - window.scrollX;
@@ -229,6 +234,11 @@ export default {
       this.movedBlockCoordinates = { x, y };
 
       const move = (e) => {
+        if (e.type === "touchmove") {
+          e.preventDefault();
+          e = e.touches[0];
+        }
+
         const x = e.clientX - offsetX;
         const y = e.clientY - offsetY;
 
@@ -243,6 +253,9 @@ export default {
         document.removeEventListener("mousemove", move);
         document.removeEventListener("mouseup", up);
 
+        document.removeEventListener("touchmove", move);
+        document.removeEventListener("touchend", up);
+
         if (!positionChanged) {
           return;
         }
@@ -256,6 +269,9 @@ export default {
 
       document.addEventListener("mousemove", move);
       document.addEventListener("mouseup", up);
+
+      document.addEventListener("touchmove", move);
+      document.addEventListener("touchend", up);
     },
 
     closeWelcomeModal() {

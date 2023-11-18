@@ -83,6 +83,7 @@ const handleHeaderClick = (clickedBlock) => {
       <div
         class="output-header"
         @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
+        @touchstart="(e) => props.moveBlock(e, props.index, props.block.type)"
       >
         <div id="drag-handle" class="drag-handle" />
 
@@ -164,7 +165,6 @@ $spacing: 8px;
 .parent-block {
   position: absolute;
   display: flex;
-  width: fit-content;
   width: min(360px, 80%);
   flex-direction: column;
   border-radius: 0 $border-radius 0 $border-radius;
@@ -182,6 +182,8 @@ $spacing: 8px;
     color: #000;
     cursor: move;
     font-weight: bold;
+    -webkit-user-select: none;
+    user-select: none;
 
     $iconSize: 3 * $spacing;
 
