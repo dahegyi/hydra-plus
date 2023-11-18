@@ -112,7 +112,7 @@ const dispatchAction = createDispatchAction(store);
 const addParent = dispatchAction("addParent");
 const addChild = dispatchAction("addChild");
 
-const handleMouseenter = (fn) => {
+const showInfo = (fn) => {
   if (selectedFunction.value === fn.name) {
     selectedFunction.value = null;
     return;
@@ -173,7 +173,7 @@ const handleAddBlock = (parentType, fn) => {
               <span class="name" @click="handleAddBlock(TYPE_SRC, fn)">
                 {{ fn.name }}
               </span>
-              <span class="info" @click="handleMouseenter(fn)" />
+              <span class="info" @click="showInfo(fn)" />
             </div>
 
             <div
