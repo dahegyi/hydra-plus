@@ -290,6 +290,7 @@ ul {
     strong {
       display: flex;
       cursor: pointer;
+      -webkit-user-select: none;
       user-select: none;
 
       .name {
