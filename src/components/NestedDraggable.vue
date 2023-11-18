@@ -277,7 +277,7 @@ ul {
       padding: 0 $spacing 0 0;
 
       strong {
-        padding: 0 0 $spacing / 2;
+        padding: 0 0 calc($spacing / 2);
       }
 
       div {
