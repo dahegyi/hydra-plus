@@ -1,11 +1,13 @@
 <script setup>
+import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
+
+import { showToast } from "~/utils";
 
 import { TYPE_SRC, PARAM_MAPPINGS } from "~/constants";
 
 import NestedDraggable from "~/components/NestedDraggable";
-import { computed } from "vue";
 
 const props = defineProps({
   index: {
@@ -54,9 +56,49 @@ const deleteParent = dispatchAction("deleteParent");
 const setOutput = dispatchAction("setOutput");
 const setInputFocus = dispatchAction("setInputFocus");
 
+const videoStreams = ref([]);
+const cameraNames = ref([]);
+
+onMounted(async () => {
+  if (props.block.name !== "initCam") return;
+
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoInputs = devices.filter(
+      (device) => device.kind === "videoinput",
+    );
+
+    for (const [i, videoInput] of videoInputs.entries()) {
+      cameraNames.value.push(`${i} - ${videoInput.label}`);
+    }
+
+    const streams = await Promise.all(
+      videoInputs.map((device) =>
+        navigator.mediaDevices.getUserMedia({
+          video: { deviceId: device.deviceId },
+        }),
+      ),
+    );
+
+    videoStreams.value = streams;
+  } catch (error) {
+    showToast("Error accessing video devices:", error);
+  }
+});
+
 const handleHeaderClick = (clickedBlock) => {
   if (props.focused === clickedBlock) return;
   setFocus(clickedBlock);
+};
+
+const setCameraRef = (el) => {
+  if (!el) return;
+
+  const cameraIndex = props.block.params[0];
+
+  if (videoStreams.value[cameraIndex]) {
+    el.srcObject = videoStreams.value[cameraIndex];
+  }
 };
 </script>
 
@@ -116,7 +158,21 @@ const handleHeaderClick = (clickedBlock) => {
           <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
 
           <select
-            v-if="props.block.name === 'src'"
+            v-if="props.block.name === 'initCam'"
+            v-model="props.block.params[paramIndex]"
+            @change="() => props.handleChange()"
+          >
+            <option
+              v-for="(name, camIndex) in cameraNames"
+              :key="'cam' + camIndex"
+              :value="camIndex"
+            >
+              {{ name }}
+            </option>
+          </select>
+
+          <select
+            v-else-if="props.block.name === 'src'"
             v-model="props.block.params[paramIndex]"
             @change="() => props.handleChange()"
           >
@@ -144,6 +200,24 @@ const handleHeaderClick = (clickedBlock) => {
             @focusout="() => props.handleChange()"
           />
         </div>
+
+        <img
+          v-if="props.block.name === 'initImage'"
+          :src="props.block.params[0]"
+        />
+
+        <video
+          v-else-if="props.block.name === 'initVideo'"
+          :src="props.block.params[0]"
+          autoplay
+          loop
+        />
+
+        <video
+          v-else-if="props.block.name === 'initCam'"
+          :ref="setCameraRef"
+          autoplay
+        ></video>
       </div>
     </div>
 
@@ -342,6 +416,15 @@ $spacing: 8px;
     .param-input-container {
       padding: calc($spacing * 1.5) $spacing calc($spacing * 1.5)
         calc($spacing * 1.5);
+    }
+
+    img,
+    video {
+      width: calc(100% - #{$spacing * 2});
+      max-height: 200px;
+      border-radius: 0 0 0 $border-radius;
+      margin: 0 $spacing;
+      object-fit: cover;
     }
   }
 }
