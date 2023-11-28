@@ -190,8 +190,6 @@ export const update = async ({ commit, state }, shouldSetHistory = true) => {
     eval(codeString);
     commit("setCodeString", codeString);
   } catch (error) {
-    console.error(error);
-
     showToast(error);
   }
 

@@ -1,6 +1,7 @@
 import Toastify from "toastify-js";
 
 export const showToast = (error) => {
+  console.error(error);
   Toastify({
     text: error,
     duration: 4000,
@@ -59,7 +60,7 @@ export const setHueLights = async (state) => {
       const data = await response.json();
       console.log(data);
     } catch (error) {
-      console.error("Error toggling light:", error);
+      showToast(error);
     }
   }
 };
