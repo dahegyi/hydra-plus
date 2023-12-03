@@ -56,8 +56,9 @@ const deleteParent = dispatchAction("deleteParent");
 const setOutput = dispatchAction("setOutput");
 const setInputFocus = dispatchAction("setInputFocus");
 
-const videoStreams = ref([]);
+const hydra = ref(window.hydra);
 const cameraNames = ref([]);
+const isPreviewOpen = ref(false);
 
 onMounted(async () => {
   if (props.block.name !== "initCam") return;
@@ -71,16 +72,6 @@ onMounted(async () => {
     for (const [i, videoInput] of videoInputs.entries()) {
       cameraNames.value.push(`${i} - ${videoInput.label}`);
     }
-
-    const streams = await Promise.all(
-      videoInputs.map((device) =>
-        navigator.mediaDevices.getUserMedia({
-          video: { deviceId: device.deviceId },
-        }),
-      ),
-    );
-
-    videoStreams.value = streams;
   } catch (error) {
     showToast("Error accessing video devices:", error);
   }
@@ -91,14 +82,8 @@ const handleHeaderClick = (clickedBlock) => {
   setFocus(clickedBlock);
 };
 
-const setCameraRef = (el) => {
-  if (!el) return;
-
-  const cameraIndex = props.block.params[0];
-
-  if (videoStreams.value[cameraIndex]) {
-    el.srcObject = videoStreams.value[cameraIndex];
-  }
+const togglePreview = () => {
+  isPreviewOpen.value = !isPreviewOpen.value;
 };
 </script>
 
@@ -121,103 +106,114 @@ const setCameraRef = (el) => {
       { focused: focused === props.block },
     ]"
   >
-    <div @click="handleHeaderClick(blocks[props.index])">
-      <div
-        class="output-header"
-        @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
-        @touchstart="(e) => props.moveBlock(e, props.index, props.block.type)"
-      >
-        <div id="drag-handle" class="drag-handle" />
+    <div
+      class="output-header"
+      @click="handleHeaderClick(blocks[props.index])"
+      @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
+      @touchstart="(e) => props.moveBlock(e, props.index, props.block.type)"
+    >
+      <div id="drag-handle" class="drag-handle" />
 
-        {{ blockHeader }}
-
-        <div>
-          <span
-            v-if="props.block.type === TYPE_SRC"
-            :class="[
-              'activate',
-              { active: synthSettings?.output === props.index },
-            ]"
-            @click="setOutput(index)"
-          />
-          <span
-            class="delete"
-            @click="
-              deleteParent({ type: props.block.type, index: props.index })
-            "
-          />
-        </div>
-      </div>
+      {{ blockHeader }}
 
       <div>
-        <div
-          v-for="(param, paramIndex) in props.block.params?.length"
-          :key="paramIndex"
-          class="param-input-container"
+        <span
+          v-if="props.block.type === TYPE_SRC"
+          :class="[
+            'activate',
+            { active: synthSettings?.output === props.index },
+          ]"
+          @click="setOutput(index)"
+        />
+
+        <span
+          v-else
+          :class="['preview', { open: isPreviewOpen }]"
+          @click="togglePreview()"
+        />
+
+        <span
+          class="delete"
+          @click="deleteParent({ type: props.block.type, index: props.index })"
+        />
+      </div>
+    </div>
+
+    <div>
+      <div
+        v-for="(param, paramIndex) in props.block.params?.length"
+        :key="paramIndex"
+        class="param-input-container"
+      >
+        <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
+
+        <select
+          v-if="props.block.name === 'initCam'"
+          v-model="props.block.params[paramIndex]"
+          @change="() => props.handleChange()"
         >
-          <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
-
-          <select
-            v-if="props.block.name === 'initCam'"
-            v-model="props.block.params[paramIndex]"
-            @change="() => props.handleChange()"
+          <option
+            v-for="(name, camIndex) in cameraNames"
+            :key="'cam' + camIndex"
+            :value="camIndex"
           >
-            <option
-              v-for="(name, camIndex) in cameraNames"
-              :key="'cam' + camIndex"
-              :value="camIndex"
-            >
-              {{ name }}
-            </option>
-          </select>
+            {{ name }}
+          </option>
+        </select>
 
-          <select
-            v-else-if="props.block.name === 'src'"
-            v-model="props.block.params[paramIndex]"
-            @change="() => props.handleChange()"
+        <select
+          v-else-if="props.block.name === 'src'"
+          v-model="props.block.params[paramIndex]"
+          @change="() => props.handleChange()"
+        >
+          <option
+            v-for="(source, sIndex) in externalSourceBlocks"
+            :key="'s' + sIndex"
+            :value="'s' + sIndex"
           >
-            <option
-              v-for="(source, sIndex) in externalSourceBlocks"
-              :key="'s' + sIndex"
-              :value="'s' + sIndex"
-            >
-              s{{ sIndex }} - {{ source.name }}
-            </option>
-            <option
-              v-for="(output, oIndex) in blocks"
-              :key="'o' + oIndex"
-              :value="'o' + oIndex"
-            >
-              o{{ oIndex }} - {{ output.name }}
-            </option>
-          </select>
+            s{{ sIndex }} - {{ source.name }}
+          </option>
+          <option
+            v-for="(output, oIndex) in blocks"
+            :key="'o' + oIndex"
+            :value="'o' + oIndex"
+          >
+            o{{ oIndex }} - {{ output.name }}
+          </option>
+        </select>
 
-          <input
-            v-else
-            v-model="props.block.params[paramIndex]"
-            type="text"
-            @focusin="setInputFocus(true)"
-            @focusout="() => props.handleChange()"
-          />
-        </div>
+        <input
+          v-else
+          v-model="props.block.params[paramIndex]"
+          type="text"
+          @focusin="setInputFocus(true)"
+          @focusout="() => props.handleChange()"
+        />
+      </div>
 
+      <div v-if="isPreviewOpen">
         <img
           v-if="props.block.name === 'initImage'"
-          :src="props.block.params[0]"
+          :src="hydra[`s${index}`].src?.src"
         />
 
         <video
           v-else-if="props.block.name === 'initVideo'"
-          :src="props.block.params[0]"
+          :src="hydra[`s${index}`].src?.src"
           autoplay
+          muted
           loop
         />
 
         <video
-          v-else-if="props.block.name === 'initCam'"
-          :ref="setCameraRef"
+          v-else-if="
+            props.block.name === 'initCam' || props.block.name === 'initScreen'
+          "
+          :srcObject="hydra[`s${index}`].src?.srcObject"
+          :class="props.block.name"
           autoplay
-        ></video>
+          muted
+        />
       </div>
     </div>
 
@@ -271,12 +267,16 @@ $spacing: 8px;
     }
 
     .activate,
+    .preview,
     .delete {
       position: absolute;
       width: $iconSize;
       height: $iconSize;
       cursor: pointer;
+    }
 
+    .activate,
+    .delete {
       &:before,
       &:after {
         position: absolute;
@@ -307,16 +307,29 @@ $spacing: 8px;
       }
     }
 
+    .preview {
+      top: calc($spacing + 1px);
+      right: calc($iconSize + $spacing * 1.5);
+      width: calc($iconSize - 2px);
+      background-image: url(~/assets/eye-off.svg);
+      background-repeat: no-repeat;
+      background-size: contain;
+
+      &.open {
+        background-image: url(~/assets/eye-show.svg);
+      }
+    }
+
     .delete {
       right: calc($spacing * 1.5);
       width: calc($spacing * 2.5);
 
       &:before,
       &:after {
-        top: calc($spacing * 1.25);
+        top: calc($spacing * 1.4);
         left: calc($spacing / 4);
         width: calc($spacing * 2);
-        border-top: calc($spacing / 2) solid #000;
+        border-top: 2px solid #000;
       }
 
       &:before {
@@ -425,6 +438,11 @@ $spacing: 8px;
       border-radius: 0 0 0 $border-radius;
       margin: 0 $spacing;
       object-fit: cover;
+    }
+
+    // initScreen doesn't have inputs so margin is needed
+    .initScreen {
+      margin-top: calc($spacing * 1.5);
     }
   }
 }
