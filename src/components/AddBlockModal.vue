@@ -7,12 +7,13 @@ import { deepCopy, flattenExternal, flatten } from "~/utils/object-utils";
 
 import { showToast } from "~/utils";
 
-import { INFO_MAPPINGS } from "~/constants";
-
 import { createPopper } from "@popperjs/core";
 import Hydra from "hydra-synth";
 
 import {
+  MAX_NUMBER_OF_SOURCES,
+  MAX_NUMBER_OF_EXTERNALS,
+  INFO_MAPPINGS,
   TYPE_SRC,
   TYPE_EXTERNAL,
   TYPE_SIMPLE,
@@ -98,8 +99,8 @@ onMounted(() => {
   hydra.value = new Hydra({
     height: 100,
     width: 100,
-    numSources: 8,
-    numOutputs: 8,
+    numSources: MAX_NUMBER_OF_SOURCES,
+    numOutputs: MAX_NUMBER_OF_EXTERNALS,
     makeGlobal: false,
     detectAudio: false,
     enableStreamCapture: false,
