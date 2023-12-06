@@ -274,9 +274,26 @@ export default {
       document.addEventListener("touchend", up);
     },
 
+    // @todo: better modal opening/closing logic
+
+    runModalCloseAnimation() {
+      const container = document.getElementsByClassName("modal-container")[0];
+      const modal = container.getElementsByClassName("modal")[0];
+
+      container.classList.add("closing");
+      modal.classList.add("closing");
+    },
+
     closeWelcomeModal() {
-      this.isWelcomeModalOpen = false;
-      localStorage.setItem("welcomeModalLastUpdate", WELCOME_MODAL_LAST_UPDATE);
+      this.runModalCloseAnimation();
+
+      setTimeout(() => {
+        this.isWelcomeModalOpen = false;
+        localStorage.setItem(
+          "welcomeModalLastUpdate",
+          WELCOME_MODAL_LAST_UPDATE,
+        );
+      }, 150);
     },
 
     openAddBlockModal(parent = null) {
@@ -285,7 +302,11 @@ export default {
     },
 
     closeAddBlockModal() {
-      this.isAddBlockModalOpen = false;
+      this.runModalCloseAnimation();
+
+      setTimeout(() => {
+        this.isAddBlockModalOpen = false;
+      }, 150);
     },
 
     openThreeModal() {
@@ -293,7 +314,11 @@ export default {
     },
 
     closeThreeModal() {
-      this.isThreeModalOpen = false;
+      this.runModalCloseAnimation();
+
+      setTimeout(() => {
+        this.isThreeModalOpen = false;
+      }, 150);
     },
 
     openSettingsModal() {
@@ -301,7 +326,11 @@ export default {
     },
 
     closeSettingsModal() {
-      this.isSettingsModalOpen = false;
+      this.runModalCloseAnimation();
+
+      setTimeout(() => {
+        this.isSettingsModalOpen = false;
+      }, 150);
     },
   },
 };

@@ -115,7 +115,7 @@ hr {
   align-items: center;
   justify-content: center;
   padding: 15px;
-  animation: opacity 0.1s ease-in-out;
+  animation: opacity-in 0.1s ease-in-out;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   background: rgba(0, 0, 0, 0.3);
@@ -131,8 +131,8 @@ hr {
     align-items: center;
     border-radius: $border-radius 0;
     animation:
-      slide-up 0.15s ease-in-out,
-      opacity 0.15s ease-in-out;
+      slide-in 0.15s ease-in-out,
+      opacity-in 0.15s ease-in-out;
     background: #222;
     box-shadow: 0 3px 20px 10px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
@@ -178,6 +178,16 @@ hr {
       overflow-y: auto;
       text-align: center;
     }
+
+    &.closing {
+      animation:
+        slide-out 0.15s ease-in-out,
+        opacity-out 0.15s ease-in-out;
+    }
+  }
+
+  &.closing {
+    animation: opacity-out 0.15s ease-in-out;
   }
 
   @media screen and (max-width: 500px) {
@@ -189,7 +199,7 @@ hr {
   }
 }
 
-@keyframes opacity {
+@keyframes opacity-in {
   from {
     opacity: 0;
   }
@@ -198,12 +208,30 @@ hr {
   }
 }
 
-@keyframes slide-up {
+@keyframes opacity-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
   from {
     transform: translateY(20px);
   }
   to {
     transform: translateY(0);
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(20px);
   }
 }
 
