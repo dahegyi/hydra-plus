@@ -247,7 +247,7 @@ const handleAddBlock = (parentType, fn) => {
 @import "~/assets/styles/variables";
 
 .modal {
-  width: 600px;
+  width: 680px;
 
   .item {
     display: flex;
@@ -273,6 +273,14 @@ const handleAddBlock = (parentType, fn) => {
     display: grid;
     width: 100%;
     grid-template-columns: repeat(3, 1fr);
+
+    @media screen and (max-width: 650px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media screen and (max-width: 450px) {
+      grid-template-columns: repeat(1, 1fr);
+    }
 
     > span {
       margin-bottom: 2rem;
@@ -305,10 +313,10 @@ const handleAddBlock = (parentType, fn) => {
 .tooltip {
   display: flex;
   flex-direction: column;
-  padding: 5px 10px;
-  border-radius: 4px;
-  background: #ffffff;
-  color: #643045;
+  padding: 5px;
+  border-radius: 5px;
+  background: #fff;
+  color: #000;
   font-size: 13px;
   font-weight: bold;
 }
