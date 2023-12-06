@@ -1,4 +1,4 @@
-export const WELCOME_MODAL_LAST_UPDATE = "0.7.1";
+export const WELCOME_MODAL_LAST_UPDATE = "0.8.0";
 
 export const INITIAL_BLOCKS = [
   {

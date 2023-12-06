@@ -1,76 +1,99 @@
 <template>
   <div class="modal-container">
     <div class="modal">
-      <h2>welcome!</h2>
+      <h2 v-if="showLatest">welcome to 0.8!</h2>
+      <h2 v-else>welcome!</h2>
 
       <div class="content">
-        <p>
-          <strong>hydra+</strong> is a graphical user interface for
-          <a href="https://hydra.ojack.xyz/" target="_blank">hydra</a>, a
-          javascript library for livecoding visuals.
-        </p>
-        <p>
-          please refer to the
-          <a href="https://hydra.ojack.xyz/api/">hydra api</a> for information
-          on how to use the synthatizer.
-        </p>
+        <span v-if="showLatest">
+          <strong>version 0.8.0 contains a couple cool stuff:</strong>
 
-        <hr />
+          <ul>
+            <li>
+              redesigned ui that allows a more user friendly effect adding and
+              dragging
+            </li>
+            <li>previews for effects in the add effect modal</li>
+            <li>previews for external sources</li>
+            <li>a slightly better touchscreen support</li>
+            <li>
+              <a href="https://github.com/glowbox/maptasticjs" target="_blank"
+                >Maptastic</a
+              >, for projection mapping on the visualizer page
+            </li>
+            <li>…and of course some optimizations and fixes</li>
+          </ul>
+        </span>
+        <span v-else>
+          <p>
+            <strong>hydra+</strong> is a graphical user interface for
+            <a href="https://hydra.ojack.xyz/" target="_blank">hydra</a>, a
+            javascript library for livecoding visuals.
+          </p>
+          <p>
+            please refer to the
+            <a href="https://hydra.ojack.xyz/api/">hydra api</a> for information
+            on how to use the synthatizer.
+          </p>
 
-        <p>
-          it is strongly recommended to use the app on a desktop computer with a
-          keyboard.<br />
-          the app is not optimized for touchscreen devices.
-        </p>
+          <hr />
 
-        <hr />
+          <h3>usable key combos:</h3>
 
-        <h3>usable key combos:</h3>
-
-        <div class="feature">
-          <span class="description">update:</span>
-          <div>
-            <span class="key" data-type="enter">↵</span>
+          <div class="feature">
+            <span class="description">update:</span>
+            <div>
+              <span class="key" data-type="enter">↵</span>
+            </div>
           </div>
-        </div>
-        <div class="feature">
-          <span class="description">undo:</span>
-          <div>
-            <span class="key">{{ modifierKey }}</span> +
-            <span class="key">z</span>
+          <div class="feature">
+            <span class="description">undo:</span>
+            <div>
+              <span class="key">{{ modifierKey }}</span> +
+              <span class="key">z</span>
+            </div>
           </div>
-        </div>
-        <div class="feature">
-          <span class="description">redo:</span>
-          <div>
-            <span class="key">{{ modifierKey }}</span> +
-            <span class="key">y</span>
+          <div class="feature">
+            <span class="description">redo:</span>
+            <div>
+              <span class="key">{{ modifierKey }}</span> +
+              <span class="key">y</span>
+            </div>
+            <div>
+              <span class="or-text">or</span>
+              <span class="key">{{ modifierKey }}</span> +
+              <span class="key">shift</span> + <span class="key">z</span>
+            </div>
           </div>
-          <div>
-            <span class="or-text">or</span>
-            <span class="key">{{ modifierKey }}</span> +
-            <span class="key">shift</span> + <span class="key">z</span>
+          <div class="feature">
+            <span class="description">toggle ui visibility:</span>
+            <div>
+              <span class="key">esc</span>
+            </div>
           </div>
-        </div>
-        <div class="feature">
-          <span class="description">toggle ui visibility:</span>
-          <div>
-            <span class="key">esc</span>
-          </div>
-        </div>
 
-        <hr />
-        <p>
-          <strong>
-            please report bugs or feature requests on
-            <a
-              href="https://github.com/dahegyi/hydra-plus/issues"
-              target="_blank"
-            >
-              github</a
-            >.
-          </strong>
-        </p>
+          <hr />
+        </span>
+
+        <br />
+
+        <span
+          >thank you for using hydra+, your feedback, shared via
+          <a href="https://github.com/dahegyi/hydra-plus/issues" target="_blank"
+            >github</a
+          >
+          or the
+
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLScHReMCjuubz10UI9SD2cESGI0MA6X4n7hhuP8HI9jsWyZLzA/viewform"
+            target="_blank"
+            >feedback form</a
+          >
+          is highly appreciated.
+          <br />
+          <br />
+          happy hacking! ❤️‍🔥
+        </span>
 
         <button @click="close">close</button>
       </div>
@@ -78,10 +101,17 @@
   </div>
 </template>
 <script>
+import { WELCOME_MODAL_LAST_UPDATE } from "~/constants";
+
 export default {
   emits: ["close"],
 
   computed: {
+    showLatest() {
+      console.log(WELCOME_MODAL_LAST_UPDATE);
+      return localStorage.welcomeModalLastUpdate < WELCOME_MODAL_LAST_UPDATE;
+    },
+
     modifierKey() {
       return /Macintosh|Mac OS X/i.test(navigator.userAgent) ? "⌘" : "ctrl";
     },
@@ -166,6 +196,11 @@ export default {
         display: none;
       }
     }
+  }
+
+  li {
+    padding: 4px 0px 4px 20px;
+    text-align: left;
   }
 
   button {
