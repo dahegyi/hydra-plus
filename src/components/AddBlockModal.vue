@@ -143,19 +143,17 @@ const showInfo = (fn) => {
   const { s0, s1, s2, s3, s4, s5, s6, s7 } = hydra.value;
   const { o0, o1, o2, o3, o4, o5, o6, o7 } = hydra.value;
   /* eslint-enable no-unused-vars */
-
-  let i, j;
   let codeString = "";
 
-  for (i = 0; i < externalSourceBlocks.value.length; i += 1) {
-    codeString += flattenExternal(externalSourceBlocks.value[i], i);
+  for (const [i, externalSourceBlock] of externalSourceBlocks.value.entries()) {
+    codeString += flattenExternal(externalSourceBlock, i);
   }
 
   const copiedBlocks = deepCopy(blocks.value);
 
   let parentFound = false;
 
-  for (i = 0; i < copiedBlocks.length; i += 1) {
+  for (const [i, copiedBlock] of copiedBlocks.entries()) {
     const checkChildren = (block, copiedBlock) => {
       if (props.parent === block) {
         copiedBlock.blocks.push(fn);
@@ -163,15 +161,15 @@ const showInfo = (fn) => {
       }
 
       if (!parentFound && block.blocks?.length > 0) {
-        for (j = 0; j < block.blocks.length; j += 1) {
-          checkChildren(block.blocks[j], copiedBlock.blocks[j]);
+        for (const [j, child] of block.blocks.entries()) {
+          checkChildren(child, copiedBlock.blocks[j]);
         }
       }
     };
 
-    checkChildren(blocks.value[i], copiedBlocks[i]);
+    checkChildren(blocks.value[i], copiedBlock);
 
-    codeString += `${flatten(copiedBlocks[i])}.out(o${i})\n`;
+    codeString += `${flatten(copiedBlock)}.out(o${i})\n`;
   }
 
   codeString += `render(o${synthSettings.value.output})`;
