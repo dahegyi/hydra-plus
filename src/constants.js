@@ -1,57 +1,53 @@
 export const WELCOME_MODAL_LAST_UPDATE = "0.8.0";
 
+export const DEFAULT_POSITION = { x: 15, y: 65 };
+
 export const INITIAL_BLOCKS = [
   {
     name: "osc",
-    params: [15, 0.1, 0],
+    params: [10, 0.001, 2],
     type: "source",
     blocks: [
       {
-        name: "blend",
-        blocks: [
-          {
-            name: "gradient",
-            params: [0.1],
-            type: "source",
-            blocks: [
-              {
-                name: "scrollX",
-                params: [0, 0.1],
-                type: "simple",
-              },
-            ],
-            position: { x: 20, y: 60 },
-          },
-        ],
-        params: [3],
-        type: "complex",
+        name: "posterize",
+        params: [1, 0.00001],
+        type: "simple",
       },
       {
         name: "modulateRotate",
         blocks: [
           {
-            name: "noise",
-            params: [1, 0.01],
+            name: "osc",
+            params: [8, 0.015, 0],
             type: "source",
             blocks: [
               {
-                name: "contrast",
-                params: [30],
-                type: "simple",
+                name: "mask",
+                blocks: [
+                  {
+                    name: "shape",
+                    params: [-2, 0.4, 0],
+                    type: "source",
+                    blocks: [],
+                  },
+                ],
+                type: "complex",
               },
             ],
-            position: { x: 20, y: 60 },
           },
         ],
-        params: [1, 0],
+        params: [8, 0],
         type: "complex",
       },
+      {
+        name: "colorama",
+        params: [0.05],
+        type: "simple",
+      },
     ],
-    position: { x: 20, y: 60 },
+    position: DEFAULT_POSITION,
   },
 ];
-
-export const DEFAULT_POSITION = { x: 20, y: 60 };
 
 export const MAX_NUMBER_OF_SOURCES = 8;
 export const MAX_NUMBER_OF_EXTERNALS = 8;
