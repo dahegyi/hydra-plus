@@ -5,9 +5,7 @@
 
 hydra+ is a double-screen visual editing environment for [hydra synth](https://github.com/hydra-synth/hydra-synth), designed for ease of use and to project live visuals without revealing any code.
 
-👉 **[Live demo available here](https://hydra-plus.web.app)**
-
-**For now, the project is only tested on Chrome Desktop.**
+👉 **[Live demo available here](https://hydra-plus.xyz)**
 
 If you have any questions, suggestions, or just want to report a bug, please use the **Issues** / **Discussions** tabs on Github.
 
@@ -17,24 +15,29 @@ If you have any questions, suggestions, or just want to report a bug, please use
 - undo: `Ctrl/Cmd + Z`
 - redo: `Ctrl/Cmd + Y` or `Ctrl/Cmd + Shift + Z`
 - toggle UI: `Escape`
+- visualizer mapping: https://github.com/glowbox/maptasticjs
 
 ## Known issues:
 
-- initSreen() doesn't work properly in visualizer
+- initScreen doesn't work properly in visualizer
+- initScreen doesn't initialize working after refreshing the page
+- initScreen blocks window in add effect modal previews
+- Maptastic mapping is lost when screen size changes
 
 ## Planned features:
 
 - UI for arrays
-- hover info boxes for sources & effects
 - transition on updates
 - audio settings modal
 - BPM tapper
 - support for 3D scenes
 - MIDI integration
+- DMX integration
+- Philips Hue integration _work in process_
 - built-in extra shaders + option to add new ones from the GUI
 - [1.0] import / export configs
 - [1.0] customizable colors for GUI
-- [1.0] backend server where files and configs can be saved
+- [1.0] backend - ability to save files and configs
 
 ---
 
@@ -72,3 +75,9 @@ The application is deployed automatically to Firebase Hosting on every push to t
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Thankful for...
+
+- [SVG Repo](https://www.svgrepo.com) for the eye icons
+- [Glowbox](https://github.com/glowbox/maptasticjs) for the projection mapping library
+- [Varun](https://github.com/apvarun/toastify-js) for the error toasts

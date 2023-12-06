@@ -5,7 +5,7 @@ import { deepCopy, flatten, flattenExternal } from "~/utils/object-utils";
 
 import store from "./";
 
-import { showToast } from "~/utils/index.js";
+import { showToast, setHueLights } from "~/utils";
 
 import {
   MAX_NUMBER_OF_SOURCES,
@@ -16,6 +16,11 @@ import {
   TYPE_COMPLEX,
 } from "~/constants";
 
+export const updateRGB = ({ commit }, { red, green, blue }) => {
+  commit("setRGB", { red, green, blue });
+  store.dispatch("update", false);
+};
+
 export const setFocus = ({ commit }, focused) => {
   commit("setFocus", focused);
 };
@@ -24,7 +29,10 @@ export const setInputFocus = ({ commit }, isInputFocused) => {
   commit("setInputFocus", isInputFocused);
 };
 
-export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
+export const setBlocks = (
+  { commit, state },
+  { blocks, shouldSetHistory, isDelete },
+) => {
   if (
     blocks.filter((block) => block.type === TYPE_SRC) === state.blocks &&
     blocks.filter((block) => block.type === TYPE_EXTERNAL) ===
@@ -35,11 +43,11 @@ export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
 
   commit("setBlocks", blocks);
 
-  store.dispatch("update", shouldSetHistory);
+  store.dispatch("update", { shouldSetHistory, isDelete });
 };
 
 /**
- * Adds source to the main code block or to a child block.
+ * Adds source to the main code block.
  * Deep copy is needed because we want to handle the input parameters
  * differently for different sources.
  *
@@ -48,31 +56,27 @@ export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
 export const addParent = ({ commit, state }, source) => {
   const copiedSource = deepCopy(source);
 
-  if (!state.focused) {
-    if (
-      source.type === TYPE_SRC &&
-      state.blocks.length >= MAX_NUMBER_OF_SOURCES
-    ) {
-      return showToast(
-        `You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`,
-      );
-    }
-
-    if (
-      (source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
-      state.externalSourceBlocks.length >= MAX_NUMBER_OF_EXTERNALS
-    ) {
-      return showToast(
-        `You can't add more than ${MAX_NUMBER_OF_EXTERNALS} externals.`,
-      );
-    }
-
-    commit("addParent", copiedSource);
-    commit("setFocus", state.blocks[state.blocks.length - 1]);
-    commit("setOutput", state.blocks.length - 1);
-  } else {
-    commit("addChild", copiedSource);
+  if (
+    source.type === TYPE_SRC &&
+    state.blocks.length >= MAX_NUMBER_OF_SOURCES
+  ) {
+    return showToast(
+      `You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`,
+    );
   }
+
+  if (
+    (source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
+    state.externalSourceBlocks.length >= MAX_NUMBER_OF_EXTERNALS
+  ) {
+    return showToast(
+      `You can't add more than ${MAX_NUMBER_OF_EXTERNALS} externals.`,
+    );
+  }
+
+  commit("addParent", copiedSource);
+  commit("setFocus", state.blocks[state.blocks.length - 1]);
+  commit("setOutput", state.blocks.length - 1);
 
   if (source.type === TYPE_EXTERNAL) {
     const addedExternal = flattenExternal(
@@ -118,6 +122,8 @@ export const deleteParent = ({ commit, state }, payload) => {
 
   store.dispatch("setBlocks", {
     blocks: [...blocks, ...externalSourceBlocks],
+    shouldSetHistory: true,
+    isDelete: true,
   });
 };
 
@@ -143,8 +149,14 @@ export const setBlockPosition = ({ commit }, payload) => {
   store.dispatch("setHistory");
 };
 
-export const update = ({ commit, state }, shouldSetHistory = true) => {
+export const update = async (
+  { commit, state },
+  { shouldSetHistory = true, isDelete },
+) => {
   const { blocks, externalSourceBlocks, synthSettings } = state;
+
+  // @todo make a switch for this
+  const isHuePluginEnabled = false && process.env.NODE_ENV !== "production";
 
   let codeString = "";
 
@@ -154,14 +166,24 @@ export const update = ({ commit, state }, shouldSetHistory = true) => {
     if (!synthSettings.output || !blocks[synthSettings.output])
       commit("setOutput", 0);
 
-    for (let i = 0; i < externalSourceBlocks.length; i++) {
-      if (externalSourceBlocks[i].name !== "initScreen") {
-        codeString += flattenExternal(externalSourceBlocks[i], i);
+    for (const [i, externalSourceBlock] of externalSourceBlocks.entries()) {
+      if (isDelete || !window.hydra[`s${i}`].src) {
+        codeString += flattenExternal(externalSourceBlock, i);
       }
     }
 
-    for (let i = 0; i < blocks.length; i++) {
-      codeString += `${flatten(blocks[i])}.out(o${i})\n`;
+    if (isHuePluginEnabled) {
+      setHueLights(state);
+    }
+
+    for (const [i, block] of blocks.entries()) {
+      codeString += `${flatten(block)}`;
+
+      if (isHuePluginEnabled) {
+        codeString += `.color(${state.r}, ${state.g}, ${state.b}, 1)`;
+      }
+
+      codeString += `.out(o${i})\n`;
     }
 
     codeString += `window.hydra.render(o${synthSettings.output})`;
@@ -171,8 +193,6 @@ export const update = ({ commit, state }, shouldSetHistory = true) => {
     eval(codeString);
     commit("setCodeString", codeString);
   } catch (error) {
-    console.error(error);
-
     showToast(error);
   }
 

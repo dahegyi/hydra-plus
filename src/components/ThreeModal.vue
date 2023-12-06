@@ -1,13 +1,12 @@
 <template>
-  <div class="modal">
-    <h2>3D settings</h2>
+  <div class="modal-container">
+    <div class="modal">
+      <div class="header">
+        <h2>3D settings</h2>
+        <span class="close" @click="close" />
+      </div>
 
-    <span class="close" @click="close" />
-
-    <div class="row">soon...</div>
-
-    <div>
-      <button @click="close">close</button>
+      <div class="content">soon...</div>
     </div>
   </div>
 </template>
@@ -26,11 +25,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
