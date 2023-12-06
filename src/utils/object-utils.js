@@ -69,7 +69,7 @@ export const flatten = (obj) => {
       }
     }
 
-    for (const [i, param] of obj.params.entries() || []) {
+    for (const [i, param] of obj.params?.entries() || []) {
       source += param;
 
       if (i !== obj.params.length) {
