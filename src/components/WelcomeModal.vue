@@ -23,6 +23,11 @@
             </li>
             <li>…and of course some optimizations and fixes</li>
           </ul>
+
+          <p>
+            if you experience issues with your previous configs, just rewrite
+            the [object Object] texts in the inputs and it'll be fine :)
+          </p>
         </span>
         <span v-else>
           <p>
