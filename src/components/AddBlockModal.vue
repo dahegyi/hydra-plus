@@ -3,6 +3,10 @@ import { computed, defineProps, defineEmits, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
 
+import { deepCopy, flattenExternal, flatten } from "~/utils/object-utils";
+
+import { showToast } from "~/utils";
+
 import { INFO_MAPPINGS } from "~/constants";
 
 import { createPopper } from "@popperjs/core";
@@ -86,16 +90,16 @@ const close = () => {
 
 const selectedFunction = ref(null);
 
-const hydra = ref(null);
 const canvas = ref(null);
+const hydra = ref(null);
 
 onMounted(() => {
   canvas.value = document.createElement("canvas");
   hydra.value = new Hydra({
     height: 100,
     width: 100,
-    numSources: 1,
-    numOutputs: 1,
+    numSources: 8,
+    numOutputs: 8,
     makeGlobal: false,
     detectAudio: false,
     enableStreamCapture: false,
@@ -106,7 +110,10 @@ onMounted(() => {
 const store = useStore();
 const state = store.state;
 
-const { activeBlockCode } = stateToProps(state, ["activeBlockCode"]);
+const { blocks, externalSourceBlocks, focused, synthSettings } = stateToProps(
+  state,
+  ["blocks", "externalSourceBlocks", "focused", "synthSettings"],
+);
 
 const dispatchAction = createDispatchAction(store);
 const addParent = dispatchAction("addParent");
@@ -128,10 +135,52 @@ const showInfo = (fn) => {
     tooltip.appendChild(canvas.value);
   }
 
-  // @todo: the selected function is not always at the end of the chain
-  eval(
-    `hydra.value.${activeBlockCode.value}${INFO_MAPPINGS[fn.name].code}.out()`,
-  );
+  const copiedFocused = deepCopy(focused.value);
+  copiedFocused.blocks.push(fn);
+
+  /* eslint-disable no-unused-vars */
+  const { src, osc, gradient, shape, voronoi, noise, render } = hydra.value;
+  const { s0, s1, s2, s3, s4, s5, s6, s7 } = hydra.value;
+  const { o0, o1, o2, o3, o4, o5, o6, o7 } = hydra.value;
+  /* eslint-enable no-unused-vars */
+
+  let i, j;
+  let codeString = "";
+
+  for (i = 0; i < externalSourceBlocks.value.length; i += 1) {
+    codeString += flattenExternal(externalSourceBlocks.value[i], i);
+  }
+
+  const copiedBlocks = deepCopy(blocks.value);
+
+  let parentFound = false;
+
+  for (i = 0; i < copiedBlocks.length; i += 1) {
+    const checkChildren = (block, copiedBlock) => {
+      if (props.parent === block) {
+        copiedBlock.blocks.push(fn);
+        parentFound = true;
+      }
+
+      if (!parentFound && block.blocks?.length > 0) {
+        for (j = 0; j < block.blocks.length; j += 1) {
+          checkChildren(block.blocks[j], copiedBlock.blocks[j]);
+        }
+      }
+    };
+
+    checkChildren(blocks.value[i], copiedBlocks[i]);
+
+    codeString += `${flatten(copiedBlocks[i])}.out(o${i})\n`;
+  }
+
+  codeString += `render(o${synthSettings.value.output})`;
+
+  try {
+    eval(codeString);
+  } catch (error) {
+    showToast(error);
+  }
 };
 
 const handleAddBlock = (parentType, fn) => {
