@@ -22,8 +22,8 @@ export default {
 
   mounted() {
     window.hydra = new Hydra({
-      numSources: MAX_NUMBER_OF_SOURCES,
-      numOutputs: MAX_NUMBER_OF_EXTERNALS,
+      numSources: MAX_NUMBER_OF_EXTERNALS,
+      numOutputs: MAX_NUMBER_OF_SOURCES,
       height: this.height,
       width: this.width,
       canvas: document.getElementById("hydra-canvas"),
