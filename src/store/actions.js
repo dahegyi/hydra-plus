@@ -29,7 +29,10 @@ export const setInputFocus = ({ commit }, isInputFocused) => {
   commit("setInputFocus", isInputFocused);
 };
 
-export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
+export const setBlocks = (
+  { commit, state },
+  { blocks, shouldSetHistory, isDelete },
+) => {
   if (
     blocks.filter((block) => block.type === TYPE_SRC) === state.blocks &&
     blocks.filter((block) => block.type === TYPE_EXTERNAL) ===
@@ -40,7 +43,7 @@ export const setBlocks = ({ commit, state }, { blocks, shouldSetHistory }) => {
 
   commit("setBlocks", blocks);
 
-  store.dispatch("update", shouldSetHistory);
+  store.dispatch("update", { shouldSetHistory, isDelete });
 };
 
 /**
@@ -119,6 +122,8 @@ export const deleteParent = ({ commit, state }, payload) => {
 
   store.dispatch("setBlocks", {
     blocks: [...blocks, ...externalSourceBlocks],
+    shouldSetHistory: true,
+    isDelete: true,
   });
 };
 
@@ -144,7 +149,10 @@ export const setBlockPosition = ({ commit }, payload) => {
   store.dispatch("setHistory");
 };
 
-export const update = async ({ commit, state }, shouldSetHistory = true) => {
+export const update = async (
+  { commit, state },
+  { shouldSetHistory = true, isDelete },
+) => {
   const { blocks, externalSourceBlocks, synthSettings } = state;
 
   // @todo make a switch for this
@@ -158,9 +166,9 @@ export const update = async ({ commit, state }, shouldSetHistory = true) => {
     if (!synthSettings.output || !blocks[synthSettings.output])
       commit("setOutput", 0);
 
-    for (let i = 0; i < externalSourceBlocks.length; i++) {
-      if (externalSourceBlocks[i].name !== "initScreen") {
-        codeString += flattenExternal(externalSourceBlocks[i], i);
+    for (const [i, externalSourceBlock] of externalSourceBlocks.entries()) {
+      if (isDelete || !window.hydra[`s${i}`].src) {
+        codeString += flattenExternal(externalSourceBlock, i);
       }
     }
 
@@ -168,12 +176,12 @@ export const update = async ({ commit, state }, shouldSetHistory = true) => {
       setHueLights(state);
     }
 
-    for (let i = 0; i < blocks.length; i++) {
-      codeString += `${flatten(blocks[i])}`;
+    for (const [i, block] of blocks.entries()) {
+      codeString += `${flatten(block)}`;
 
       // @todo this should be in mutations
       if (i === synthSettings.output) {
-        state.activeBlockCode = flatten(blocks[i]);
+        state.activeBlockCode = flatten(block);
       }
 
       if (isHuePluginEnabled) {
