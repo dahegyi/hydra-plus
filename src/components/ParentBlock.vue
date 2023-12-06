@@ -124,17 +124,22 @@ const togglePreview = () => {
             { active: synthSettings?.output === props.index },
           ]"
           @click="setOutput(index)"
+          @touchstart="setOutput(index)"
         />
 
         <span
           v-else
           :class="['preview', { open: isPreviewOpen }]"
-          @click="togglePreview()"
+          @click="togglePreview"
+          @touchstart="togglePreview"
         />
 
         <span
           class="delete"
           @click="deleteParent({ type: props.block.type, index: props.index })"
+          @touchstart="
+            deleteParent({ type: props.block.type, index: props.index })
+          "
         />
       </div>
     </div>
