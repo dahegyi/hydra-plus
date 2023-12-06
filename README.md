@@ -33,7 +33,7 @@ If you have any questions, suggestions, or just want to report a bug, please use
 - support for 3D scenes
 - MIDI integration
 - DMX integration
-- Philips Hue integration _work in process_
+- Philips Hue integration - _work in progress_
 - built-in extra shaders + option to add new ones from the GUI
 - [1.0] import / export configs
 - [1.0] customizable colors for GUI
