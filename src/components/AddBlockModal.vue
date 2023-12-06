@@ -92,15 +92,15 @@ const close = () => {
 const selectedFunction = ref(null);
 
 const canvas = ref(null);
-const hydra = ref(null);
+const popperHydra = ref(null);
 
 onMounted(() => {
   canvas.value = document.createElement("canvas");
-  hydra.value = new Hydra({
+  popperHydra.value = new Hydra({
     height: 100,
     width: 100,
-    numSources: MAX_NUMBER_OF_SOURCES,
-    numOutputs: MAX_NUMBER_OF_EXTERNALS,
+    numSources: MAX_NUMBER_OF_EXTERNALS,
+    numOutputs: MAX_NUMBER_OF_SOURCES,
     makeGlobal: false,
     detectAudio: false,
     enableStreamCapture: false,
@@ -139,15 +139,13 @@ const showInfo = (fn) => {
   const copiedFocused = deepCopy(focused.value);
   copiedFocused.blocks.push(fn);
 
-  /* eslint-disable no-unused-vars */
-  const { src, osc, gradient, shape, voronoi, noise, render } = hydra.value;
-  const { s0, s1, s2, s3, s4, s5, s6, s7 } = hydra.value;
-  const { o0, o1, o2, o3, o4, o5, o6, o7 } = hydra.value;
-  /* eslint-enable no-unused-vars */
   let codeString = "";
 
   for (const [i, externalSourceBlock] of externalSourceBlocks.value.entries()) {
-    codeString += flattenExternal(externalSourceBlock, i);
+    codeString += `popperHydra.value.${flattenExternal(
+      externalSourceBlock,
+      i,
+    )}`;
   }
 
   const copiedBlocks = deepCopy(blocks.value);
@@ -170,10 +168,15 @@ const showInfo = (fn) => {
 
     checkChildren(blocks.value[i], copiedBlock);
 
-    codeString += `${flatten(copiedBlock)}.out(o${i})\n`;
+    codeString += `${flatten(
+      copiedBlock,
+      true,
+    )}.out(popperHydra.value.o${i})\n`;
   }
 
-  codeString += `render(o${synthSettings.value.output})`;
+  codeString += `popperHydra.value.render(popperHydra.value.o${synthSettings.value.output})`;
+
+  console.log(codeString);
 
   try {
     eval(codeString);

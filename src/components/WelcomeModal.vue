@@ -16,11 +16,6 @@
             <li>previews for effects in the add effect modal</li>
             <li>previews for external sources</li>
             <li>a slightly better touchscreen support</li>
-            <li>
-              <a href="https://github.com/glowbox/maptasticjs" target="_blank"
-                >Maptastic</a
-              >, for projection mapping on the visualizer page
-            </li>
             <li>…and of course some optimizations and fixes</li>
           </ul>
 
