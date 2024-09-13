@@ -101,7 +101,7 @@
   </div>
 </template>
 <script>
-import { WELCOME_MODAL_LAST_UPDATE } from "~/constants";
+import { WELCOME_MODAL_LAST_UPDATE } from "@/constants";
 
 export default {
   emits: ["close"],

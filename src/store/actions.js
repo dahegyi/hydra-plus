@@ -1,11 +1,11 @@
 import { useBroadcastChannel } from "@vueuse/core";
 const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
-import { deepCopy, flatten, flattenExternal } from "~/utils/object-utils";
+import { deepCopy, flatten, flattenExternal } from "@/utils/object-utils";
 
 import store from "./";
 
-import { showToast, setHueLights } from "~/utils";
+import { showToast, setHueLights } from "@/utils";
 
 import {
   MAX_NUMBER_OF_SOURCES,
@@ -14,7 +14,7 @@ import {
   TYPE_EXTERNAL,
   TYPE_THREE,
   TYPE_COMPLEX,
-} from "~/constants";
+} from "@/constants";
 
 export const updateRGB = ({ commit }, { red, green, blue }) => {
   commit("setRGB", { red, green, blue });

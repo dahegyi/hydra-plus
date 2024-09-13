@@ -1,13 +1,13 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
-import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
+import { stateToProps, createDispatchAction } from "@/utils/vuex-utils";
 
-import { showToast } from "~/utils";
+import { showToast } from "@/utils";
 
-import { TYPE_SRC, PARAM_MAPPINGS } from "~/constants";
+import { TYPE_SRC, PARAM_MAPPINGS } from "@/constants";
 
-import NestedDraggable from "~/components/NestedDraggable";
+import NestedDraggable from "@/components/NestedDraggable";
 
 const props = defineProps({
   index: {
@@ -233,7 +233,7 @@ const togglePreview = () => {
 </template>
 
 <style lang="scss" scoped>
-@import "~/assets/styles/variables";
+@import "@/assets/styles/variables";
 
 $spacing: 8px;
 
@@ -316,12 +316,12 @@ $spacing: 8px;
       top: calc($spacing + 1px);
       right: calc($iconSize + $spacing * 1.5);
       width: calc($iconSize - 2px);
-      background-image: url(~/assets/eye-off.svg);
+      background-image: url(@/assets/eye-off.svg);
       background-repeat: no-repeat;
       background-size: contain;
 
       &.open {
-        background-image: url(~/assets/eye-show.svg);
+        background-image: url(@/assets/eye-show.svg);
       }
     }
 

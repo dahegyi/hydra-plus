@@ -46,29 +46,29 @@
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
 
-import { deepCopy } from "~/utils/object-utils";
+import { deepCopy } from "@/utils/object-utils";
 
 import {
   WELCOME_MODAL_LAST_UPDATE,
   INITIAL_BLOCKS,
   TYPE_SRC,
   TYPE_EXTERNAL,
-} from "~/constants";
+} from "@/constants";
 
-import NavigationPanel from "~/components/NavigationPanel";
+import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "../components/ParentBlock";
 
 export default {
   components: {
     WelcomeModal: defineAsyncComponent(() =>
-      import("~/components/WelcomeModal"),
+      import("@/components/WelcomeModal"),
     ),
     AddBlockModal: defineAsyncComponent(() =>
-      import("~/components/AddBlockModal"),
+      import("@/components/AddBlockModal"),
     ),
-    ThreeModal: defineAsyncComponent(() => import("~/components/ThreeModal")),
+    ThreeModal: defineAsyncComponent(() => import("@/components/ThreeModal")),
     SettingsModal: defineAsyncComponent(() =>
-      import("~/components/SettingsModal"),
+      import("@/components/SettingsModal"),
     ),
     NavigationPanel,
     ParentBlock,

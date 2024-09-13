@@ -1,4 +1,4 @@
-import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "~/constants";
+import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
 
 export const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));

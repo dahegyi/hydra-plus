@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import draggable from "vuedraggable";
-import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "~/constants";
+import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
 
 const props = defineProps({
   parent: {
@@ -161,7 +161,7 @@ const handleEnd = () => {
 </template>
 
 <style lang="scss" scoped>
-@import "~/assets/styles/variables";
+@import "@/assets/styles/variables";
 
 $height: 65px;
 $spacing: 8px;

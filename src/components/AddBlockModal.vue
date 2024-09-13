@@ -2,10 +2,10 @@
 import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
 
-import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
-import { deepCopy, flattenExternal, flatten } from "~/utils/object-utils";
+import { stateToProps, createDispatchAction } from "@/utils/vuex-utils";
+import { deepCopy, flattenExternal, flatten } from "@/utils/object-utils";
 
-import { showToast } from "~/utils";
+import { showToast } from "@/utils";
 
 import { createPopper } from "@popperjs/core";
 import Hydra from "hydra-synth";
@@ -24,7 +24,7 @@ import {
   COLOR_FUNCTIONS,
   BLEND_FUNCTIONS,
   MODULATE_FUNCTIONS,
-} from "~/constants";
+} from "@/constants";
 
 const props = defineProps({
   parent: {
@@ -246,7 +246,7 @@ const handleAddBlock = (parentType, fn) => {
 </template>
 
 <style lang="scss" scoped>
-@import "~/assets/styles/variables";
+@import "@/assets/styles/variables";
 
 .modal {
   width: 680px;
