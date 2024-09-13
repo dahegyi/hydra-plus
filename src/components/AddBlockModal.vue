@@ -1,8 +1,8 @@
 <script setup>
-import { computed, defineProps, defineEmits, ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useStore } from "vuex";
-import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
 
+import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
 import { deepCopy, flattenExternal, flatten } from "~/utils/object-utils";
 
 import { showToast } from "~/utils";

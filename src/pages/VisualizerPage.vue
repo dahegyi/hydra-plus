@@ -10,5 +10,5 @@ watch(data, () => {
 
 // @todo
 // eslint-disable-next-line no-undef
-// Maptastic("hydra-canvas");
+Maptastic("hydra-canvas");
 </script>
