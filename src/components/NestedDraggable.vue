@@ -1,3 +1,84 @@
+<script setup>
+import { ref, computed } from "vue";
+import { useStore } from "vuex";
+import draggable from "vuedraggable";
+import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "~/constants";
+
+const props = defineProps({
+  parent: {
+    required: true,
+    type: Object,
+  },
+  children: {
+    required: true,
+    type: Array,
+  },
+  handleChange: {
+    required: true,
+    type: Function,
+  },
+  openAddBlockModal: {
+    type: Function,
+    required: true,
+  },
+});
+
+const store = useStore();
+const previouslyDraggedTo = ref(null);
+
+const focused = computed(() => store.getters.focused);
+const blocks = computed(() => store.getters.blocks);
+const externalSourceBlocks = computed(() => store.getters.externalSourceBlocks);
+
+const setFocus = (element) => store.dispatch("setFocus", element);
+const setInputFocus = () => store.dispatch("setInputFocus");
+const deleteChild = (child) => store.dispatch("deleteChild", child);
+
+const canHaveChild = (element) => {
+  return (
+    element.type === TYPE_SRC ||
+    (element.type === TYPE_COMPLEX && element.blocks.length === 0)
+  );
+};
+
+const onFocus = (element) => {
+  const focusedElement = canHaveChild(element) ? element : props.parent;
+
+  if (focused.value === focusedElement) return;
+
+  setFocus(focusedElement, true);
+};
+
+const handleAddBlockModal = (element) => {
+  onFocus(element);
+  props.openAddBlockModal(element);
+};
+
+const handleMove = (e) => {
+  if (previouslyDraggedTo.value) {
+    previouslyDraggedTo.value.classList.remove("dragging");
+  }
+
+  previouslyDraggedTo.value = e.to;
+
+  if (
+    e.to !== e.from &&
+    e.to.classList.contains("button-visible") &&
+    !e.to.classList.contains("dragging")
+  ) {
+    e.to.classList.add("dragging");
+  }
+};
+
+const handleEnd = () => {
+  if (previouslyDraggedTo.value) {
+    previouslyDraggedTo.value.classList.remove("dragging");
+  }
+
+  props.handleChange();
+};
+</script>
+
 <template>
   <draggable
     :class="[
@@ -78,98 +159,6 @@
     </template>
   </draggable>
 </template>
-<script>
-import { mapGetters, mapActions } from "vuex";
-
-import draggable from "vuedraggable";
-
-import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "~/constants";
-
-export default {
-  components: {
-    draggable,
-  },
-
-  props: {
-    parent: {
-      required: true,
-      type: Object,
-    },
-
-    children: {
-      required: true,
-      type: Array,
-    },
-
-    handleChange: {
-      required: true,
-      type: Function,
-    },
-
-    openAddBlockModal: {
-      type: Function,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      previouslyDraggedTo: null,
-      PARAM_MAPPINGS, // @todo: can be removed when component is in options api format
-    };
-  },
-
-  computed: mapGetters(["focused", "blocks", "externalSourceBlocks"]),
-
-  methods: {
-    ...mapActions(["setFocus", "setInputFocus", "setBlocks", "deleteChild"]),
-
-    canHaveChild(element) {
-      return (
-        element.type === TYPE_SRC ||
-        (element.type === TYPE_COMPLEX && element.blocks.length === 0)
-      );
-    },
-
-    onFocus(element) {
-      const focusedElement = this.canHaveChild(element) ? element : this.parent;
-
-      if (this.focused === focusedElement) return;
-
-      this.setFocus(focusedElement, true);
-    },
-
-    handleAddBlockModal(element) {
-      this.onFocus(element);
-      this.openAddBlockModal(element);
-    },
-
-    handleMove(e) {
-      if (this.previouslyDraggedTo) {
-        this.previouslyDraggedTo.classList.remove("dragging");
-      }
-
-      this.previouslyDraggedTo = e.to;
-
-      if (
-        e.to !== e.from &&
-        e.to.classList.contains("button-visible") &&
-        !e.to.classList.contains("dragging")
-      ) {
-        e.to.classList.add("dragging");
-      }
-    },
-
-    handleEnd() {
-      if (this.previouslyDraggedTo) {
-        this.previouslyDraggedTo.classList.remove("dragging");
-      }
-
-      this.handleChange();
-    },
-  },
-};
-</script>
 
 <style lang="scss" scoped>
 @import "~/assets/styles/variables";
