@@ -1,6 +1,11 @@
 import { deepCopy } from "@/utils/object-utils";
 
-import { DEFAULT_POSITION, TYPE_SRC, TYPE_EXTERNAL } from "@/constants";
+import {
+  DEFAULT_POSITION,
+  TYPE_SRC,
+  TYPE_THREE,
+  TYPE_EXTERNAL,
+} from "@/constants";
 
 export default {
   // RGB
@@ -38,7 +43,7 @@ export default {
   setBlocks(state, blocks) {
     state.blocks = blocks.filter((block) => block.type === TYPE_SRC);
     state.externalSourceBlocks = blocks.filter(
-      (block) => block.type === TYPE_EXTERNAL,
+      (block) => block.type === TYPE_EXTERNAL || block.type === TYPE_THREE,
     );
   },
 

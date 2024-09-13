@@ -16,10 +16,12 @@ import {
   INFO_MAPPINGS,
   TYPE_SRC,
   TYPE_EXTERNAL,
+  TYPE_THREE,
   TYPE_SIMPLE,
   TYPE_COMPLEX,
   SOURCE_FUNCTIONS,
   EXTERNAL_SOURCE_FUNCTIONS,
+  THREE_FUNCTIONS,
   GEOMETRY_FUNCTIONS,
   COLOR_FUNCTIONS,
   BLEND_FUNCTIONS,
@@ -46,6 +48,10 @@ const externalSources = computed(() =>
     ...fn,
     type: TYPE_EXTERNAL,
   })),
+);
+
+const threeSources = computed(() =>
+  THREE_FUNCTIONS.map((fn) => ({ ...fn, type: TYPE_THREE })),
 );
 
 const effectGroups = computed(() => [
@@ -75,7 +81,12 @@ const header = computed(() =>
 
 const functionsBlocks = computed(() => {
   if (isAddSource.value) {
-    if (!props.parent) return [...sources.value, ...externalSources.value];
+    if (!props.parent)
+      return [
+        ...sources.value,
+        ...externalSources.value,
+        ...threeSources.value,
+      ];
 
     return sources.value;
   }

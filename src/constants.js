@@ -351,7 +351,10 @@ export const EXTERNAL_SOURCE_FUNCTIONS = [
 export const THREE_FUNCTIONS = [
   {
     name: "3D",
-    params: [0],
+    params: {
+      name: "",
+      threeJsContent: "",
+    },
   },
 ];
 

@@ -7,7 +7,11 @@
     @close="closeAddBlockModal"
   />
 
-  <three-modal v-if="isThreeModalOpen" @close="closeThreeModal" />
+  <three-modal
+    v-if="isThreeModalOpen"
+    :blocks="externalSourceBlocks"
+    @close="closeThreeModal"
+  />
 
   <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
 
@@ -48,12 +52,7 @@ import { mapGetters, mapActions } from "vuex";
 
 import { deepCopy } from "@/utils/object-utils";
 
-import {
-  WELCOME_MODAL_LAST_UPDATE,
-  INITIAL_BLOCKS,
-  TYPE_SRC,
-  TYPE_EXTERNAL,
-} from "@/constants";
+import { WELCOME_MODAL_LAST_UPDATE, INITIAL_BLOCKS } from "@/constants";
 
 import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "../components/ParentBlock";
@@ -178,11 +177,12 @@ export default {
 
   updated() {
     // move source blocks to their position
+    // @todo: this is a bit confusing, could simplify
     this.blocks.map((block, index) => {
-      this.moveBlock(block, index, TYPE_SRC, block.position);
+      this.moveBlock(block, index, block.type, block.position);
     });
     this.externalSourceBlocks.map((block, index) => {
-      this.moveBlock(block, index, TYPE_EXTERNAL, block.position);
+      this.moveBlock(block, index, block.type, block.position);
     });
   },
 

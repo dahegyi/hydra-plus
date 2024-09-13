@@ -5,7 +5,7 @@ import { stateToProps, createDispatchAction } from "@/utils/vuex-utils";
 
 import { showToast } from "@/utils";
 
-import { TYPE_SRC, PARAM_MAPPINGS } from "@/constants";
+import { TYPE_SRC, TYPE_THREE, PARAM_MAPPINGS } from "@/constants";
 
 import NestedDraggable from "@/components/NestedDraggable";
 
@@ -144,7 +144,7 @@ const togglePreview = () => {
       </div>
     </div>
 
-    <div>
+    <div v-if="props.block.type !== TYPE_THREE">
       <div
         v-for="(param, paramIndex) in props.block.params?.length"
         :key="paramIndex"
@@ -219,6 +219,16 @@ const togglePreview = () => {
           autoplay
           muted
         />
+
+        <!-- @todo 3D preview -->
+      </div>
+    </div>
+
+    <div v-else>
+      <div class="param-input-container">
+        <label>3D settings</label>
+
+        <button @click="openThreeModal">Open 3D settings</button>
       </div>
     </div>
 
@@ -356,6 +366,11 @@ $spacing: 8px;
 
     &:last-of-type {
       padding-bottom: $spacing;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
     }
   }
 

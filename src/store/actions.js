@@ -167,8 +167,10 @@ export const update = async (
       commit("setOutput", 0);
 
     for (const [i, externalSourceBlock] of externalSourceBlocks.entries()) {
-      if (isDelete || !window.hydra[`s${i}`].src) {
-        codeString += flattenExternal(externalSourceBlock, i);
+      if (externalSourceBlock.type !== TYPE_THREE) {
+        if (isDelete || !window.hydra[`s${i}`].src) {
+          codeString += flattenExternal(externalSourceBlock, i);
+        }
       }
     }
 
@@ -187,6 +189,7 @@ export const update = async (
     }
 
     codeString += `window.hydra.render(o${synthSettings.output})`;
+    console.log(codeString);
   }
 
   try {
