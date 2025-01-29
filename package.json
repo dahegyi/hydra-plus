@@ -12,7 +12,6 @@
     "lint:fix": "eslint 'src/**/*.{js,vue}' --fix && stylelint 'src/**/*.{css,scss,vue}' --fix"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8",
     "@vueuse/core": "^10.4.1",
     "codejar": "^4.2.0",
     "gamecontroller.js": "^1.5.0",

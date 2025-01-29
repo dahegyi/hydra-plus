@@ -43,12 +43,12 @@ export const mapParams = (blocks) => {
 /**
  * Returns hydra code from codeblox
  */
-export const flatten = (obj, isPopper) => {
+export const flatten = (obj) => {
   let source = "";
 
   if (Array.isArray(obj)) {
     for (let item of obj) {
-      source += flatten(item, isPopper);
+      source += flatten(item);
     }
   } else {
     // Sources are top level functions
@@ -56,18 +56,15 @@ export const flatten = (obj, isPopper) => {
       source += ".";
     }
 
-    if (isPopper && obj.type === TYPE_SRC) source += "popperHydra.value.";
     source += `${obj.name}(`;
-    if (isPopper && obj.name === "src") source += "popperHydra.value.";
 
     if (obj.type === TYPE_COMPLEX) {
       // Modulation requires a source as a parameter
       if (obj.blocks.length > 0) {
-        source += flatten(obj.blocks[0], isPopper);
+        source += flatten(obj.blocks[0]);
         source += ",";
       } else {
         // fallback to osc
-        if (isPopper) source += "popperHydra.value.";
         source += "osc(10, 0.1, 0),";
       }
     }
@@ -83,7 +80,7 @@ export const flatten = (obj, isPopper) => {
     source += ")";
 
     if (obj.type !== TYPE_COMPLEX && obj.blocks?.length > 0) {
-      source += flatten(obj.blocks, isPopper);
+      source += flatten(obj.blocks);
     }
   }
 
