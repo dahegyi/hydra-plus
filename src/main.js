@@ -1,12 +1,13 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-
-import store from "./store";
-
+import { createPinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import "./assets/styles/main.scss";
 import App from "./App";
-
 import { isButtonPressed, activeButtons } from "./utils/gamecontroller-utils";
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
 const GuiPage = () => import("./pages/GuiPage");
 const VisualizerPage = () => import("./pages/VisualizerPage");
@@ -63,4 +64,4 @@ gameControl.on("connect", function (gamepad) {
   });
 });
 
-createApp(App).use(router).use(store).mount("#app");
+createApp(App).use(router).use(pinia).mount("#app");

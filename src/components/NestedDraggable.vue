@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from "vue";
-import { useStore } from "vuex";
+import { ref } from "vue";
 import draggable from "vuedraggable";
 import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
+import { useHydraStore } from "@/stores/hydra";
+import { stateToProps } from "@/utils/pinia-utils";
 
 const props = defineProps({
   parent: {
@@ -23,16 +24,15 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
-const previouslyDraggedTo = ref(null);
+const store = useHydraStore();
 
-const focused = computed(() => store.getters.focused);
-const blocks = computed(() => store.getters.blocks);
-const externalSourceBlocks = computed(() => store.getters.externalSourceBlocks);
+const { focused, blocks, externalSourceBlocks } = stateToProps(store, [
+  "focused",
+  "blocks",
+  "externalSourceBlocks",
+]);
 
-const setFocus = (element) => store.dispatch("setFocus", element);
-const setInputFocus = () => store.dispatch("setInputFocus");
-const deleteChild = (child) => store.dispatch("deleteChild", child);
+const { setFocus, setInputFocus, deleteChild } = store;
 
 const canHaveChild = (element) => {
   return (
@@ -53,6 +53,8 @@ const handleAddBlockModal = (element) => {
   onFocus(element);
   props.openAddBlockModal(element);
 };
+
+const previouslyDraggedTo = ref(null);
 
 const handleMove = (e) => {
   if (previouslyDraggedTo.value) {

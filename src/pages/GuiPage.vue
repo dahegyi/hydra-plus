@@ -48,7 +48,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { mapGetters, mapActions } from "vuex";
+import { useHydraStore } from "@/stores/hydra";
 
 import { deepCopy } from "@/utils/object-utils";
 
@@ -57,17 +57,19 @@ import { WELCOME_MODAL_LAST_UPDATE, INITIAL_BLOCKS } from "@/constants";
 import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "../components/ParentBlock";
 
+const store = useHydraStore();
+
 export default {
   components: {
-    WelcomeModal: defineAsyncComponent(() =>
-      import("@/components/WelcomeModal"),
+    WelcomeModal: defineAsyncComponent(
+      () => import("@/components/WelcomeModal"),
     ),
-    AddBlockModal: defineAsyncComponent(() =>
-      import("@/components/AddBlockModal"),
+    AddBlockModal: defineAsyncComponent(
+      () => import("@/components/AddBlockModal"),
     ),
     ThreeModal: defineAsyncComponent(() => import("@/components/ThreeModal")),
-    SettingsModal: defineAsyncComponent(() =>
-      import("@/components/SettingsModal"),
+    SettingsModal: defineAsyncComponent(
+      () => import("@/components/SettingsModal"),
     ),
     NavigationPanel,
     ParentBlock,
@@ -87,13 +89,21 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      "focused",
-      "isInputFocused",
-      "blocks",
-      "externalSourceBlocks",
-      "synthSettings",
-    ]),
+    focused() {
+      return store.focused;
+    },
+    isInputFocused() {
+      return store.isInputFocused;
+    },
+    blocks() {
+      return store.blocks;
+    },
+    externalSourceBlocks() {
+      return store.externalSourceBlocks;
+    },
+    synthSettings() {
+      return store.synthSettings;
+    },
   },
 
   mounted() {
@@ -106,19 +116,28 @@ export default {
     }
 
     // load stuff from local storage
+    // @todo extract this mess from here
+    // the localStorage conditions can be deleted after some time
     const blocks = [];
+    const { saved } = store;
 
-    if (localStorage.getItem("blocks")) {
+    if (saved.blocks) {
+      blocks.push(...saved.blocks);
+    } else if (localStorage.getItem("blocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("blocks")));
     } else {
       blocks.push(...INITIAL_BLOCKS);
     }
 
-    if (localStorage.getItem("externalSourceBlocks")) {
+    if (saved.externalSourceBlocks) {
+      blocks.push(...saved.externalSourceBlocks);
+    } else if (localStorage.getItem("externalSourceBlocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("externalSourceBlocks")));
     }
 
-    if (localStorage.getItem("synthSettings")) {
+    if (saved.synthSettings) {
+      this.setSynthSettings(saved.synthSettings);
+    } else if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
     } else {
       eval(
@@ -130,10 +149,9 @@ export default {
 
     this.setBlocks({ blocks });
 
-    // set up history
     this.prevBlocks = [
-      ...deepCopy(this.blocks),
-      ...deepCopy(this.externalSourceBlocks),
+      ...deepCopy(store.blocks),
+      ...deepCopy(store.externalSourceBlocks),
     ];
 
     // set up keyboard shortcuts
@@ -143,27 +161,22 @@ export default {
           // undo
           if (e.keyCode === 90 && !e.shiftKey) {
             e.preventDefault();
-            return this.undoRedo(1);
+            return store.undoRedo(1);
           }
 
           // redo
           if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
             e.preventDefault();
-            return this.undoRedo(-1);
+            return store.undoRedo(-1);
           }
         }
       }
 
       // toggle blocks
       if (e.key === "Escape") {
-        if (this.isAddBlockModalOpen) {
-          return this.closeAddBlockModal();
-        } else if (this.isSettingsModalOpen) {
-          return this.closeSettingsModal();
-        } else if (this.isThreeModalOpen) {
-          return this.closeThreeModal();
-        }
-
+        if (this.isAddBlockModalOpen) return this.closeAddBlockModal();
+        if (this.isSettingsModalOpen) return this.closeSettingsModal();
+        if (this.isThreeModalOpen) return this.closeThreeModal();
         return (this.areBlocksHidden = !this.areBlocksHidden);
       }
 
@@ -176,35 +189,42 @@ export default {
   },
 
   updated() {
-    // move source blocks to their position
-    // @todo: this is a bit confusing, could simplify
-    this.blocks.map((block, index) => {
-      this.moveBlock(block, index, block.type, block.position);
-    });
-    this.externalSourceBlocks.map((block, index) => {
-      this.moveBlock(block, index, block.type, block.position);
-    });
+    this.moveAllBlocks();
   },
 
   methods: {
-    ...mapActions([
-      "setFocus",
-      "setInputFocus",
-      "setBlocks",
-      "setBlockPosition",
-      "setSynthSettings",
-      "undoRedo",
-    ]),
+    setFocus(payload) {
+      store.setFocus(payload);
+    },
+    setInputFocus(payload) {
+      store.setInputFocus(payload);
+    },
+    setBlocks(payload) {
+      store.setBlocks(payload);
+    },
+    setBlockPosition(payload) {
+      store.setBlockPosition(payload);
+    },
+    setSynthSettings(payload) {
+      store.setSynthSettings(payload);
+    },
+
+    moveAllBlocks() {
+      // move source blocks to their position
+      // @todo: this is a bit confusing, could simplify
+      store.blocks.forEach((block, index) => {
+        this.moveBlock(block, index, block.type, block.position);
+      });
+      store.externalSourceBlocks.forEach((block, index) => {
+        this.moveBlock(block, index, block.type, block.position);
+      });
+    },
 
     handleChange(isEnterKey = false) {
-      if (!isEnterKey) this.setInputFocus(false);
-
-      const newBlocks = [...this.blocks, ...this.externalSourceBlocks];
-
+      if (!isEnterKey) store.setInputFocus(false);
+      const newBlocks = [...store.blocks, ...store.externalSourceBlocks];
       if (JSON.stringify(newBlocks) === JSON.stringify(this.prevBlocks)) return;
-
-      this.setBlocks({ blocks: newBlocks });
-
+      store.setBlocks({ blocks: newBlocks });
       this.prevBlocks = deepCopy(newBlocks);
     },
 
@@ -255,16 +275,13 @@ export default {
 
         document.removeEventListener("touchmove", move);
         document.removeEventListener("touchend", up);
-
-        if (!positionChanged) {
-          return;
+        if (positionChanged) {
+          store.setBlockPosition({
+            index,
+            type,
+            position: this.movedBlockCoordinates,
+          });
         }
-
-        this.setBlockPosition({
-          index,
-          type,
-          position: this.movedBlockCoordinates,
-        });
       };
 
       document.addEventListener("mousemove", move);

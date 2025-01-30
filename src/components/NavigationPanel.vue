@@ -16,7 +16,7 @@
   </div>
 </template>
 <script>
-import { mapActions } from "vuex";
+import { useHydraStore } from "@/stores/hydra";
 
 // // @todo: losing window focus breaks the beat counter
 // let beatHappened = false;
@@ -48,6 +48,8 @@ import { mapActions } from "vuex";
 //   }
 // };
 
+const store = useHydraStore();
+
 export default {
   emits: ["openAddBlockModal", "openThreeModal", "openSettingsModal"],
 
@@ -58,8 +60,6 @@ export default {
   },
 
   methods: {
-    ...mapActions(["send"]),
-
     handleSend() {
       // if (!this.waitingForBeat) {
       //   this.waitingForBeat = true;
@@ -72,7 +72,7 @@ export default {
       //   }, 10);
       // }
 
-      this.send();
+      store.send();
     },
 
     openAddBlockModal() {

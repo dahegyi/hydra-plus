@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
-import { useStore } from "vuex";
-import { stateToProps, createDispatchAction } from "@/utils/vuex-utils";
+import { useHydraStore } from "@/stores/hydra";
+
+import { stateToProps } from "@/utils/pinia-utils";
 
 import { showToast } from "@/utils";
 
@@ -36,11 +37,10 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
-const state = store.state;
+const store = useHydraStore();
 
 const { synthSettings, blocks, externalSourceBlocks, focused } = stateToProps(
-  state,
+  store,
   ["synthSettings", "blocks", "externalSourceBlocks", "focused"],
 );
 
@@ -50,11 +50,7 @@ const blockHeader = computed(() => {
   }`;
 });
 
-const dispatchAction = createDispatchAction(store);
-const setFocus = dispatchAction("setFocus");
-const deleteParent = dispatchAction("deleteParent");
-const setOutput = dispatchAction("setOutput");
-const setInputFocus = dispatchAction("setInputFocus");
+const { setFocus, deleteParent, setOutput, setInputFocus } = store;
 
 const hydra = ref(window.hydra);
 const cameraNames = ref([]);

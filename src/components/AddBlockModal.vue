@@ -1,8 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
-import { useStore } from "vuex";
-
-import { createDispatchAction } from "@/utils/vuex-utils";
+import { useHydraStore } from "@/stores/hydra";
 
 import {
   TYPE_SRC,
@@ -18,6 +16,8 @@ import {
   BLEND_FUNCTIONS,
   MODULATE_FUNCTIONS,
 } from "@/constants";
+
+const store = useHydraStore();
 
 const props = defineProps({
   parent: {
@@ -97,21 +97,15 @@ onMounted(() => {
   canvas.value = document.createElement("canvas");
 });
 
-const store = useStore();
-
-const dispatchAction = createDispatchAction(store);
-const addParent = dispatchAction("addParent");
-const addChild = dispatchAction("addChild");
-
 const handleAddBlock = (parentType, fn) => {
   if (props.parent === null) {
-    addParent(fn);
+    store.addParent(fn);
   } else {
     if (parentType !== props.parent.type) {
       return;
     }
 
-    addChild(fn);
+    store.addChild(fn);
   }
 
   close();
