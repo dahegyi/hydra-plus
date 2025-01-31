@@ -51,6 +51,7 @@
 import { defineAsyncComponent } from "vue";
 import { useHydraStore } from "@/stores/hydra";
 
+import { getSafeLocalStorage, setSafeLocalStorage } from "@/utils";
 import { deepCopy } from "@/utils/object-utils";
 
 import { CURRENT_VERSION, INITIAL_BLOCKS } from "@/constants";
@@ -120,8 +121,8 @@ export default {
   mounted() {
     // show welcome modal
     if (
-      !localStorage.getItem("welcomeModalLastUpdate") ||
-      localStorage.getItem("welcomeModalLastUpdate") < CURRENT_VERSION
+      !getSafeLocalStorage("welcomeModalLastUpdate") ||
+      getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION
     ) {
       this.isWelcomeModalOpen = true;
     }
@@ -130,18 +131,18 @@ export default {
     // @todo extract this mess from here
     const blocks = [];
 
-    if (localStorage.getItem("blocks")) {
-      blocks.push(...JSON.parse(localStorage.getItem("blocks")));
+    if (getSafeLocalStorage("blocks")) {
+      blocks.push(...getSafeLocalStorage("blocks"));
     } else {
       blocks.push(...INITIAL_BLOCKS);
     }
 
-    if (localStorage.getItem("externalSourceBlocks")) {
-      blocks.push(...JSON.parse(localStorage.getItem("externalSourceBlocks")));
+    if (getSafeLocalStorage("externalSourceBlocks")) {
+      blocks.push(...getSafeLocalStorage("externalSourceBlocks"));
     }
 
-    if (localStorage.getItem("synthSettings")) {
-      this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
+    if (getSafeLocalStorage("synthSettings")) {
+      this.setSynthSettings(getSafeLocalStorage("synthSettings"));
     } else {
       eval(
         `setResolution(${window.outerHeight * window.devicePixelRatio}, ${
@@ -216,19 +217,11 @@ export default {
       // move source blocks to their position
       // @todo: this is a bit confusing, could simplify
       store.blocks.forEach((block, index) => {
-        this.moveBlock(block, index, block.type, block.position);
+        this.moveBlock(null, index, block.type, block.position);
       });
       store.externalSourceBlocks.forEach((block, index) => {
-        this.moveBlock(block, index, block.type, block.position);
+        this.moveBlock(null, index, block.type, block.position);
       });
-    },
-
-    handleChange(isEnterKey = false) {
-      if (!isEnterKey) store.setInputFocus(false);
-      const newBlocks = [...store.blocks, ...store.externalSourceBlocks];
-      if (JSON.stringify(newBlocks) === JSON.stringify(this.prevBlocks)) return;
-      store.setBlocks({ blocks: newBlocks });
-      this.prevBlocks = deepCopy(newBlocks);
     },
 
     moveBlock(e, index, type, position) {
@@ -294,9 +287,17 @@ export default {
       document.addEventListener("touchend", up);
     },
 
+    handleChange(isEnterKey = false) {
+      if (!isEnterKey) store.setInputFocus(false);
+      const newBlocks = [...store.blocks, ...store.externalSourceBlocks];
+      if (JSON.stringify(newBlocks) === JSON.stringify(this.prevBlocks)) return;
+      store.setBlocks({ blocks: newBlocks });
+      this.prevBlocks = deepCopy(newBlocks);
+    },
+
     closeWelcomeModal() {
       this.isWelcomeModalOpen = false;
-      localStorage.setItem("welcomeModalLastUpdate", CURRENT_VERSION);
+      setSafeLocalStorage("welcomeModalLastUpdate", CURRENT_VERSION);
     },
 
     openAddBlockModal(parent = null) {

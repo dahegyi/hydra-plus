@@ -1,14 +1,13 @@
 <script setup>
 import { computed } from "vue";
 import { CURRENT_VERSION } from "@/constants";
+import { getSafeLocalStorage, setSafeLocalStorage } from "@/utils";
 import BaseModal from "./BaseModal";
 
 const emit = defineEmits(["close"]);
 
 const showLatestUpdates = computed(
-  () =>
-    localStorage.welcomeModalLastUpdate &&
-    localStorage.welcomeModalLastUpdate < CURRENT_VERSION,
+  () => getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION,
 );
 
 const modifierKey = computed(() =>
@@ -16,7 +15,7 @@ const modifierKey = computed(() =>
 );
 
 const close = () => {
-  localStorage.welcomeModalLastUpdate = CURRENT_VERSION;
+  setSafeLocalStorage("welcomeModalLastUpdate", CURRENT_VERSION);
   emit("close");
 };
 </script>

@@ -1,5 +1,37 @@
 import Toastify from "toastify-js";
 
+const safeKeys = [
+  "blocks",
+  "externalSourceBlocks",
+  "synthSettings",
+  "welcomeModalLastUpdate",
+];
+
+export const getSafeLocalStorage = (key) => {
+  if (safeKeys.includes(key)) {
+    if (localStorage.getItem(key)) {
+      try {
+        return JSON.parse(localStorage.getItem(key));
+      } catch {
+        return localStorage.getItem(key);
+      }
+    }
+    return;
+  } else {
+    return console.error(`Key not found in localStorage safe keys: ${key}`);
+  }
+};
+
+export const setSafeLocalStorage = (key, value) => {
+  if (safeKeys.includes(key)) {
+    if (typeof value === "object") {
+      localStorage.setItem(key, JSON.stringify(value));
+    } else {
+      localStorage.setItem(key, value);
+    }
+  }
+};
+
 export const showToast = (error) => {
   console.error(error);
   Toastify({

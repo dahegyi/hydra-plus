@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref, reactive } from "vue";
 import { useBroadcastChannel } from "@vueuse/core";
 import { deepCopy, flatten, flattenExternal } from "@/utils/object-utils";
-import { showToast, setHueLights } from "@/utils";
+import { setSafeLocalStorage, showToast, setHueLights } from "@/utils";
 import {
   INITIAL_BLOCKS,
   MAX_NUMBER_OF_SOURCES,
@@ -233,11 +233,8 @@ export const useHydraStore = defineStore("hydra", () => {
     if (codeString.value) {
       post(codeString.value);
 
-      localStorage.setItem("blocks", JSON.stringify(blocks.value));
-      localStorage.setItem(
-        "externalSourceBlocks",
-        JSON.stringify(externalSourceBlocks.value),
-      );
+      setSafeLocalStorage("blocks", blocks.value);
+      setSafeLocalStorage("externalSourceBlocks", externalSourceBlocks.value);
 
       setSynthSettings(synthSettings);
     }
@@ -267,7 +264,7 @@ export const useHydraStore = defineStore("hydra", () => {
     post(`fps = ${settings.fps}`);
 
     Object.assign(synthSettings, settings);
-    localStorage.setItem("synthSettings", JSON.stringify(synthSettings));
+    setSafeLocalStorage("synthSettings", synthSettings);
   };
 
   const setOutput = (output) => {
