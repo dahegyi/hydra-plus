@@ -1,4 +1,4 @@
-export const WELCOME_MODAL_LAST_UPDATE = "0.8.0";
+export const CURRENT_VERSION = "0.8.0";
 
 export const DEFAULT_POSITION = { x: 15, y: 65 };
 

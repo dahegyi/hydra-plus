@@ -16,6 +16,7 @@ import {
   BLEND_FUNCTIONS,
   MODULATE_FUNCTIONS,
 } from "@/constants";
+import BaseModal from "./BaseModal.vue";
 
 const store = useHydraStore();
 
@@ -66,8 +67,8 @@ const effectGroups = computed(() => [
 
 const isAddSource = computed(() => props.parent?.type !== TYPE_SRC);
 
-const header = computed(() =>
-  isAddSource.value ? "add source" : "add effect",
+const modalName = computed(() =>
+  isAddSource.value ? "AddSourceModal" : "AddEffectModal",
 );
 
 const functionsBlocks = computed(() => {
@@ -113,77 +114,64 @@ const handleAddBlock = (parentType, fn) => {
 </script>
 
 <template>
-  <div class="modal-container">
-    <div class="modal">
-      <div class="header">
-        <h2>{{ header }}</h2>
-        <span class="close" @click="close" />
-      </div>
+  <BaseModal :modal-name="modalName" @close="close">
+    <div
+      v-for="functionBlock in functionsBlocks"
+      :key="functionBlock.name"
+      :class="isAddSource ? 'item' : 'group'"
+      @click="handleAddBlock(TYPE_COMPLEX, functionBlock)"
+    >
+      <span class="name">
+        {{ functionBlock.name }}
+      </span>
 
-      <div class="content">
-        <div
-          v-for="functionBlock in functionsBlocks"
-          :key="functionBlock.name"
-          :class="isAddSource ? 'item' : 'group'"
-          @click="handleAddBlock(TYPE_COMPLEX, functionBlock)"
-        >
-          <span class="name">
-            {{ functionBlock.name }}
-          </span>
-
-          <div v-for="fn in functionBlock.fns" :id="fn.name" :key="fn.name">
-            <div class="item" @click="handleAddBlock(TYPE_SRC, fn)">
-              {{ fn.name }}
-            </div>
-          </div>
+      <div v-for="fn in functionBlock.fns" :id="fn.name" :key="fn.name">
+        <div class="item" @click="handleAddBlock(TYPE_SRC, fn)">
+          {{ fn.name }}
         </div>
       </div>
     </div>
-  </div>
+  </BaseModal>
 </template>
 
 <style lang="scss" scoped>
 @import "@/assets/styles/variables";
 
-.modal {
-  width: 680px;
+.item {
+  $unit: 8px;
 
-  .item {
-    $unit: 8px;
+  display: flex;
+  min-width: 50%;
+  align-items: center;
+  justify-content: center;
+  padding: $unit;
+  border-radius: $border-radius-xs;
+  margin: 0 $unit $unit * 2;
+  background: #151515;
+  cursor: pointer;
 
-    display: flex;
-    min-width: 50%;
-    align-items: center;
-    justify-content: center;
-    padding: $unit;
-    border-radius: $border-radius-xs;
-    margin: 0 $unit $unit * 2;
-    background: #151515;
-    cursor: pointer;
+  &:hover {
+    background: #111;
+  }
+}
 
-    &:hover {
-      background: #111;
-    }
+.group {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media screen and (max-width: 650px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .group {
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat(3, 1fr);
+  @media screen and (max-width: 450px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
 
-    @media screen and (max-width: 650px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media screen and (max-width: 450px) {
-      grid-template-columns: repeat(1, 1fr);
-    }
-
-    > span {
-      margin-bottom: 2rem;
-      font-weight: bold;
-      grid-column: 1 / -1;
-    }
+  > span {
+    margin-bottom: 2rem;
+    font-weight: bold;
+    grid-column: 1 / -1;
   }
 }
 </style>
