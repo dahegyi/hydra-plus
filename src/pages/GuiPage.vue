@@ -128,27 +128,19 @@ export default {
 
     // load stuff from local storage
     // @todo extract this mess from here
-    // the localStorage conditions can be deleted after some time
     const blocks = [];
-    const { saved } = store;
 
-    if (saved.blocks) {
-      blocks.push(...saved.blocks);
-    } else if (localStorage.getItem("blocks")) {
+    if (localStorage.getItem("blocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("blocks")));
     } else {
       blocks.push(...INITIAL_BLOCKS);
     }
 
-    if (saved.externalSourceBlocks) {
-      blocks.push(...saved.externalSourceBlocks);
-    } else if (localStorage.getItem("externalSourceBlocks")) {
+    if (localStorage.getItem("externalSourceBlocks")) {
       blocks.push(...JSON.parse(localStorage.getItem("externalSourceBlocks")));
     }
 
-    if (saved.synthSettings) {
-      this.setSynthSettings(saved.synthSettings);
-    } else if (localStorage.getItem("synthSettings")) {
+    if (localStorage.getItem("synthSettings")) {
       this.setSynthSettings(JSON.parse(localStorage.getItem("synthSettings")));
     } else {
       eval(
