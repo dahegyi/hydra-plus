@@ -1,19 +1,20 @@
 <template>
-  <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
-
-  <add-block-modal
-    v-if="isAddBlockModalOpen"
-    :parent="addBlockModalParent"
-    @close="closeAddBlockModal"
-  />
-
-  <three-modal
-    v-if="isThreeModalOpen"
-    :blocks="externalSourceBlocks"
-    @close="closeThreeModal"
-  />
-
-  <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
+  <transition name="modal">
+    <div v-if="isAnyModalOpen">
+      <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
+      <add-block-modal
+        v-if="isAddBlockModalOpen"
+        :parent="addBlockModalParent"
+        @close="closeAddBlockModal"
+      />
+      <three-modal
+        v-if="isThreeModalOpen"
+        :blocks="externalSourceBlocks"
+        @close="closeThreeModal"
+      />
+      <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
+    </div>
+  </transition>
 
   <div class="playground" @click="() => focused && setFocus(null)" />
 
@@ -52,7 +53,7 @@ import { useHydraStore } from "@/stores/hydra";
 
 import { deepCopy } from "@/utils/object-utils";
 
-import { WELCOME_MODAL_LAST_UPDATE, INITIAL_BLOCKS } from "@/constants";
+import { CURRENT_VERSION, INITIAL_BLOCKS } from "@/constants";
 
 import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "../components/ParentBlock";
@@ -62,14 +63,16 @@ const store = useHydraStore();
 export default {
   components: {
     WelcomeModal: defineAsyncComponent(
-      () => import("@/components/WelcomeModal"),
+      () => import("@/components/modal/WelcomeModal"),
     ),
     AddBlockModal: defineAsyncComponent(
-      () => import("@/components/AddBlockModal"),
+      () => import("@/components/modal/AddBlockModal"),
     ),
-    ThreeModal: defineAsyncComponent(() => import("@/components/ThreeModal")),
+    ThreeModal: defineAsyncComponent(
+      () => import("@/components/modal/ThreeModal"),
+    ),
     SettingsModal: defineAsyncComponent(
-      () => import("@/components/SettingsModal"),
+      () => import("@/components/modal/SettingsModal"),
     ),
     NavigationPanel,
     ParentBlock,
@@ -104,13 +107,21 @@ export default {
     synthSettings() {
       return store.synthSettings;
     },
+    isAnyModalOpen() {
+      return (
+        this.isWelcomeModalOpen ||
+        this.isAddBlockModalOpen ||
+        this.isThreeModalOpen ||
+        this.isSettingsModalOpen
+      );
+    },
   },
 
   mounted() {
     // show welcome modal
     if (
       !localStorage.getItem("welcomeModalLastUpdate") ||
-      localStorage.getItem("welcomeModalLastUpdate") < WELCOME_MODAL_LAST_UPDATE
+      localStorage.getItem("welcomeModalLastUpdate") < CURRENT_VERSION
     ) {
       this.isWelcomeModalOpen = true;
     }
@@ -291,26 +302,9 @@ export default {
       document.addEventListener("touchend", up);
     },
 
-    // @todo: better modal opening/closing logic
-
-    runModalCloseAnimation() {
-      const container = document.getElementsByClassName("modal-container")[0];
-      const modal = container.getElementsByClassName("modal")[0];
-
-      container.classList.add("closing");
-      modal.classList.add("closing");
-    },
-
     closeWelcomeModal() {
-      this.runModalCloseAnimation();
-
-      setTimeout(() => {
-        this.isWelcomeModalOpen = false;
-        localStorage.setItem(
-          "welcomeModalLastUpdate",
-          WELCOME_MODAL_LAST_UPDATE,
-        );
-      }, 150);
+      this.isWelcomeModalOpen = false;
+      localStorage.setItem("welcomeModalLastUpdate", CURRENT_VERSION);
     },
 
     openAddBlockModal(parent = null) {
@@ -319,11 +313,7 @@ export default {
     },
 
     closeAddBlockModal() {
-      this.runModalCloseAnimation();
-
-      setTimeout(() => {
-        this.isAddBlockModalOpen = false;
-      }, 150);
+      this.isAddBlockModalOpen = false;
     },
 
     openThreeModal() {
@@ -331,11 +321,7 @@ export default {
     },
 
     closeThreeModal() {
-      this.runModalCloseAnimation();
-
-      setTimeout(() => {
-        this.isThreeModalOpen = false;
-      }, 150);
+      this.isThreeModalOpen = false;
     },
 
     openSettingsModal() {
@@ -343,11 +329,7 @@ export default {
     },
 
     closeSettingsModal() {
-      this.runModalCloseAnimation();
-
-      setTimeout(() => {
-        this.isSettingsModalOpen = false;
-      }, 150);
+      this.isSettingsModalOpen = false;
     },
   },
 };
@@ -365,5 +347,14 @@ export default {
 
 .hidden {
   display: none;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.15s;
+}
+.modal-enter,
+.modal-leave-to {
+  opacity: 0;
 }
 </style>
