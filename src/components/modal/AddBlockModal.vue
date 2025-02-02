@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from "vue";
+import { computed } from "vue";
 import { useHydraStore } from "@/stores/hydra";
 
 import {
@@ -91,12 +91,6 @@ const emit = defineEmits(["close"]);
 const close = () => {
   emit("close");
 };
-
-const canvas = ref(null);
-
-onMounted(() => {
-  canvas.value = document.createElement("canvas");
-});
 
 const handleAddBlock = (parentType, fn) => {
   if (props.parent === null) {
