@@ -308,7 +308,7 @@ export const MODULATE_FUNCTIONS = [
   {
     name: "modulateKaleid",
     blocks: [],
-    params: GEOMETRY_FUNCTIONS[6].params,
+    params: GEOMETRY_FUNCTIONS[9].params,
   },
   {
     name: "modulateScrollX",
