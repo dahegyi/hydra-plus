@@ -34,9 +34,6 @@ const isAddBlockModalOpen = ref(false);
 const isThreeModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 
-const isInputFocused = computed(() => store.isInputFocused);
-const blocks = computed(() => store.blocks);
-const externalSourceBlocks = computed(() => store.externalSourceBlocks);
 const isAnyModalOpen = computed(() => {
   return (
     isWelcomeModalOpen.value ||
@@ -89,7 +86,7 @@ onMounted(() => {
   // set up keyboard shortcuts
   const onKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey) {
-      if (!isInputFocused.value) {
+      if (!store.isInputFocused) {
         const isUndo = e.keyCode === 90 && !e.shiftKey;
         const isRedo = e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey);
 
@@ -113,7 +110,7 @@ onMounted(() => {
       return (areBlocksHidden.value = !areBlocksHidden.value);
     }
 
-    if (isInputFocused.value && e.key === "Enter") {
+    if (store.isInputFocused && e.key === "Enter") {
       return handleChange(true);
     }
   };
@@ -249,7 +246,7 @@ const closeSettingsModal = () => {
       />
       <three-modal
         v-if="isThreeModalOpen"
-        :blocks="externalSourceBlocks"
+        :blocks="store.externalSourceBlocks"
         @close="closeThreeModal"
       />
       <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
@@ -267,7 +264,7 @@ const closeSettingsModal = () => {
 
   <div v-show="!areBlocksHidden">
     <parent-block
-      v-for="(block, index) in blocks"
+      v-for="(block, index) in store.blocks"
       :key="index"
       :index="index"
       :block="block"
@@ -277,7 +274,7 @@ const closeSettingsModal = () => {
     />
 
     <parent-block
-      v-for="(block, index) in externalSourceBlocks"
+      v-for="(block, index) in store.externalSourceBlocks"
       :key="index"
       :index="index"
       :block="block"
