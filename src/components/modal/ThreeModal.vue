@@ -1,6 +1,6 @@
 <script setup>
 import { useHydraStore } from "@/stores/hydra";
-import BaseModal from "./BaseModal.vue";
+import BaseModal from "./BaseModal";
 
 const store = useHydraStore();
 
