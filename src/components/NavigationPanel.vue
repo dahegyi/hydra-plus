@@ -1,21 +1,4 @@
-<template>
-  <div class="navigation">
-    <div>
-      <div class="dropdown">
-        <button @click="openAddBlockModal">new source</button>
-      </div>
-    </div>
-
-    <div>
-      <button @click="openThreeModal">3D settings</button>
-      <button class="settings" @click="openSettingsModal">
-        synth settings
-      </button>
-      <button class="send" @click="handleSend">send</button>
-    </div>
-  </div>
-</template>
-<script>
+<script setup>
 import { useHydraStore } from "@/stores/hydra";
 
 // // @todo: losing window focus breaks the beat counter
@@ -50,45 +33,59 @@ import { useHydraStore } from "@/stores/hydra";
 
 const store = useHydraStore();
 
-export default {
-  emits: ["openAddBlockModal", "openThreeModal", "openSettingsModal"],
+const emit = defineEmits([
+  "openAddBlockModal",
+  "openThreeModal",
+  "openSettingsModal",
+]);
 
-  data() {
-    return {
-      waitingForBeat: false,
-    };
-  },
+// const waitingForBeat = ref(false);
 
-  methods: {
-    handleSend() {
-      // if (!this.waitingForBeat) {
-      //   this.waitingForBeat = true;
-      //   const checkInterval = setInterval(() => {
-      //     if (beatCounter === 0) {
-      //       clearInterval(checkInterval);
-      //       this.waitingForBeat = false;
-      //       this.send();
-      //     }
-      //   }, 10);
-      // }
+const handleSend = () => {
+  // if (!this.waitingForBeat) {
+  //   this.waitingForBeat = true;
+  //   const checkInterval = setInterval(() => {
+  //     if (beatCounter === 0) {
+  //       clearInterval(checkInterval);
+  //       this.waitingForBeat = false;
+  //       this.send();
+  //     }
+  //   }, 10);
+  // }
 
-      store.send();
-    },
+  store.send();
+};
 
-    openAddBlockModal() {
-      this.$emit("openAddBlockModal");
-    },
+const openAddBlockModal = () => {
+  emit("openAddBlockModal");
+};
 
-    openThreeModal() {
-      this.$emit("openThreeModal");
-    },
+const openThreeModal = () => {
+  emit("openThreeModal");
+};
 
-    openSettingsModal() {
-      this.$emit("openSettingsModal");
-    },
-  },
+const openSettingsModal = () => {
+  emit("openSettingsModal");
 };
 </script>
+
+<template>
+  <div class="navigation">
+    <div>
+      <div class="dropdown">
+        <button @click="openAddBlockModal">new source</button>
+      </div>
+    </div>
+
+    <div>
+      <button @click="openThreeModal">3D settings</button>
+      <button class="settings" @click="openSettingsModal">
+        synth settings
+      </button>
+      <button class="send" @click="handleSend">send</button>
+    </div>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 @import "@/assets/styles/variables";
