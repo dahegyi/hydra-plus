@@ -31,16 +31,15 @@ const title = computed(() => {
 });
 
 const customClass = computed(() => {
-  const { modalName } = props;
-
-  switch (modalName) {
+  switch (props.modalName) {
     case "WelcomeModal":
       return "welcome";
     case "SettingsModal":
       return "settings";
     case "ThreeModal":
       return "three";
-    case "AddSourceModal" || "AddEffectModal":
+    case "AddSourceModal":
+    case "AddEffectModal":
       return "add-block";
     default:
       return "";
