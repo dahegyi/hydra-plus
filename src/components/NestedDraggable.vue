@@ -3,7 +3,6 @@ import { ref } from "vue";
 import draggable from "vuedraggable";
 import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
 import { useHydraStore } from "@/stores/hydra";
-import { stateToProps } from "@/utils/pinia-utils";
 
 const props = defineProps({
   parent: {
@@ -26,14 +25,6 @@ const props = defineProps({
 
 const store = useHydraStore();
 
-const { focused, blocks, externalSourceBlocks } = stateToProps(store, [
-  "focused",
-  "blocks",
-  "externalSourceBlocks",
-]);
-
-const { setFocus, setInputFocus, deleteChild } = store;
-
 const canHaveChild = (element) => {
   return (
     element.type === TYPE_SRC ||
@@ -44,9 +35,9 @@ const canHaveChild = (element) => {
 const onFocus = (element) => {
   const focusedElement = canHaveChild(element) ? element : props.parent;
 
-  if (focused.value === focusedElement) return;
+  if (store.focused === focusedElement) return;
 
-  setFocus(focusedElement, true);
+  store.setFocus(focusedElement, true);
 };
 
 const handleAddBlockModal = (element) => {
@@ -98,7 +89,7 @@ const handleEnd = () => {
     @end="handleEnd"
   >
     <template #item="{ element }">
-      <li :class="{ focused: focused === element }" @click.stop="">
+      <li :class="{ focused: store.focused === element }" @click.stop="">
         <div class="params">
           <strong>
             <span class="name" @click.stop="onFocus(element)">
@@ -106,7 +97,7 @@ const handleEnd = () => {
             </span>
             <span
               class="delete"
-              @click.stop="deleteChild({ element, children, parent })"
+              @click.stop="store.deleteChild({ element, children, parent })"
             />
           </strong>
 
@@ -118,14 +109,14 @@ const handleEnd = () => {
             <label>{{ PARAM_MAPPINGS[element.name][0] }}</label>
             <select v-model="element.params[0]" @change="handleChange">
               <option
-                v-for="(source, sIndex) in externalSourceBlocks"
+                v-for="(source, sIndex) in store.externalSourceBlocks"
                 :key="sIndex"
                 :value="'s' + sIndex"
               >
                 s{{ sIndex }} - {{ source.name }}
               </option>
               <option
-                v-for="(output, oIndex) in blocks"
+                v-for="(output, oIndex) in store.blocks"
                 :key="oIndex"
                 :value="'o' + oIndex"
               >
@@ -144,7 +135,7 @@ const handleEnd = () => {
             <input
               v-model="element.params[paramIndex]"
               type="text"
-              @focusin="setInputFocus(true)"
+              @focusin="store.setInputFocus(true)"
               @focusout="handleChange"
             />
           </div>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useHydraStore } from "@/stores/hydra";
+import { deepCopy } from "@/utils/object-utils";
 import BaseModal from "./BaseModal";
 
 const store = useHydraStore();
@@ -12,7 +13,7 @@ const red = ref("1");
 const green = ref("1");
 const blue = ref("1");
 
-const { blocks, synthSettings } = store;
+const synthSettings = deepCopy(store.synthSettings);
 
 const arePhilipsHueSettingsAvailabe = computed(
   () => process.env.NODE_ENV !== "production",
@@ -63,7 +64,11 @@ const close = () => {
         <label>output</label>
         <select v-model="synthSettings.output">
           <option value="">select output</option>
-          <option v-for="(block, index) in blocks" :key="index" :value="index">
+          <option
+            v-for="(block, index) in store.blocks"
+            :key="index"
+            :value="index"
+          >
             o{{ index }} - {{ block.name }}
           </option>
         </select>

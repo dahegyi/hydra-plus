@@ -2,8 +2,6 @@
 import { computed, ref, onMounted } from "vue";
 import { useHydraStore } from "@/stores/hydra";
 
-import { stateToProps } from "@/utils/pinia-utils";
-
 import { showToast } from "@/utils";
 
 import { TYPE_SRC, TYPE_THREE, PARAM_MAPPINGS } from "@/constants";
@@ -39,18 +37,11 @@ const props = defineProps({
 
 const store = useHydraStore();
 
-const { synthSettings, blocks, externalSourceBlocks, focused } = stateToProps(
-  store,
-  ["synthSettings", "blocks", "externalSourceBlocks", "focused"],
-);
-
 const blockHeader = computed(() => {
   return `${props.block.type === TYPE_SRC ? "o" : "s"}${props.index} - ${
     props.block.name
   }`;
 });
-
-const { setFocus, deleteParent, setOutput, setInputFocus } = store;
 
 const hydra = ref(window.hydra);
 const cameraNames = ref([]);
@@ -75,7 +66,7 @@ onMounted(async () => {
 
 const handleHeaderClick = (clickedBlock) => {
   if (props.focused === clickedBlock) return;
-  setFocus(clickedBlock);
+  store.setFocus(clickedBlock);
 };
 
 const togglePreview = () => {
@@ -99,12 +90,12 @@ const togglePreview = () => {
     :class="[
       'parent-block',
       props.block.type,
-      { focused: focused === props.block },
+      { focused: store.focused === props.block },
     ]"
   >
     <div
       class="output-header"
-      @click="handleHeaderClick(blocks[props.index])"
+      @click="handleHeaderClick(store.blocks[props.index])"
       @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
       @touchstart="(e) => props.moveBlock(e, props.index, props.block.type)"
     >
@@ -117,10 +108,10 @@ const togglePreview = () => {
           v-if="props.block.type === TYPE_SRC"
           :class="[
             'activate',
-            { active: synthSettings?.output === props.index },
+            { active: store.synthSettings.output === props.index },
           ]"
-          @click="setOutput(index)"
-          @touchstart="setOutput(index)"
+          @click="store.setOutput(index)"
+          @touchstart="store.setOutput(index)"
         />
 
         <span
@@ -132,9 +123,11 @@ const togglePreview = () => {
 
         <span
           class="delete"
-          @click="deleteParent({ type: props.block.type, index: props.index })"
+          @click="
+            store.deleteParent({ type: props.block.type, index: props.index })
+          "
           @touchstart="
-            deleteParent({ type: props.block.type, index: props.index })
+            store.deleteParent({ type: props.block.type, index: props.index })
           "
         />
       </div>
@@ -168,14 +161,14 @@ const togglePreview = () => {
           @change="() => props.handleChange()"
         >
           <option
-            v-for="(source, sIndex) in externalSourceBlocks"
+            v-for="(source, sIndex) in store.externalSourceBlocks"
             :key="'s' + sIndex"
             :value="'s' + sIndex"
           >
             s{{ sIndex }} - {{ source.name }}
           </option>
           <option
-            v-for="(output, oIndex) in blocks"
+            v-for="(output, oIndex) in store.blocks"
             :key="'o' + oIndex"
             :value="'o' + oIndex"
           >
@@ -187,7 +180,7 @@ const togglePreview = () => {
           v-else
           v-model="props.block.params[paramIndex]"
           type="text"
-          @focusin="setInputFocus(true)"
+          @focusin="store.setInputFocus(true)"
           @focusout="() => props.handleChange()"
         />
       </div>
