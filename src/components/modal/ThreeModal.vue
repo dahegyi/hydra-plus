@@ -1,5 +1,4 @@
 <script setup>
-import { defineEmits } from "vue";
 import { useHydraStore } from "@/stores/hydra";
 import BaseModal from "./BaseModal.vue";
 
