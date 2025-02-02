@@ -34,7 +34,6 @@ const isAddBlockModalOpen = ref(false);
 const isThreeModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 
-const focused = computed(() => store.focused);
 const isInputFocused = computed(() => store.isInputFocused);
 const blocks = computed(() => store.blocks);
 const externalSourceBlocks = computed(() => store.externalSourceBlocks);
@@ -91,14 +90,15 @@ onMounted(() => {
   const onKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey) {
       if (!isInputFocused.value) {
-        // undo
-        if (e.keyCode === 90 && !e.shiftKey) {
+        const isUndo = e.keyCode === 90 && !e.shiftKey;
+        const isRedo = e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey);
+
+        if (isUndo) {
           e.preventDefault();
           return store.undoRedo(1);
         }
 
-        // redo
-        if (e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey)) {
+        if (isRedo) {
           e.preventDefault();
           return store.undoRedo(-1);
         }
@@ -256,16 +256,16 @@ const closeSettingsModal = () => {
     </div>
   </transition>
 
-  <div class="playground" @click="() => focused && store.setFocus(null)" />
+  <div class="playground" @click="store.setFocus(null)" />
 
   <navigation-panel
-    :class="{ hidden: areBlocksHidden }"
+    v-show="!areBlocksHidden"
     @open-add-block-modal="openAddBlockModal"
     @open-three-modal="openThreeModal"
     @open-settings-modal="openSettingsModal"
   />
 
-  <div :class="{ hidden: areBlocksHidden }">
+  <div v-show="!areBlocksHidden">
     <parent-block
       v-for="(block, index) in blocks"
       :key="index"
@@ -295,10 +295,6 @@ const closeSettingsModal = () => {
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-.hidden {
-  display: none;
 }
 
 .modal-enter-active,
