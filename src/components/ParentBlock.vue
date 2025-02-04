@@ -64,11 +64,6 @@ onMounted(async () => {
   }
 });
 
-const handleHeaderClick = (clickedBlock) => {
-  if (props.focused === clickedBlock) return;
-  store.setFocus(clickedBlock);
-};
-
 const togglePreview = () => {
   isPreviewOpen.value = !isPreviewOpen.value;
 };
@@ -95,7 +90,7 @@ const togglePreview = () => {
   >
     <div
       class="output-header"
-      @click="handleHeaderClick(store.blocks[props.index])"
+      @click="store.setFocus(store.blocks[props.index])"
       @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
       @touchstart="(e) => props.moveBlock(e, props.index, props.block.type)"
     >
@@ -223,7 +218,6 @@ const togglePreview = () => {
 
     <nested-draggable
       v-if="props.block.blocks"
-      :children="props.block.blocks"
       :parent="props.block"
       :handle-change="() => props.handleChange()"
       :open-add-block-modal="props.openAddBlockModal"

@@ -9,10 +9,6 @@ const props = defineProps({
     required: true,
     type: Object,
   },
-  children: {
-    required: true,
-    type: Array,
-  },
   handleChange: {
     required: true,
     type: Function,
@@ -32,16 +28,8 @@ const canHaveChild = (element) => {
   );
 };
 
-const onFocus = (element) => {
-  const focusedElement = canHaveChild(element) ? element : props.parent;
-
-  if (store.focused === focusedElement) return;
-
-  store.setFocus(focusedElement, true);
-};
-
 const handleAddBlockModal = (element) => {
-  onFocus(element);
+  store.setFocus(element);
   props.openAddBlockModal(element);
 };
 
@@ -81,7 +69,7 @@ const handleEnd = () => {
       parent.type,
     ]"
     tag="ul"
-    :list="children"
+    :list="parent.blocks"
     :group="{ name: 'g1' }"
     item-key="name"
     @click.stop="handleAddBlockModal(parent)"
@@ -92,19 +80,19 @@ const handleEnd = () => {
       <li :class="{ focused: store.focused === element }" @click.stop="">
         <div class="params">
           <strong>
-            <span class="name" @click.stop="onFocus(element)">
+            <span class="name" @click.stop="store.setFocus(element)">
               {{ element.name }}
             </span>
             <span
               class="delete"
-              @click.stop="store.deleteChild({ element, children, parent })"
+              @click.stop="store.deleteChild({ element, parent })"
             />
           </strong>
 
           <div
             v-if="element.name === 'src'"
             class="param-input-container"
-            @click.stop="onFocus(element)"
+            @click.stop="store.setFocus(element)"
           >
             <label>{{ PARAM_MAPPINGS[element.name][0] }}</label>
             <select v-model="element.params[0]" @change="handleChange">
@@ -129,7 +117,7 @@ const handleEnd = () => {
             v-else
             :key="paramIndex"
             class="param-input-container"
-            @click.stop="onFocus(element)"
+            @click.stop="store.setFocus(element)"
           >
             <label>{{ PARAM_MAPPINGS[element.name][paramIndex] }}</label>
             <input
@@ -144,7 +132,6 @@ const handleEnd = () => {
         <nested-draggable
           v-if="element.blocks"
           :parent="element"
-          :children="element.blocks"
           :handle-change="handleChange"
           :open-add-block-modal="openAddBlockModal"
         />

@@ -30,10 +30,10 @@ export const useHydraStore = defineStore("hydra", () => {
     resolution: 100,
     fps: 60,
   });
-  const saved = ref({});
   const codeString = ref("");
   const history = ref([]);
   const historyIndex = ref(0);
+  const copiedElement = ref(null);
   const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
   // Actions
@@ -162,17 +162,25 @@ export const useHydraStore = defineStore("hydra", () => {
     });
   };
 
-  const deleteChild = ({ element, children, parent }) => {
-    for (const child of children) {
-      if (child === element) {
-        if (focused.value !== parent) setFocus(parent);
+  const deleteChild = ({ element, parent }) => {
+    const stack = parent.blocks ? [parent.blocks] : [];
 
-        // @todo probably not the best way to do this
-        children.splice(children.indexOf(child), 1);
+    while (stack.length) {
+      const currentArray = stack.pop();
+      for (let i = currentArray.length - 1; i >= 0; i--) {
+        if (currentArray[i] === element) {
+          setFocus(parent);
+          currentArray.splice(i, 1);
+          setBlocks({
+            blocks: [...blocks.value, ...externalSourceBlocks.value],
+          });
 
-        setBlocks({
-          blocks: [...blocks.value, ...externalSourceBlocks.value],
-        });
+          return;
+        }
+
+        if (currentArray[i].blocks) {
+          stack.push(currentArray[i].blocks);
+        }
       }
     }
   };
@@ -309,6 +317,26 @@ export const useHydraStore = defineStore("hydra", () => {
     });
   };
 
+  // Copy & paste
+
+  const copyBlock = () => {
+    copiedElement.value = focused.value;
+
+    console.log(copiedElement.value);
+  };
+
+  const pasteBlock = () => {
+    if (!copiedElement.value) return;
+
+    if (focused.value) {
+      return addChild(deepCopy(copiedElement.value));
+    }
+
+    if (copiedElement.value.type === TYPE_SRC) {
+      return addParent(deepCopy(copiedElement.value));
+    }
+  };
+
   return {
     // State
     r,
@@ -320,9 +348,9 @@ export const useHydraStore = defineStore("hydra", () => {
     externalSourceBlocks,
     codeString,
     synthSettings,
-    saved,
     history,
     historyIndex,
+    copiedElement,
 
     // Actions
     updateRGB,
@@ -340,5 +368,7 @@ export const useHydraStore = defineStore("hydra", () => {
     setOutput,
     setHistory,
     undoRedo,
+    copyBlock,
+    pasteBlock,
   };
 });

@@ -89,16 +89,19 @@ onMounted(() => {
       if (!store.isInputFocused) {
         const isUndo = e.keyCode === 90 && !e.shiftKey;
         const isRedo = e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey);
+        const isCopy = e.keyCode === 67;
+        const isCut = e.keyCode === 88;
+        const isPaste = e.keyCode === 86;
 
-        if (isUndo) {
+        if (isUndo || isRedo || isCopy || isCut || isPaste) {
           e.preventDefault();
-          return store.undoRedo(1);
         }
 
-        if (isRedo) {
-          e.preventDefault();
-          return store.undoRedo(-1);
-        }
+        if (isUndo) return store.undoRedo(1);
+        if (isRedo) return store.undoRedo(-1);
+        if (isCopy) return store.copyBlock();
+        if (isCut) return store.cutBlock();
+        if (isPaste) return store.pasteBlock();
       }
     }
 
