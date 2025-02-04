@@ -10,6 +10,7 @@ import {
   TYPE_SRC,
   TYPE_THREE,
   TYPE_EXTERNAL,
+  TYPE_SIMPLE,
   TYPE_COMPLEX,
   DEFAULT_POSITION,
 } from "@/constants";
@@ -329,7 +330,19 @@ export const useHydraStore = defineStore("hydra", () => {
     if (!copiedElement.value) return;
 
     if (focused.value) {
-      return addChild(deepCopy(copiedElement.value));
+      // TYPE_SRC -> TYPE_SIMPLE || TYPE_COMPLEX
+      // TYPE_COMPLEX -> TYPE_SRC
+
+      const focusedType = focused.value.type;
+      const copiedType = copiedElement.value.type;
+
+      if (
+        (focusedType === TYPE_SRC &&
+          (copiedType === TYPE_SIMPLE || copiedType === TYPE_COMPLEX)) ||
+        (focusedType === TYPE_COMPLEX && copiedType === TYPE_SRC)
+      ) {
+        return addChild(deepCopy(copiedElement.value));
+      }
     }
 
     if (copiedElement.value.type === TYPE_SRC) {
