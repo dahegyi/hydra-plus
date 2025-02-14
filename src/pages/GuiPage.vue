@@ -12,17 +12,17 @@ import ParentBlock from "@/components/ParentBlock";
 
 const store = useHydraStore();
 
-const WelcomeModal = defineAsyncComponent(
-  () => import("@/components/modal/WelcomeModal"),
+const WelcomeModal = defineAsyncComponent(() =>
+  import("@/components/modal/WelcomeModal"),
 );
-const AddBlockModal = defineAsyncComponent(
-  () => import("@/components/modal/AddBlockModal"),
+const AddBlockModal = defineAsyncComponent(() =>
+  import("@/components/modal/AddBlockModal"),
 );
-const ThreeModal = defineAsyncComponent(
-  () => import("@/components/modal/ThreeModal"),
+const ThreeModal = defineAsyncComponent(() =>
+  import("@/components/modal/ThreeModal"),
 );
-const SettingsModal = defineAsyncComponent(
-  () => import("@/components/modal/SettingsModal"),
+const SettingsModal = defineAsyncComponent(() =>
+  import("@/components/modal/SettingsModal"),
 );
 
 const prevBlocks = ref(null);
@@ -99,8 +99,8 @@ onMounted(() => {
 
         if (isUndo) return store.undoRedo(1);
         if (isRedo) return store.undoRedo(-1);
-        if (isCopy) return store.copyBlock();
-        if (isCut) return store.cutBlock();
+        if (isCopy) return store.copyBlock(false);
+        if (isCut) return store.copyBlock(true);
         if (isPaste) return store.pasteBlock();
       }
     }

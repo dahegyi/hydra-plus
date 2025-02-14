@@ -21,6 +21,7 @@ export const useHydraStore = defineStore("hydra", () => {
   const g = ref(0);
   const b = ref(0);
   const focused = ref(null);
+  const focusedParent = ref(null);
   const isInputFocused = ref(false);
   const blocks = ref(INITIAL_BLOCKS);
   const externalSourceBlocks = ref([]);
@@ -34,7 +35,9 @@ export const useHydraStore = defineStore("hydra", () => {
   const codeString = ref("");
   const history = ref([]);
   const historyIndex = ref(0);
-  const copiedElement = ref(null);
+  const copied = ref(null);
+  const copiedParent = ref(null);
+  const isCut = ref(false);
   const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
   // Actions
@@ -45,15 +48,17 @@ export const useHydraStore = defineStore("hydra", () => {
     update({ shouldSetHistory: false });
   };
 
-  const setFocus = (newFocus) => {
-    focused.value = newFocus;
+  const setFocus = (focus, parent) => {
+    // @todo merge the two states into one
+    focused.value = focus;
+    focusedParent.value = parent;
   };
 
   const setInputFocus = (isFocused) => {
     isInputFocused.value = isFocused;
   };
 
-  const addParent = (source) => {
+  const addParent = (source, shouldSetHistory = true) => {
     const copiedSource = deepCopy(source);
 
     if (
@@ -94,11 +99,12 @@ export const useHydraStore = defineStore("hydra", () => {
     } else {
       setBlocks({
         blocks: [...blocks.value, ...externalSourceBlocks.value],
+        shouldSetHistory,
       });
     }
   };
 
-  const addChild = (effect) => {
+  const addChild = (effect, shouldSetHistory = true) => {
     if (!focused.value) return;
 
     focused.value.blocks.push(deepCopy(effect));
@@ -109,6 +115,7 @@ export const useHydraStore = defineStore("hydra", () => {
 
     setBlocks({
       blocks: [...blocks.value, ...externalSourceBlocks.value],
+      shouldSetHistory,
     });
   };
 
@@ -175,7 +182,6 @@ export const useHydraStore = defineStore("hydra", () => {
           setBlocks({
             blocks: [...blocks.value, ...externalSourceBlocks.value],
           });
-
           return;
         }
 
@@ -320,34 +326,74 @@ export const useHydraStore = defineStore("hydra", () => {
 
   // Copy & paste
 
-  const copyBlock = () => {
-    copiedElement.value = focused.value;
+  const copyBlock = (cutting = false) => {
+    if (!focused.value) return;
 
-    console.log(copiedElement.value);
+    copied.value = focused.value;
+    copiedParent.value = focusedParent.value;
+
+    isCut.value = cutting;
+  };
+
+  const resetCut = () => {
+    copied.value = null;
+    copiedParent.value = null;
+    isCut.value = false;
   };
 
   const pasteBlock = () => {
-    if (!copiedElement.value) return;
+    if (!copied.value) return;
 
-    if (focused.value) {
-      // TYPE_SRC -> TYPE_SIMPLE || TYPE_COMPLEX
-      // TYPE_COMPLEX -> TYPE_SRC
+    // Parent block is pasted
+    if (copied.value.position) {
+      const pasted = performPaste();
 
-      const focusedType = focused.value.type;
-      const copiedType = copiedElement.value.type;
+      if (pasted && isCut.value) {
+        const copiedIndex = blocks.value.findIndex(
+          (block) => block === copied.value,
+        );
 
-      if (
-        (focusedType === TYPE_SRC &&
-          (copiedType === TYPE_SIMPLE || copiedType === TYPE_COMPLEX)) ||
-        (focusedType === TYPE_COMPLEX && copiedType === TYPE_SRC)
-      ) {
-        return addChild(deepCopy(copiedElement.value));
+        deleteParent({ type: copied.value.type, index: copiedIndex });
+
+        resetCut();
+      }
+    } else {
+      // Child block is pasted
+      const pasted = performPaste();
+
+      if (pasted && isCut.value) {
+        deleteChild({
+          element: copied.value,
+          parent: copiedParent.value,
+        });
+
+        resetCut();
       }
     }
+  };
 
-    if (copiedElement.value.type === TYPE_SRC) {
-      return addParent(deepCopy(copiedElement.value));
+  const performPaste = () => {
+    if (focused.value && focused.value !== copied.value) {
+      if (
+        (focused.value.type === TYPE_SRC &&
+          (copied.value.type === TYPE_SIMPLE ||
+            copied.value.type === TYPE_COMPLEX)) ||
+        (focused.value.type === TYPE_COMPLEX &&
+          copied.value.type === TYPE_SRC &&
+          focused.value.blocks.length < 1)
+      ) {
+        addChild(deepCopy(copied.value), !isCut.value);
+        return true;
+      }
+    } else if (
+      (!focused.value || focused.value === copied.value) &&
+      copied.value.type === TYPE_SRC
+    ) {
+      addParent(deepCopy(copied.value), !isCut.value);
+      return true;
     }
+
+    return false;
   };
 
   return {
@@ -363,7 +409,7 @@ export const useHydraStore = defineStore("hydra", () => {
     synthSettings,
     history,
     historyIndex,
-    copiedElement,
+    copied,
 
     // Actions
     updateRGB,

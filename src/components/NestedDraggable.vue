@@ -80,7 +80,7 @@ const handleEnd = () => {
       <li :class="{ focused: store.focused === element }" @click.stop="">
         <div class="params">
           <strong>
-            <span class="name" @click.stop="store.setFocus(element)">
+            <span class="name" @click.stop="store.setFocus(element, parent)">
               {{ element.name }}
             </span>
             <span
@@ -92,7 +92,7 @@ const handleEnd = () => {
           <div
             v-if="element.name === 'src'"
             class="param-input-container"
-            @click.stop="store.setFocus(element)"
+            @click.stop="store.setFocus(element, parent)"
           >
             <label>{{ PARAM_MAPPINGS[element.name][0] }}</label>
             <select v-model="element.params[0]" @change="handleChange">
@@ -117,7 +117,7 @@ const handleEnd = () => {
             v-else
             :key="paramIndex"
             class="param-input-container"
-            @click.stop="store.setFocus(element)"
+            @click.stop="store.setFocus(element, parent)"
           >
             <label>{{ PARAM_MAPPINGS[element.name][paramIndex] }}</label>
             <input
