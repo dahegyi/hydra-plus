@@ -1,7 +1,9 @@
 import { createApp } from "vue";
+import { useDark } from "@vueuse/core";
 import { createRouter, createWebHistory } from "vue-router";
 import { createPinia } from "pinia";
 import "./assets/styles/main.scss";
+import "./assets/index.css";
 import App from "./App";
 import { isButtonPressed, activeButtons } from "./utils/gamecontroller-utils";
 
@@ -19,6 +21,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+useDark();
 
 window.isButtonPressed = isButtonPressed;
 
