@@ -162,7 +162,7 @@ const showLabel = (blockName) => {
           v-model="props.block.params[paramIndex]"
           @change="() => props.handleChange()"
         >
-          <SelectTrigger>
+          <SelectTrigger class="bg-zinc-900">
             <SelectValue>
               {{ cameraNames[props.block.params[paramIndex]] }}
             </SelectValue>
@@ -185,7 +185,7 @@ const showLabel = (blockName) => {
           v-model="props.block.params[paramIndex]"
           @update:model-value="props.handleChange"
         >
-          <SelectTrigger>
+          <SelectTrigger class="bg-zinc-900">
             <SelectValue />
           </SelectTrigger>
 
@@ -465,11 +465,6 @@ $spacing: 8px;
       background: #f1a3a3;
     }
 
-    .param-input-container {
-      padding: calc($spacing * 1.5) $spacing calc($spacing * 1.5)
-        calc($spacing * 1.5);
-    }
-
     img,
     video {
       width: 100%;
@@ -477,5 +472,10 @@ $spacing: 8px;
       object-fit: cover;
     }
   }
+}
+
+input {
+  font-family: "Fira Code", monospace;
+  font-size: 0.8em;
 }
 </style>

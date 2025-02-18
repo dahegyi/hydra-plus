@@ -4,6 +4,16 @@ import draggable from "vuedraggable";
 import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
 import { useHydraStore } from "@/stores/hydra";
 
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const props = defineProps({
   parent: {
     required: true,
@@ -91,38 +101,48 @@ const handleEnd = () => {
 
           <div
             v-if="element.name === 'src'"
-            class="param-input-container"
+            class="flex items-center"
             @click.stop="store.setFocus(element, parent)"
           >
-            <label>{{ PARAM_MAPPINGS[element.name][0] }}</label>
-            <select v-model="element.params[0]" @change="handleChange">
-              <option
-                v-for="(source, sIndex) in store.externalSourceBlocks"
-                :key="sIndex"
-                :value="'s' + sIndex"
-              >
-                s{{ sIndex }} - {{ source.name }}
-              </option>
-              <option
-                v-for="(output, oIndex) in store.blocks"
-                :key="oIndex"
-                :value="'o' + oIndex"
-              >
-                o{{ oIndex }} - {{ output.name }}
-              </option>
-            </select>
+            <Label class="min-w-24">{{
+              PARAM_MAPPINGS[element.name][0]
+            }}</Label>
+            <Select v-model="element.params[0]" @change="handleChange">
+              <SelectTrigger class="bg-zinc-900">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="(source, sIndex) in store.externalSourceBlocks"
+                  :key="sIndex"
+                  :value="'s' + sIndex"
+                >
+                  {{ source.name }}
+                </SelectItem>
+                <SelectItem
+                  v-for="(output, oIndex) in store.blocks"
+                  :key="oIndex"
+                  :value="'o' + oIndex"
+                >
+                  {{ output.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
           <div
             v-for="(param, paramIndex) in element.params?.length"
             v-else
             :key="paramIndex"
-            class="param-input-container"
+            class="flex items-center"
             @click.stop="store.setFocus(element, parent)"
           >
-            <label>{{ PARAM_MAPPINGS[element.name][paramIndex] }}</label>
-            <input
+            <Label class="min-w-24">
+              {{ PARAM_MAPPINGS[element.name][paramIndex] }}
+            </Label>
+            <Input
               v-model="element.params[paramIndex]"
-              type="text"
+              class="bg-zinc-900"
               @focusin="store.setInputFocus(true)"
               @focusout="handleChange"
             />
@@ -291,5 +311,10 @@ ul {
       }
     }
   }
+}
+
+input {
+  font-family: "Fira Code", monospace;
+  font-size: 0.8em;
 }
 </style>
