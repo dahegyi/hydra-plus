@@ -6,6 +6,16 @@ import { showToast } from "@/utils";
 
 import { TYPE_SRC, TYPE_THREE, PARAM_MAPPINGS } from "@/constants";
 
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import NestedDraggable from "@/components/NestedDraggable";
 
 const props = defineProps({
@@ -66,6 +76,10 @@ onMounted(async () => {
 
 const togglePreview = () => {
   isPreviewOpen.value = !isPreviewOpen.value;
+};
+
+const showLabel = (blockName) => {
+  return blockName !== "initCam" && blockName !== "src";
 };
 </script>
 
@@ -132,49 +146,72 @@ const togglePreview = () => {
       <div
         v-for="(param, paramIndex) in props.block.params?.length"
         :key="paramIndex"
-        class="param-input-container"
+        class="param-input-container flex"
       >
-        <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
+        <Label
+          v-if="showLabel(props.block.name)"
+          :for="`${props.block.type}-block-${props.index}-param-${paramIndex}`"
+          class="min-w-24"
+        >
+          {{ PARAM_MAPPINGS[props.block.name][paramIndex] }}
+        </Label>
 
-        <select
+        <Select
           v-if="props.block.name === 'initCam'"
+          :id="`${props.block.type}-block-${props.index}-param-${paramIndex}`"
           v-model="props.block.params[paramIndex]"
           @change="() => props.handleChange()"
         >
-          <option
-            v-for="(name, camIndex) in cameraNames"
-            :key="'cam' + camIndex"
-            :value="camIndex"
-          >
-            {{ name }}
-          </option>
-        </select>
+          <SelectTrigger>
+            <SelectValue>
+              {{ cameraNames[props.block.params[paramIndex]] }}
+            </SelectValue>
+          </SelectTrigger>
 
-        <select
+          <SelectContent>
+            <SelectItem
+              v-for="(name, camIndex) in cameraNames"
+              :key="'cam' + camIndex"
+              :value="String(camIndex)"
+            >
+              {{ name }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
           v-else-if="props.block.name === 'src'"
+          :id="`${props.block.type}-block-${props.index}-param-${paramIndex}`"
           v-model="props.block.params[paramIndex]"
-          @change="() => props.handleChange()"
+          @update:model-value="props.handleChange"
         >
-          <option
-            v-for="(source, sIndex) in store.externalSourceBlocks"
-            :key="'s' + sIndex"
-            :value="'s' + sIndex"
-          >
-            s{{ sIndex }} - {{ source.name }}
-          </option>
-          <option
-            v-for="(output, oIndex) in store.blocks"
-            :key="'o' + oIndex"
-            :value="'o' + oIndex"
-          >
-            o{{ oIndex }} - {{ output.name }}
-          </option>
-        </select>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
 
-        <input
+          <SelectContent>
+            <SelectItem
+              v-for="(source, sIndex) in store.externalSourceBlocks"
+              :key="`s${sIndex}`"
+              :value="`s${sIndex}`"
+            >
+              s{{ sIndex }} - {{ source.name }}
+            </SelectItem>
+            <SelectItem
+              v-for="(output, oIndex) in store.blocks"
+              :key="`o${oIndex}`"
+              :value="`o${oIndex}`"
+            >
+              o{{ oIndex }} - {{ output.name }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Input
           v-else
+          :id="`${props.block.type}-block-${props.index}-param-${paramIndex}`"
           v-model="props.block.params[paramIndex]"
-          type="text"
+          class="bg-zinc-900"
           @focusin="store.setInputFocus(true)"
           @focusout="() => props.handleChange()"
         />
@@ -210,8 +247,6 @@ const togglePreview = () => {
 
     <div v-else>
       <div class="param-input-container">
-        <label>3D settings</label>
-
         <button @click="openThreeModal">Open 3D settings</button>
       </div>
     </div>
@@ -233,6 +268,7 @@ $spacing: 8px;
 .parent-block {
   position: absolute;
   display: flex;
+  overflow: hidden;
   width: min(360px, 80%);
   flex-direction: column;
   border-radius: 0 $border-radius 0 $border-radius;
@@ -292,8 +328,8 @@ $spacing: 8px;
       width: calc($spacing * 2.5);
 
       &:after {
-        width: calc($iconSize / 3);
-        height: calc($iconSize / 3);
+        width: calc($iconSize / 1.5);
+        height: calc($iconSize / 1.5);
         border: calc($spacing / 2) solid #000;
         border-radius: 50%;
       }
@@ -436,16 +472,9 @@ $spacing: 8px;
 
     img,
     video {
-      width: calc(100% - #{$spacing * 2});
+      width: 100%;
       max-height: 200px;
-      border-radius: 0 0 0 $border-radius;
-      margin: 0 $spacing;
       object-fit: cover;
-    }
-
-    // initScreen doesn't have inputs so margin is needed
-    .initScreen {
-      margin-top: calc($spacing * 1.5);
     }
   }
 }
