@@ -32,76 +32,8 @@ a {
   }
 }
 
-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #111;
-  border-radius: 0;
-  background: #444;
-  color: #fff;
-  cursor: pointer;
-
-  &:hover,
-  &:focus,
-  &:active {
-    background: #333;
-  }
-}
-
-input,
-select {
-  padding: 0.5rem 1rem;
-  border: 1px solid #111;
-  border-radius: 0;
-  appearance: none;
-  background: #00000040;
-  color: #fff;
-
-  &:focus {
-    background: #00000090;
-    outline: 1px solid #fff;
-  }
-}
-
-select {
-  width: 100%;
-
-  &:focus-visible {
-    outline: 1px solid #fff;
-  }
-}
-
 hr {
   width: 100%;
-}
-
-.param-input-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 2px 0;
-
-  label {
-    margin-right: 1rem;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  input,
-  select {
-    width: 60%;
-    padding: 0.2rem;
-    border: 1px solid #00000040;
-    border-radius: 0;
-    background: #000000aa;
-
-    &:focus {
-      background: #000000dd;
-    }
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 }
 
 // new toast

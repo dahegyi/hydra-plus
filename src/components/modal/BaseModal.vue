@@ -23,10 +23,10 @@ const title = computed(() => {
   const { modalName } = props;
 
   if (modalName === "WelcomeModal") return "";
-  if (modalName === "SettingsModal") return "settings";
+  if (modalName === "SettingsModal") return "Settings";
   if (modalName === "ThreeModal") return "3D settings";
-  if (modalName === "AddSourceModal") return "add source";
-  if (modalName === "AddEffectModal") return "add effect";
+  if (modalName === "AddSourceModal") return "Add source";
+  if (modalName === "AddEffectModal") return "Add effect";
   return "Default Title";
 });
 
@@ -67,7 +67,7 @@ const customClass = computed(() => {
 
 .modal-container {
   position: fixed;
-  z-index: 998;
+  z-index: 2;
   top: 0;
   left: 0;
   display: flex;
@@ -82,7 +82,7 @@ const customClass = computed(() => {
   background: rgba(0, 0, 0, 0.3);
 
   .modal {
-    z-index: 999;
+    z-index: 3;
     display: flex;
     width: 460px;
     max-width: 100%;
@@ -106,12 +106,6 @@ const customClass = computed(() => {
       width: 680px;
     }
 
-    &.settings {
-      .content {
-        padding: 0;
-      }
-    }
-
     &::-webkit-scrollbar {
       display: none;
     }
@@ -123,6 +117,7 @@ const customClass = computed(() => {
       justify-content: space-between;
       padding-left: 16px;
       background: #00000040;
+      font-weight: 600;
 
       h2 {
         margin: 0;
