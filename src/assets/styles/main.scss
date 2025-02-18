@@ -104,6 +104,14 @@ hr {
   }
 }
 
+// new toast
+
+ol {
+  &:focus-visible {
+    outline: none;
+  }
+}
+
 // toastify
 
 .toastify {

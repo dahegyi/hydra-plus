@@ -1,5 +1,9 @@
 export const CURRENT_VERSION = "0.8.0";
 
+export const MODIFIER_KEY = /Macintosh|Mac OS X/i.test(navigator.userAgent)
+  ? "⌘"
+  : "Ctrl";
+
 export const DEFAULT_POSITION = { x: 15, y: 65 };
 
 export const INITIAL_BLOCKS = [

@@ -10,6 +10,8 @@ import { CURRENT_VERSION, INITIAL_BLOCKS } from "@/constants";
 import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "@/components/ParentBlock";
 
+import Toaster from "@/components/ui/toast/Toaster";
+
 const store = useHydraStore();
 
 const WelcomeModal = defineAsyncComponent(() =>
@@ -110,7 +112,7 @@ onMounted(() => {
       if (isAddBlockModalOpen.value) return closeAddBlockModal();
       if (isSettingsModalOpen.value) return closeSettingsModal();
       if (isThreeModalOpen.value) return closeThreeModal();
-      return (areBlocksHidden.value = !areBlocksHidden.value);
+      return toggleFullscreen();
     }
 
     if (store.isInputFocused && e.key === "Enter") {
@@ -124,6 +126,8 @@ onMounted(() => {
 onUpdated(() => {
   moveAllBlocks();
 });
+
+const toggleFullscreen = () => (areBlocksHidden.value = !areBlocksHidden.value);
 
 const moveAllBlocks = () => {
   // move source blocks to their position
@@ -263,6 +267,7 @@ const closeSettingsModal = () => {
     @open-add-block-modal="openAddBlockModal"
     @open-three-modal="openThreeModal"
     @open-settings-modal="openSettingsModal"
+    @toggle-fullscreen="toggleFullscreen"
   />
 
   <div v-show="!areBlocksHidden">
@@ -285,6 +290,8 @@ const closeSettingsModal = () => {
       :move-block="moveBlock"
     />
   </div>
+
+  <Toaster />
 </template>
 
 <style lang="scss" scoped>

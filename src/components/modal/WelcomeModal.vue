@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import { CURRENT_VERSION } from "@/constants";
+import { CURRENT_VERSION, MODIFIER_KEY } from "@/constants";
 import { getSafeLocalStorage, setSafeLocalStorage } from "@/utils";
 import BaseModal from "./BaseModal";
 
@@ -8,10 +8,6 @@ const emit = defineEmits(["close"]);
 
 const showLatestUpdates = computed(
   () => getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION,
-);
-
-const modifierKey = computed(() =>
-  /Macintosh|Mac OS X/i.test(navigator.userAgent) ? "⌘" : "ctrl",
 );
 
 const close = () => {
@@ -69,19 +65,19 @@ const close = () => {
       <div class="feature">
         <span class="description">undo:</span>
         <div>
-          <span class="key">{{ modifierKey }}</span> +
+          <span class="key">{{ MODIFIER_KEY }}</span> +
           <span class="key">z</span>
         </div>
       </div>
       <div class="feature">
         <span class="description">redo:</span>
         <div>
-          <span class="key">{{ modifierKey }}</span> +
+          <span class="key">{{ MODIFIER_KEY }}</span> +
           <span class="key">y</span>
         </div>
         <div>
           <span class="or-text">or</span>
-          <span class="key">{{ modifierKey }}</span> +
+          <span class="key">{{ MODIFIER_KEY }}</span> +
           <span class="key">shift</span> + <span class="key">z</span>
         </div>
       </div>

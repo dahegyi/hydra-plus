@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, reactive } from "vue";
+import { ref, computed, reactive } from "vue";
 import { useBroadcastChannel } from "@vueuse/core";
 import { deepCopy, flatten, flattenExternal } from "@/utils/object-utils";
 import { setSafeLocalStorage, showToast, setHueLights } from "@/utils";
@@ -35,9 +35,12 @@ export const useHydraStore = defineStore("hydra", () => {
   const codeString = ref("");
   const history = ref([]);
   const historyIndex = ref(0);
+  const canUndo = computed(() => historyIndex.value < history.value.length - 1);
+  const canRedo = computed(() => historyIndex.value > 0);
   const copied = ref(null);
   const copiedParent = ref(null);
   const isCut = ref(false);
+  // const canPaste = computed(() => copied.value !== null &&);
   const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
   // Actions
@@ -372,23 +375,31 @@ export const useHydraStore = defineStore("hydra", () => {
     }
   };
 
-  const performPaste = () => {
-    if (focused.value && focused.value !== copied.value) {
-      if (
-        (focused.value.type === TYPE_SRC &&
-          (copied.value.type === TYPE_SIMPLE ||
-            copied.value.type === TYPE_COMPLEX)) ||
-        (focused.value.type === TYPE_COMPLEX &&
-          copied.value.type === TYPE_SRC &&
-          focused.value.blocks.length < 1)
-      ) {
-        addChild(deepCopy(copied.value), !isCut.value);
-        return true;
-      }
-    } else if (
+  const canPasteChild = computed(
+    () =>
+      (focused.value &&
+        focused.value !== copied.value &&
+        focused.value?.type === TYPE_SRC &&
+        (copied.value?.type === TYPE_SIMPLE ||
+          copied.value?.type === TYPE_COMPLEX)) ||
+      (focused.value?.type === TYPE_COMPLEX &&
+        copied.value?.type === TYPE_SRC &&
+        focused.value?.blocks.length < 1),
+  );
+
+  const canPasteParent = computed(
+    () =>
       (!focused.value || focused.value === copied.value) &&
-      copied.value.type === TYPE_SRC
-    ) {
+      copied.value?.type === TYPE_SRC,
+  );
+
+  const canPaste = computed(() => canPasteChild.value || canPasteParent.value);
+
+  const performPaste = () => {
+    if (canPasteChild.value) {
+      addChild(deepCopy(copied.value), !isCut.value);
+      return true;
+    } else if (canPasteParent.value) {
       addParent(deepCopy(copied.value), !isCut.value);
       return true;
     }
@@ -409,7 +420,10 @@ export const useHydraStore = defineStore("hydra", () => {
     synthSettings,
     history,
     historyIndex,
+    canUndo,
+    canRedo,
     copied,
+    canPaste,
 
     // Actions
     updateRGB,
