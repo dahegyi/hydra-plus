@@ -182,13 +182,13 @@ export const EXTERNAL_SOURCE_FUNCTIONS = [
 ];
 
 export const THREE_FUNCTIONS = [
-  {
-    name: "3D",
-    params: {
-      name: "",
-      threeJsContent: "",
-    },
-  },
+  // {
+  //   name: "3D",
+  //   params: {
+  //     name: "",
+  //     threeJsContent: "",
+  //   },
+  // },
 ];
 
 export const GEOMETRY_FUNCTIONS = [
