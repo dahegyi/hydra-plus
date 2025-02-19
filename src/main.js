@@ -23,6 +23,10 @@ const router = createRouter({
 
 window.isButtonPressed = isButtonPressed;
 
+if (process.env.NODE_ENV === "production") {
+  document.addEventListener("contextmenu", (event) => event.preventDefault());
+}
+
 /* eslint-disable-next-line no-undef */
 gameControl.on("connect", function (gamepad) {
   const buttons = [

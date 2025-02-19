@@ -149,17 +149,17 @@ const goFullscreen = () => {
 
           <MenubarItem
             :disabled="!store.focused"
-            @click="store.copyBlock(false)"
-          >
-            Copy
-            <MenubarShortcut>{{ MODIFIER_KEY }}+C</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem
-            :disabled="!store.focused"
             @click="store.copyBlock(true)"
           >
             Cut
             <MenubarShortcut>{{ MODIFIER_KEY }}+X</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem
+            :disabled="!store.focused"
+            @click="store.copyBlock(false)"
+          >
+            Copy
+            <MenubarShortcut>{{ MODIFIER_KEY }}+C</MenubarShortcut>
           </MenubarItem>
           <MenubarItem :disabled="!store.canPaste" @click="store.pasteBlock">
             Paste

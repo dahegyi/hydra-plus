@@ -11,6 +11,18 @@ import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "@/components/ParentBlock";
 
 import Toaster from "@/components/ui/toast/Toaster";
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  // ContextMenuSub,
+  // ContextMenuSubContent,
+  // ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 const store = useHydraStore();
 
@@ -206,6 +218,13 @@ const handleChange = (isEnterKey = false) => {
   prevBlocks.value = deepCopy(newBlocks);
 };
 
+const canPasteOnPlayground = computed(() => store.copied?.type === "src");
+
+const pasteOnPlayground = () => {
+  store.setFocus(null);
+  store.pasteBlock();
+};
+
 const closeWelcomeModal = () => {
   isWelcomeModalOpen.value = false;
   setSafeLocalStorage("welcomeModalLastUpdate", CURRENT_VERSION);
@@ -255,7 +274,26 @@ const closeSettingsModal = () => {
     </div>
   </transition>
 
-  <div class="playground" @click="store.setFocus(null)" />
+  <ContextMenu>
+    <ContextMenuTrigger @click="store.setFocus(null)">
+      <div class="playground" @click="store.setFocus(null)" />
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+      <ContextMenuItem @click="openAddBlockModal()">New source</ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuCheckboxItem
+        :checked="areBlocksHidden"
+        @click="toggleFullscreen"
+      >
+        Hide UI
+        <ContextMenuShortcut>Esc</ContextMenuShortcut>
+      </ContextMenuCheckboxItem>
+      <ContextMenuSeparator v-if="canPasteOnPlayground" />
+      <ContextMenuItem v-if="canPasteOnPlayground" @click="pasteOnPlayground">
+        Paste
+      </ContextMenuItem>
+    </ContextMenuContent>
+  </ContextMenu>
 
   <navigation-panel
     v-show="!areBlocksHidden"
