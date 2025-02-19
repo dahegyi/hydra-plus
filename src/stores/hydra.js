@@ -408,6 +408,10 @@ export const useHydraStore = defineStore("hydra", () => {
       return true;
     }
 
+    showErrorToast(
+      `Can't paste here: pasting ${copied.value.name} into ${focused.value.name}`,
+    );
+
     return false;
   };
 

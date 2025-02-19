@@ -13,6 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+} from "@/components/ui/context-menu";
 
 const props = defineProps({
   parent: {
@@ -36,6 +43,14 @@ const canHaveChild = (element) => {
     element.type === TYPE_SRC ||
     (element.type === TYPE_COMPLEX && element.blocks.length === 0)
   );
+};
+
+const canHaveSourceChild = (element) => {
+  return element.type === TYPE_COMPLEX && element.blocks.length === 0;
+};
+
+const canHaveEffectChild = (element) => {
+  return element.type === TYPE_SRC;
 };
 
 const handleAddBlockModal = (element) => {
@@ -68,6 +83,28 @@ const handleEnd = () => {
 
   props.handleChange();
 };
+
+// context menu
+
+const canPasteChild = (element) => {
+  store.setFocus(element);
+  return store.canPaste;
+};
+
+const cut = (element) => {
+  store.setFocus(element, props.parent);
+  store.copyBlock(true);
+};
+
+const copy = (element) => {
+  store.setFocus(element);
+  store.copyBlock();
+};
+
+const paste = (element) => {
+  store.setFocus(element);
+  store.pasteBlock();
+};
 </script>
 
 <template>
@@ -88,69 +125,99 @@ const handleEnd = () => {
   >
     <template #item="{ element }">
       <li :class="{ focused: store.focused === element }" @click.stop="">
-        <div class="params">
-          <strong>
-            <span class="name" @click.stop="store.setFocus(element, parent)">
-              {{ element.name }}
-            </span>
-            <span
-              class="delete"
-              @click.stop="store.deleteChild({ element, parent })"
-            />
-          </strong>
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <div class="params">
+              <strong>
+                <span
+                  class="name"
+                  @click.stop="store.setFocus(element, parent)"
+                >
+                  {{ element.name }}
+                </span>
+                <span
+                  class="delete"
+                  @click.stop="store.deleteChild({ element, parent })"
+                />
+              </strong>
 
-          <div
-            v-if="element.name === 'src'"
-            class="flex items-center"
-            @click.stop="store.setFocus(element, parent)"
-          >
-            <Label class="min-w-24">{{
-              PARAM_MAPPINGS[element.name][0]
-            }}</Label>
-            <Select
-              v-model="element.params[0]"
-              @update:model-value="props.handleChange"
+              <div
+                v-if="element.name === 'src'"
+                class="flex items-center"
+                @click.stop="store.setFocus(element, parent)"
+              >
+                <Select
+                  v-model="element.params[0]"
+                  @update:model-value="props.handleChange"
+                >
+                  <SelectTrigger class="bg-zinc-900">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      v-for="(source, sIndex) in store.externalSourceBlocks"
+                      :key="sIndex"
+                      :value="'s' + sIndex"
+                    >
+                      s{{ sIndex }} - {{ source.name }}
+                    </SelectItem>
+                    <SelectItem
+                      v-for="(output, oIndex) in store.blocks"
+                      :key="oIndex"
+                      :value="'o' + oIndex"
+                    >
+                      o{{ oIndex }} - {{ output.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div
+                v-for="(param, paramIndex) in element.params?.length"
+                v-else
+                :key="paramIndex"
+                class="flex items-center"
+                @click.stop="store.setFocus(element, parent)"
+              >
+                <Label class="min-w-24">
+                  {{ PARAM_MAPPINGS[element.name][paramIndex] }}
+                </Label>
+                <Input
+                  v-model="element.params[paramIndex]"
+                  class="bg-zinc-900"
+                  @focusin="store.setInputFocus(true)"
+                  @focusout="handleChange"
+                />
+              </div>
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem
+              v-if="canHaveSourceChild(element)"
+              @click="handleAddBlockModal(element)"
             >
-              <SelectTrigger class="bg-zinc-900">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem
-                  v-for="(source, sIndex) in store.externalSourceBlocks"
-                  :key="sIndex"
-                  :value="'s' + sIndex"
-                >
-                  {{ source.name }}
-                </SelectItem>
-                <SelectItem
-                  v-for="(output, oIndex) in store.blocks"
-                  :key="oIndex"
-                  :value="'o' + oIndex"
-                >
-                  {{ output.name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div
-            v-for="(param, paramIndex) in element.params?.length"
-            v-else
-            :key="paramIndex"
-            class="flex items-center"
-            @click.stop="store.setFocus(element, parent)"
-          >
-            <Label class="min-w-24">
-              {{ PARAM_MAPPINGS[element.name][paramIndex] }}
-            </Label>
-            <Input
-              v-model="element.params[paramIndex]"
-              class="bg-zinc-900"
-              @focusin="store.setInputFocus(true)"
-              @focusout="handleChange"
-            />
-          </div>
-        </div>
+              Add source
+            </ContextMenuItem>
+            <ContextMenuItem
+              v-if="canHaveEffectChild(element)"
+              @click="handleAddBlockModal(element)"
+            >
+              Add effect
+            </ContextMenuItem>
+            <ContextMenuSeparator v-if="canHaveChild(element)" />
+            <ContextMenuItem @click="cut(element)">Cut</ContextMenuItem>
+            <ContextMenuItem @click="copy(element)">Copy</ContextMenuItem>
+            <ContextMenuItem
+              :disabled="!canPasteChild(element)"
+              @click="paste(element)"
+            >
+              Paste
+            </ContextMenuItem>
+            <ContextMenuItem @click="store.deleteChild({ element, parent })">
+              Delete
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
         <nested-draggable
           v-if="element.blocks"
@@ -221,7 +288,7 @@ ul {
     li {
       padding: $spacing 0 0 $spacing;
 
-      > ul {
+      > ul.button-visible {
         margin-left: -$spacing;
       }
     }
@@ -253,7 +320,7 @@ ul {
     }
 
     &:hover {
-      background: #ffffff25;
+      background: #ffffff16;
     }
 
     &:last-child {
@@ -261,7 +328,7 @@ ul {
     }
 
     &.focused {
-      background: #ffffff40;
+      background: #ffffff30;
     }
 
     .params {

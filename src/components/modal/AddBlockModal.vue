@@ -100,6 +100,7 @@ const handleAddBlock = (parentType, fn) => {
       return;
     }
 
+    store.setFocus(props.parent);
     store.addChild(fn);
   }
 
