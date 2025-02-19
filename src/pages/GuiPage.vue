@@ -218,7 +218,7 @@ const handleChange = (isEnterKey = false) => {
   prevBlocks.value = deepCopy(newBlocks);
 };
 
-const canPasteOnPlayground = computed(() => store.copied?.type === "src");
+const canPasteOnPlayground = computed(() => store.copied?.type === "source");
 
 const pasteOnPlayground = () => {
   store.setFocus(null);
