@@ -31,7 +31,7 @@ const prevBlocks = ref(null);
 const movedBlockCoordinates = ref({ x: 0, y: 0 });
 const areBlocksHidden = ref(false);
 const addBlockModalParent = ref(null);
-const isWelcomeModalOpen = ref(false);
+const isWelcomeModalOpen = ref(true);
 const isAddBlockModalOpen = ref(false);
 const isThreeModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
@@ -44,6 +44,37 @@ const isAnyModalOpen = computed(() => {
     isSettingsModalOpen.value
   );
 });
+
+// set up keyboard shortcuts
+const onKeyDown = (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    if (!store.isInputFocused) {
+      const isUndo = e.keyCode === 90 && !e.shiftKey;
+      const isRedo = e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey);
+      const isCopy = e.keyCode === 67;
+      const isCut = e.keyCode === 88;
+      const isPaste = e.keyCode === 86;
+
+      if (isUndo || isRedo || isCopy || isCut || isPaste) {
+        e.preventDefault();
+      }
+
+      if (isUndo) return store.undoRedo(1);
+      if (isRedo) return store.undoRedo(-1);
+      if (isCopy) return store.copyBlock(false);
+      if (isCut) return store.copyBlock(true);
+      if (isPaste) return store.pasteBlock();
+    }
+  }
+
+  if (e.key === "Escape" && !isAnyModalOpen.value) {
+    return toggleFullscreen();
+  }
+
+  if (e.key === "Enter" && store.isInputFocused) {
+    return handleChange(true);
+  }
+};
 
 onMounted(() => {
   // show welcome modal
@@ -85,42 +116,7 @@ onMounted(() => {
     ...deepCopy(store.externalSourceBlocks),
   ];
 
-  // set up keyboard shortcuts
-  const onKeyDown = (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      if (!store.isInputFocused) {
-        const isUndo = e.keyCode === 90 && !e.shiftKey;
-        const isRedo = e.keyCode === 89 || (e.keyCode === 90 && e.shiftKey);
-        const isCopy = e.keyCode === 67;
-        const isCut = e.keyCode === 88;
-        const isPaste = e.keyCode === 86;
-
-        if (isUndo || isRedo || isCopy || isCut || isPaste) {
-          e.preventDefault();
-        }
-
-        if (isUndo) return store.undoRedo(1);
-        if (isRedo) return store.undoRedo(-1);
-        if (isCopy) return store.copyBlock(false);
-        if (isCut) return store.copyBlock(true);
-        if (isPaste) return store.pasteBlock();
-      }
-    }
-
-    // toggle blocks
-    if (e.key === "Escape") {
-      if (isAddBlockModalOpen.value) return closeAddBlockModal();
-      if (isSettingsModalOpen.value) return closeSettingsModal();
-      if (isThreeModalOpen.value) return closeThreeModal();
-      return toggleFullscreen();
-    }
-
-    if (store.isInputFocused && e.key === "Enter") {
-      return handleChange(true);
-    }
-  };
-
-  document.onkeydown = onKeyDown;
+  document.addEventListener("keydown", onKeyDown);
 });
 
 onUpdated(() => {
@@ -130,8 +126,7 @@ onUpdated(() => {
 const toggleFullscreen = () => (areBlocksHidden.value = !areBlocksHidden.value);
 
 const moveAllBlocks = () => {
-  // move source blocks to their position
-  // @todo: this is a bit confusing, could simplify
+  // move source blocks to their positions
   store.blocks.forEach((block, index) => {
     moveBlock(null, index, block.type, block.position);
   });

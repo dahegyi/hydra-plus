@@ -1,5 +1,9 @@
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
+import { CURRENT_VERSION } from "@/constants";
+import { setSafeLocalStorage } from "@/utils";
+
+import { Button } from "@/components/ui/button";
 
 const emit = defineEmits(["close"]);
 
@@ -16,6 +20,10 @@ const props = defineProps({
 });
 
 const close = () => {
+  if (props.modalName === "WelcomeModal") {
+    setSafeLocalStorage("welcomeModalLastUpdate", CURRENT_VERSION);
+  }
+
   emit("close");
 };
 
@@ -23,10 +31,10 @@ const title = computed(() => {
   const { modalName } = props;
 
   if (modalName === "WelcomeModal") return "";
-  if (modalName === "SettingsModal") return "Settings";
+  if (modalName === "SettingsModal") return "settings";
   if (modalName === "ThreeModal") return "3D settings";
-  if (modalName === "AddSourceModal") return "Add source";
-  if (modalName === "AddEffectModal") return "Add effect";
+  if (modalName === "AddSourceModal") return "add source";
+  if (modalName === "AddEffectModal") return "add effect";
   return "Default Title";
 });
 
@@ -45,11 +53,19 @@ const customClass = computed(() => {
       return "";
   }
 });
+
+const closeOnEsc = (e) => {
+  if (e.key === "Escape") close();
+};
+
+onMounted(() => {
+  document.addEventListener("keydown", closeOnEsc);
+});
 </script>
 
 <template>
-  <div class="modal-container">
-    <div :class="['modal', customClass]">
+  <div class="modal-container" @click="close">
+    <div :class="['modal', customClass]" @click="(e) => e.stopPropagation()">
       <div v-if="title" class="header">
         <h2>{{ title }}</h2>
         <span class="close" @click="close" />
@@ -57,6 +73,10 @@ const customClass = computed(() => {
 
       <div class="content">
         <slot />
+
+        <Button v-if="modalName === 'WelcomeModal'" class="mt-8" @click="close">
+          Let's go!
+        </Button>
       </div>
     </div>
   </div>
@@ -77,8 +97,8 @@ const customClass = computed(() => {
   justify-content: center;
   padding: 15px;
   animation: opacity-in 0.1s ease-in-out;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   background: rgba(0, 0, 0, 0.3);
 
   .modal {
@@ -125,11 +145,11 @@ const customClass = computed(() => {
       }
 
       .close {
-        padding: 10px;
+        padding: 8px 12px;
         margin: 0 0 0 12px;
         background: #111;
         cursor: pointer;
-        font-size: 1.8rem;
+        font-size: 1.4rem;
 
         &:before {
           color: $color-red;

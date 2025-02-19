@@ -1,123 +1,21 @@
 <script setup>
-import { computed } from "vue";
-import { CURRENT_VERSION, MODIFIER_KEY } from "@/constants";
-import { getSafeLocalStorage, setSafeLocalStorage } from "@/utils";
+// import { computed } from "vue";
+// import { CURRENT_VERSION } from "@/constants";
+// import { getSafeLocalStorage } from "@/utils";
 import BaseModal from "./BaseModal";
 
-const emit = defineEmits(["close"]);
-
-const showLatestUpdates = computed(
-  () => getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION,
-);
-
-const close = () => {
-  setSafeLocalStorage("welcomeModalLastUpdate", CURRENT_VERSION);
-  emit("close");
-};
+// const showLatestUpdates = computed(
+//   () => getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION,
+// );
 </script>
 
 <template>
-  <BaseModal modal-name="WelcomeModal">
-    <h2 v-if="showLatestUpdates">welcome to 0.8!</h2>
-    <h2 v-else>welcome!</h2>
-
-    <span v-if="showLatestUpdates">
-      <strong>version 0.8.0 contains a couple cool stuff:</strong>
-
-      <ul>
-        <li>
-          redesigned ui that allows a more user friendly effect adding and
-          dragging
-        </li>
-        <li>previews for effects in the add effect modal</li>
-        <li>previews for external sources</li>
-        <li>a slightly better touchscreen support</li>
-        <li>…and of course some optimizations and fixes</li>
-      </ul>
-
-      <p>
-        if you experience issues with your previous configs, just rewrite the
-        [object Object] texts in the inputs and it'll be fine :)
-      </p>
-    </span>
-    <span v-else>
-      <p>
-        <strong>hydra+</strong> is a graphical user interface for
-        <a href="https://hydra.ojack.xyz/" target="_blank">hydra</a>, a
-        javascript library for livecoding visuals.
-      </p>
-      <p>
-        please refer to the
-        <a href="https://hydra.ojack.xyz/api/">hydra api</a> for information on
-        how to use the synthatizer.
-      </p>
-
-      <hr />
-
-      <h3>usable key combos:</h3>
-
-      <div class="feature">
-        <span class="description">update:</span>
-        <div>
-          <span class="key" data-type="enter">↵</span>
-        </div>
-      </div>
-      <div class="feature">
-        <span class="description">undo:</span>
-        <div>
-          <span class="key">{{ MODIFIER_KEY }}</span> +
-          <span class="key">z</span>
-        </div>
-      </div>
-      <div class="feature">
-        <span class="description">redo:</span>
-        <div>
-          <span class="key">{{ MODIFIER_KEY }}</span> +
-          <span class="key">y</span>
-        </div>
-        <div>
-          <span class="or-text">or</span>
-          <span class="key">{{ MODIFIER_KEY }}</span> +
-          <span class="key">shift</span> + <span class="key">z</span>
-        </div>
-      </div>
-      <div class="feature">
-        <span class="description">toggle ui visibility:</span>
-        <div>
-          <span class="key">esc</span>
-        </div>
-      </div>
-
-      <hr />
-    </span>
-
-    <br />
-
-    <span
-      >thank you for using hydra+, your feedback, shared via
-      <a href="https://github.com/dahegyi/hydra-plus/issues" target="_blank"
-        >github</a
-      >
-      or the
-
-      <a
-        href="https://docs.google.com/forms/d/e/1FAIpQLScHReMCjuubz10UI9SD2cESGI0MA6X4n7hhuP8HI9jsWyZLzA/viewform"
-        target="_blank"
-        >feedback form</a
-      >
-      is highly appreciated.
-      <br />
-      <br />
-      happy hacking! ❤️‍🔥
-    </span>
-
-    <button @click="close">close</button>
-  </BaseModal>
+  <BaseModal modal-name="WelcomeModal"> content </BaseModal>
 </template>
 
 <style lang="scss" scoped>
-h2 {
-  margin: 2rem auto 1rem;
+h1 {
+  margin: 1.2rem auto;
 }
 
 p {
@@ -186,9 +84,5 @@ p {
 li {
   padding: 4px 0px 4px 20px;
   text-align: left;
-}
-
-button {
-  margin: 16px auto 10px;
 }
 </style>
