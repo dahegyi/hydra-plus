@@ -1,14 +1,51 @@
-import Toastify from "toastify-js";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-export const showToast = (error) => {
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+const safeKeys = [
+  "blocks",
+  "externalSourceBlocks",
+  "synthSettings",
+  "welcomeModalLastUpdate",
+];
+
+export const getSafeLocalStorage = (key) => {
+  if (safeKeys.includes(key)) {
+    if (localStorage.getItem(key)) {
+      try {
+        return JSON.parse(localStorage.getItem(key));
+      } catch {
+        return localStorage.getItem(key);
+      }
+    }
+    return;
+  } else {
+    return console.error(`Key not found in localStorage safe keys: ${key}`);
+  }
+};
+
+export const setSafeLocalStorage = (key, value) => {
+  if (safeKeys.includes(key)) {
+    if (typeof value === "object") {
+      localStorage.setItem(key, JSON.stringify(value));
+    } else {
+      localStorage.setItem(key, value);
+    }
+  }
+};
+
+export const showErrorToast = (error) => {
   console.error(error);
-  Toastify({
-    text: error,
-    duration: 4000,
-    close: true,
-    gravity: "bottom",
-    stopOnFocus: true,
-  }).showToast();
+  toast({
+    title: "Error",
+    description: error,
+  });
 };
 
 export const setHueLights = async (state) => {
@@ -60,7 +97,7 @@ export const setHueLights = async (state) => {
       const data = await response.json();
       console.log(data);
     } catch (error) {
-      showToast(error);
+      showErrorToast(error);
     }
   }
 };

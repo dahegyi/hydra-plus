@@ -1,13 +1,30 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
-import { useStore } from "vuex";
-import { stateToProps, createDispatchAction } from "~/utils/vuex-utils";
+import { useHydraStore } from "@/stores/hydra";
 
-import { showToast } from "~/utils";
+import { showErrorToast } from "@/utils";
 
-import { TYPE_SRC, PARAM_MAPPINGS } from "~/constants";
+import { TYPE_SRC, TYPE_THREE, PARAM_MAPPINGS } from "@/constants";
 
-import NestedDraggable from "~/components/NestedDraggable";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+
+import NestedDraggable from "@/components/NestedDraggable";
 
 const props = defineProps({
   index: {
@@ -36,13 +53,7 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
-const state = store.state;
-
-const { synthSettings, blocks, externalSourceBlocks, focused } = stateToProps(
-  state,
-  ["synthSettings", "blocks", "externalSourceBlocks", "focused"],
-);
+const store = useHydraStore();
 
 const blockHeader = computed(() => {
   return `${props.block.type === TYPE_SRC ? "o" : "s"}${props.index} - ${
@@ -50,11 +61,7 @@ const blockHeader = computed(() => {
   }`;
 });
 
-const dispatchAction = createDispatchAction(store);
-const setFocus = dispatchAction("setFocus");
-const deleteParent = dispatchAction("deleteParent");
-const setOutput = dispatchAction("setOutput");
-const setInputFocus = dispatchAction("setInputFocus");
+const isActive = computed(() => store.synthSettings.output === props.index);
 
 const hydra = ref(window.hydra);
 const cameraNames = ref([]);
@@ -73,17 +80,38 @@ onMounted(async () => {
       cameraNames.value.push(`${i} - ${videoInput.label}`);
     }
   } catch (error) {
-    showToast("Error accessing video devices:", error);
+    showErrorToast("Error accessing video devices:", error);
   }
 });
 
-const handleHeaderClick = (clickedBlock) => {
-  if (props.focused === clickedBlock) return;
-  setFocus(clickedBlock);
-};
-
 const togglePreview = () => {
   isPreviewOpen.value = !isPreviewOpen.value;
+};
+
+const showLabel = (blockName) => {
+  return blockName !== "initCam" && blockName !== "src";
+};
+
+const cut = () => {
+  store.setFocus(props.block);
+  store.copyBlock(true);
+};
+
+const copy = () => {
+  store.setFocus(props.block);
+  store.copyBlock();
+};
+
+const paste = () => {
+  store.setFocus(props.block);
+  store.pasteBlock();
+};
+
+const deleteParent = () => {
+  store.deleteParent({
+    type: props.block.type,
+    index: props.index,
+  });
 };
 </script>
 
@@ -98,148 +126,196 @@ const togglePreview = () => {
 -->
 
 <template>
-  <div
-    :id="`${props.block.type}-block-${props.index}`"
-    :class="[
-      'parent-block',
-      props.block.type,
-      { focused: focused === props.block },
-    ]"
-  >
-    <div
-      class="output-header"
-      @click="handleHeaderClick(blocks[props.index])"
-      @mousedown="(e) => props.moveBlock(e, props.index, props.block.type)"
-      @touchstart="(e) => props.moveBlock(e, props.index, props.block.type)"
-    >
-      <div id="drag-handle" class="drag-handle" />
-
-      {{ blockHeader }}
-
-      <div>
-        <span
-          v-if="props.block.type === TYPE_SRC"
-          :class="[
-            'activate',
-            { active: synthSettings?.output === props.index },
-          ]"
-          @click="setOutput(index)"
-          @touchstart="setOutput(index)"
-        />
-
-        <span
-          v-else
-          :class="['preview', { open: isPreviewOpen }]"
-          @click="togglePreview"
-          @touchstart="togglePreview"
-        />
-
-        <span
-          class="delete"
-          @click="deleteParent({ type: props.block.type, index: props.index })"
-          @touchstart="
-            deleteParent({ type: props.block.type, index: props.index })
-          "
-        />
-      </div>
-    </div>
-
-    <div>
+  <ContextMenu>
+    <ContextMenuTrigger>
       <div
-        v-for="(param, paramIndex) in props.block.params?.length"
-        :key="paramIndex"
-        class="param-input-container"
+        :id="`${block.type}-block-${index}`"
+        :class="[
+          'parent-block',
+          block.type,
+          { focused: store.focused === block },
+        ]"
       >
-        <label>{{ PARAM_MAPPINGS[props.block.name][paramIndex] }}</label>
-
-        <select
-          v-if="props.block.name === 'initCam'"
-          v-model="props.block.params[paramIndex]"
-          @change="() => props.handleChange()"
+        <div
+          class="output-header"
+          @click="store.setFocus(store.blocks[index])"
+          @mousedown="(e) => moveBlock(e, index, block.type)"
+          @touchstart="(e) => moveBlock(e, index, block.type)"
         >
-          <option
-            v-for="(name, camIndex) in cameraNames"
-            :key="'cam' + camIndex"
-            :value="camIndex"
-          >
-            {{ name }}
-          </option>
-        </select>
+          <div id="drag-handle" class="drag-handle" />
 
-        <select
-          v-else-if="props.block.name === 'src'"
-          v-model="props.block.params[paramIndex]"
-          @change="() => props.handleChange()"
-        >
-          <option
-            v-for="(source, sIndex) in externalSourceBlocks"
-            :key="'s' + sIndex"
-            :value="'s' + sIndex"
-          >
-            s{{ sIndex }} - {{ source.name }}
-          </option>
-          <option
-            v-for="(output, oIndex) in blocks"
-            :key="'o' + oIndex"
-            :value="'o' + oIndex"
-          >
-            o{{ oIndex }} - {{ output.name }}
-          </option>
-        </select>
+          {{ blockHeader }}
 
-        <input
-          v-else
-          v-model="props.block.params[paramIndex]"
-          type="text"
-          @focusin="setInputFocus(true)"
-          @focusout="() => props.handleChange()"
+          <div>
+            <span
+              v-if="block.type === TYPE_SRC"
+              :class="['activate', { active: isActive }]"
+              @click="store.setOutput(index)"
+              @touchstart="store.setOutput(index)"
+            />
+
+            <span
+              v-else
+              :class="['preview', { open: isPreviewOpen }]"
+              @click="togglePreview"
+              @touchstart="togglePreview"
+            />
+
+            <span
+              class="delete"
+              @click="deleteParent"
+              @touchstart="deleteParent"
+            />
+          </div>
+        </div>
+
+        <div v-if="block.type !== TYPE_THREE">
+          <div
+            v-for="(param, paramIndex) in block.params?.length"
+            :key="paramIndex"
+            class="param-input-container flex"
+          >
+            <Label
+              v-if="showLabel(block.name)"
+              :for="`${block.type}-block-${index}-param-${paramIndex}`"
+              class="min-w-24"
+            >
+              {{ PARAM_MAPPINGS[block.name][paramIndex] }}
+            </Label>
+
+            <Select
+              v-if="block.name === 'initCam'"
+              :id="`${block.type}-block-${index}-param-${paramIndex}`"
+              v-model="block.params[paramIndex]"
+              @update:model-value="handleChange"
+            >
+              <SelectTrigger class="bg-zinc-900">
+                <SelectValue>
+                  {{ cameraNames[block.params[paramIndex]] }}
+                </SelectValue>
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem
+                  v-for="(name, camIndex) in cameraNames"
+                  :key="'cam' + camIndex"
+                  :value="String(camIndex)"
+                >
+                  {{ name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              v-else-if="block.name === 'src'"
+              :id="`${block.type}-block-${index}-param-${paramIndex}`"
+              v-model="block.params[paramIndex]"
+              @update:model-value="handleChange"
+            >
+              <SelectTrigger class="bg-zinc-900">
+                <SelectValue />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem
+                  v-for="(source, sIndex) in store.externalSourceBlocks"
+                  :key="`s${sIndex}`"
+                  :value="`s${sIndex}`"
+                >
+                  s{{ sIndex }} - {{ source.name }}
+                </SelectItem>
+                <SelectItem
+                  v-for="(output, oIndex) in store.blocks"
+                  :key="`o${oIndex}`"
+                  :value="`o${oIndex}`"
+                >
+                  o{{ oIndex }} - {{ output.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Input
+              v-else
+              :id="`${block.type}-block-${index}-param-${paramIndex}`"
+              v-model="block.params[paramIndex]"
+              class="bg-zinc-900 my-0"
+              @focusin="store.setInputFocus(true)"
+              @focusout="() => handleChange()"
+            />
+          </div>
+
+          <div v-if="isPreviewOpen">
+            <img
+              v-if="block.name === 'initImage'"
+              :src="hydra[`s${index}`].src?.src"
+            />
+
+            <video
+              v-else-if="block.name === 'initVideo'"
+              :src="hydra[`s${index}`].src?.src"
+              autoplay
+              muted
+              loop
+            />
+
+            <video
+              v-else-if="
+                block.name === 'initCam' || block.name === 'initScreen'
+              "
+              :srcObject="hydra[`s${index}`].src?.srcObject"
+              :class="block.name"
+              autoplay
+              muted
+            />
+
+            <!-- @todo 3D preview -->
+          </div>
+        </div>
+
+        <div v-else>
+          <div class="param-input-container">
+            <button @click="openThreeModal">Open 3D settings</button>
+          </div>
+        </div>
+
+        <nested-draggable
+          v-if="block.blocks"
+          :parent="block"
+          :handle-change="() => handleChange()"
+          :open-add-block-modal="openAddBlockModal"
         />
       </div>
-
-      <div v-if="isPreviewOpen">
-        <img
-          v-if="props.block.name === 'initImage'"
-          :src="hydra[`s${index}`].src?.src"
-        />
-
-        <video
-          v-else-if="props.block.name === 'initVideo'"
-          :src="hydra[`s${index}`].src?.src"
-          autoplay
-          muted
-          loop
-        />
-
-        <video
-          v-else-if="
-            props.block.name === 'initCam' || props.block.name === 'initScreen'
-          "
-          :srcObject="hydra[`s${index}`].src?.srcObject"
-          :class="props.block.name"
-          autoplay
-          muted
-        />
-      </div>
-    </div>
-
-    <nested-draggable
-      v-if="props.block.blocks"
-      :children="props.block.blocks"
-      :parent="props.block"
-      :handle-change="() => props.handleChange()"
-      :open-add-block-modal="props.openAddBlockModal"
-    />
-  </div>
+    </ContextMenuTrigger>
+    <ContextMenuContent>
+      <ContextMenuCheckboxItem
+        :checked="isActive"
+        @click="store.setOutput(index)"
+      >
+        Set active output
+      </ContextMenuCheckboxItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem @click="openAddBlockModal(block)">
+        New effect
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem @click="cut">Cut</ContextMenuItem>
+      <ContextMenuItem @click="copy">Copy</ContextMenuItem>
+      <ContextMenuItem @click="paste">Paste</ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem @click="deleteParent">Delete</ContextMenuItem>
+    </ContextMenuContent>
+  </ContextMenu>
 </template>
 
 <style lang="scss" scoped>
-@import "~/assets/styles/variables";
+@use "@/assets/styles/variables" as *;
 
 $spacing: 8px;
 
 .parent-block {
   position: absolute;
   display: flex;
+  overflow: hidden;
   width: min(360px, 80%);
   flex-direction: column;
   border-radius: 0 $border-radius 0 $border-radius;
@@ -299,8 +375,8 @@ $spacing: 8px;
       width: calc($spacing * 2.5);
 
       &:after {
-        width: calc($iconSize / 3);
-        height: calc($iconSize / 3);
+        width: calc($iconSize / 1.5);
+        height: calc($iconSize / 1.5);
         border: calc($spacing / 2) solid #000;
         border-radius: 50%;
       }
@@ -316,12 +392,12 @@ $spacing: 8px;
       top: calc($spacing + 1px);
       right: calc($iconSize + $spacing * 1.5);
       width: calc($iconSize - 2px);
-      background-image: url(~/assets/eye-off.svg);
+      background-image: url(@/assets/eye-off.svg);
       background-repeat: no-repeat;
       background-size: contain;
 
       &.open {
-        background-image: url(~/assets/eye-show.svg);
+        background-image: url(@/assets/eye-show.svg);
       }
     }
 
@@ -334,7 +410,7 @@ $spacing: 8px;
         top: calc($spacing * 1.4);
         left: calc($spacing / 4);
         width: calc($spacing * 2);
-        border-top: 2px solid #000;
+        border-top: 3px solid #000;
       }
 
       &:before {
@@ -356,6 +432,11 @@ $spacing: 8px;
 
     &:last-of-type {
       padding-bottom: $spacing;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
     }
   }
 
@@ -385,42 +466,42 @@ $spacing: 8px;
       }
     }
 
-    &:nth-child(1) {
+    &#source-block-0 {
       $color: #fff81e;
       @include block-colors();
     }
 
-    &:nth-child(2) {
+    &#source-block-1 {
       $color: #b8f770;
       @include block-colors();
     }
 
-    &:nth-child(3) {
+    &#source-block-2 {
       $color: #3bd5f0;
       @include block-colors();
     }
 
-    &:nth-child(4) {
+    &#source-block-3 {
       $color: #ff8fec;
       @include block-colors();
     }
 
-    &:nth-child(5) {
+    &#source-block-4 {
       $color: #9063f3;
       @include block-colors();
     }
 
-    &:nth-child(6) {
+    &#source-block-5 {
       $color: #ef8c56;
       @include block-colors();
     }
 
-    &:nth-child(7) {
+    &#source-block-6 {
       $color: #4282d6;
       @include block-colors();
     }
 
-    &:nth-child(8) {
+    &#source-block-7 {
       $color: #ea7979;
       @include block-colors();
     }
@@ -431,24 +512,17 @@ $spacing: 8px;
       background: #f1a3a3;
     }
 
-    .param-input-container {
-      padding: calc($spacing * 1.5) $spacing calc($spacing * 1.5)
-        calc($spacing * 1.5);
-    }
-
     img,
     video {
-      width: calc(100% - #{$spacing * 2});
+      width: 100%;
       max-height: 200px;
-      border-radius: 0 0 0 $border-radius;
-      margin: 0 $spacing;
       object-fit: cover;
     }
-
-    // initScreen doesn't have inputs so margin is needed
-    .initScreen {
-      margin-top: calc($spacing * 1.5);
-    }
   }
+}
+
+input {
+  font-family: "Fira Code", monospace;
+  font-size: 0.8em;
 }
 </style>

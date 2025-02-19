@@ -23,6 +23,7 @@
     ".next/*",
     ".out/*",
     "!.prettierrc.js",
-    "src/external/*"
+    "src/external/*",
+    "src/components/ui/*"
   ]
 }

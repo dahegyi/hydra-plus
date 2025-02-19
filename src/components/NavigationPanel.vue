@@ -1,22 +1,24 @@
-<template>
-  <div class="navigation">
-    <div>
-      <div class="dropdown">
-        <button @click="openAddBlockModal">new source</button>
-      </div>
-    </div>
+<script setup>
+import { computed } from "vue";
+import { useHydraStore } from "@/stores/hydra";
+import { MODIFIER_KEY } from "@/constants";
 
-    <div>
-      <button @click="openThreeModal">3D settings</button>
-      <button class="settings" @click="openSettingsModal">
-        synth settings
-      </button>
-      <button class="send" @click="handleSend">send</button>
-    </div>
-  </div>
-</template>
-<script>
-import { mapActions } from "vuex";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  // MenubarSub,
+  // MenubarSubContent,
+  // MenubarSubTrigger,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { Button } from "@/components/ui/button";
+
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 
 // // @todo: losing window focus breaks the beat counter
 // let beatHappened = false;
@@ -48,83 +50,163 @@ import { mapActions } from "vuex";
 //   }
 // };
 
-export default {
-  emits: ["openAddBlockModal", "openThreeModal", "openSettingsModal"],
+const store = useHydraStore();
 
-  data() {
-    return {
-      waitingForBeat: false,
-    };
-  },
+const emit = defineEmits([
+  "openAddBlockModal",
+  "openThreeModal",
+  "openSettingsModal",
+  "toggleFullscreen",
+]);
 
-  methods: {
-    ...mapActions(["send"]),
+// const waitingForBeat = ref(false);
 
-    handleSend() {
-      // if (!this.waitingForBeat) {
-      //   this.waitingForBeat = true;
-      //   const checkInterval = setInterval(() => {
-      //     if (beatCounter === 0) {
-      //       clearInterval(checkInterval);
-      //       this.waitingForBeat = false;
-      //       this.send();
-      //     }
-      //   }, 10);
-      // }
+const handleSend = () => {
+  // if (!this.waitingForBeat) {
+  //   this.waitingForBeat = true;
+  //   const checkInterval = setInterval(() => {
+  //     if (beatCounter === 0) {
+  //       clearInterval(checkInterval);
+  //       this.waitingForBeat = false;
+  //       this.send();
+  //     }
+  //   }, 10);
+  // }
 
-      this.send();
-    },
+  store.send();
+};
 
-    openAddBlockModal() {
-      this.$emit("openAddBlockModal");
-    },
+const openAddBlockModal = () => {
+  emit("openAddBlockModal");
+};
 
-    openThreeModal() {
-      this.$emit("openThreeModal");
-    },
+const isAddEffectModalDisabled = computed(() => {
+  const { focused } = store;
+  return (
+    !focused ||
+    (focused.type === "complex" && focused.blocks.length > 0) ||
+    focused.type === "external"
+  );
+});
 
-    openSettingsModal() {
-      this.$emit("openSettingsModal");
-    },
-  },
+const openAddEffectModal = () => {
+  emit("openAddBlockModal", store.focused);
+};
+
+// const openThreeModal = () => {
+//   emit("openThreeModal");
+// };
+
+const openVisualizerPage = () => {
+  window.open("/visualizer", "_blank");
+};
+
+const openSettingsModal = () => {
+  emit("openSettingsModal");
+};
+
+const goFullscreen = () => {
+  emit("toggleFullscreen");
+
+  toast({
+    title: "Entered fullscreen mode",
+    description: "Press Esc to exit",
+  });
 };
 </script>
 
-<style lang="scss" scoped>
-@import "~/assets/styles/variables";
+<template>
+  <div class="navigation">
+    <Menubar>
+      <MenubarMenu>
+        <MenubarTrigger>New</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem @click="openAddBlockModal"> Source </MenubarItem>
+          <MenubarItem
+            :disabled="isAddEffectModalDisabled"
+            @click="openAddEffectModal"
+          >
+            Effect
+          </MenubarItem>
+          <!-- <MenubarSeparator />
+        <MenubarItem disabled> Scene </MenubarItem> -->
+        </MenubarContent>
+      </MenubarMenu>
 
+      <MenubarMenu>
+        <MenubarTrigger>Edit</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem :disabled="!store.canUndo" @click="store.undoRedo(1)">
+            Undo
+            <MenubarShortcut>{{ MODIFIER_KEY }}+Z</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem :disabled="!store.canRedo" @click="store.undoRedo(-1)">
+            Redo
+            <MenubarShortcut>{{ MODIFIER_KEY }}+Y</MenubarShortcut>
+          </MenubarItem>
+
+          <MenubarSeparator />
+
+          <MenubarItem
+            :disabled="!store.focused"
+            @click="store.copyBlock(true)"
+          >
+            Cut
+            <MenubarShortcut>{{ MODIFIER_KEY }}+X</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem
+            :disabled="!store.focused"
+            @click="store.copyBlock(false)"
+          >
+            Copy
+            <MenubarShortcut>{{ MODIFIER_KEY }}+C</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem :disabled="!store.canPaste" @click="store.pasteBlock">
+            Paste
+            <MenubarShortcut> {{ MODIFIER_KEY }}+V </MenubarShortcut>
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+
+      <MenubarMenu>
+        <MenubarTrigger>View</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem @click="openVisualizerPage">Visualizer</MenubarItem>
+          <MenubarItem @click="openSettingsModal"> Settings </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem @click="goFullscreen">
+            Toggle Fullscreen
+            <MenubarShortcut> Esc </MenubarShortcut>
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
+
+    <Button
+      variant="outline"
+      class="flex ml-auto border-red-600 bg-transparent"
+      @click="handleSend"
+    >
+      Send
+    </Button>
+  </div>
+</template>
+
+<style lang="scss" scoped>
 .navigation {
   position: fixed;
   z-index: 1;
   display: flex;
   width: 100%;
-  justify-content: space-between;
   padding: 6px;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   background: #151515dd;
 
-  div {
-    display: flex;
-    align-items: center;
-
-    * {
-      margin-right: 0.5rem;
-
-      &:last-child {
-        margin-right: 0;
-      }
-    }
-  }
-
-  button {
-    &.settings {
-      margin-right: 2rem;
-    }
-
-    &.send {
-      border: 3px solid $color-red;
-    }
+  div[role="menubar"] {
+    border: none;
+    border-radius: 0;
+    background: none;
   }
 }
 </style>

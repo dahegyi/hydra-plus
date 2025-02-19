@@ -1,4 +1,8 @@
-export const WELCOME_MODAL_LAST_UPDATE = "0.8.0";
+export const CURRENT_VERSION = "0.9.0";
+
+export const MODIFIER_KEY = /Macintosh|Mac OS X/i.test(navigator.userAgent)
+  ? "⌘"
+  : "Ctrl";
 
 export const DEFAULT_POSITION = { x: 15, y: 65 };
 
@@ -123,177 +127,6 @@ export const PARAM_MAPPINGS = {
 
 export const FALLBACK_SOURCE = "";
 
-export const INFO_MAPPINGS = {
-  repeat: {
-    description: "repeat on x and/or y axis",
-    code: ".repeat(3,3)",
-  },
-  repeatX: {
-    description: "repeat on x axis",
-    code: ".repeatX(3)",
-  },
-  repeatY: {
-    description: "repeat on y axis",
-    code: ".repeatY(3)",
-  },
-  scroll: {
-    description: "scroll on x and/or y axis",
-    code: ".scroll(0.5,0.5)",
-  },
-  scrollX: {
-    description: "scroll on x axis",
-    code: ".scrollX(0.5)",
-  },
-  scrollY: {
-    description: "scroll on y axis",
-    code: ".scrollY(0.5)",
-  },
-  rotate: {
-    description: "rotate",
-    code: ".rotate(10,1)",
-  },
-  scale: {
-    description: "scale",
-    code: ".scale(1.5,1,1,0.5,0.5)",
-  },
-  pixelate: {
-    description: "pixelate",
-    code: ".pixelate(20,20)",
-  },
-  kaleid: {
-    description: "kaleid",
-    code: ".kaleid(4)",
-  },
-  r: {
-    description: "red channel",
-    code: ".layer(src(o0).r(1,0))",
-  },
-  g: {
-    description: "green channel",
-    code: ".layer(src(o0).g(1,0))",
-  },
-  b: {
-    description: "blue channel",
-    code: ".layer(src(o0).b(1,0))",
-  },
-  color: {
-    description: "color",
-    code: ".color(1,0,1,1)",
-  },
-  saturate: {
-    description: "saturate",
-    code: ".saturate(2)",
-  },
-  hue: {
-    description: "hue",
-    code: ".hue(0.4)",
-  },
-  posterize: {
-    description: "posterize",
-    code: ".posterize(3,0.6)",
-  },
-  shift: {
-    description: "shift",
-    code: ".shift(0.5,0,0,1)",
-  },
-  invert: {
-    description: "invert",
-    code: ".invert(1)",
-  },
-  contrast: {
-    description: "contrast",
-    code: ".contrast(1.6)",
-  },
-  brightness: {
-    description: "brightness",
-    code: ".brightness(0.4)",
-  },
-  luma: {
-    description: "luma",
-    code: ".luma(0.5,0.1)",
-  },
-  thresh: {
-    description: "thresh",
-    code: ".thresh(0.5,0.4)",
-  },
-  colorama: {
-    description: "colorama",
-    code: ".colorama(0.005)",
-  },
-  modulateRepeat: {
-    description: "modulate repeat on x and/or y axis",
-    code: ".modulateRepeat(osc(10, 0.1, 0),1)",
-  },
-  modulateRepeatX: {
-    description: "modulate repeat on x axis",
-    code: ".modulateRepeatX(osc(10, 0.1, 0),1)",
-  },
-  modulateRepeatY: {
-    description: "modulate repeat on y axis",
-    code: ".modulateRepeatY(osc(10, 0.1, 0),1)",
-  },
-  modulateKaleid: {
-    description: "modulate kaleid",
-    code: ".modulateKaleid(osc(10, 0.1, 0),1)",
-  },
-  modulateScrollX: {
-    description: "modulate scroll on x axis",
-    code: ".modulateScrollX(osc(10, 0.1, 0),1)",
-  },
-  modulateScrollY: {
-    description: "modulate scroll on y axis",
-    code: ".modulateScrollY(osc(10, 0.1, 0),1)",
-  },
-  modulate: {
-    description: "modulate",
-    code: ".modulate(osc(10, 0.1, 0),1)",
-  },
-  modulateScale: {
-    description: "modulate scale",
-    code: ".modulateScale(osc(10, 0.1, 0),1)",
-  },
-  modulatePixelate: {
-    description: "modulate pixelate",
-    code: ".modulatePixelate(osc(10, 0.1, 0),1)",
-  },
-  modulateRotate: {
-    description: "modulate rotate",
-    code: ".modulateRotate(osc(10, 0.1, 0),1)",
-  },
-  modulateHue: {
-    description: "modulate hue",
-    code: ".modulateHue(osc(10, 0.1, 0),1)",
-  },
-  add: {
-    description: "add",
-    code: ".add(osc(10, 0.1, 0),1)",
-  },
-  sub: {
-    description: "sub",
-    code: ".sub(osc(10, 0.1, 0),1)",
-  },
-  layer: {
-    description: "layer",
-    code: ".layer(osc(10, 0.1, 0))",
-  },
-  blend: {
-    description: "blend",
-    code: ".blend(osc(10, 0.1, 0),1)",
-  },
-  mult: {
-    description: "mult",
-    code: ".mult(osc(10, 0.1, 0),1)",
-  },
-  diff: {
-    description: "diff",
-    code: ".diff(osc(10, 0.1, 0))",
-  },
-  mask: {
-    description: "mask",
-    code: ".mask(osc(10, 0.1, 0))",
-  },
-};
-
 export const SOURCE_FUNCTIONS = [
   {
     name: "noise",
@@ -349,10 +182,13 @@ export const EXTERNAL_SOURCE_FUNCTIONS = [
 ];
 
 export const THREE_FUNCTIONS = [
-  {
-    name: "3D",
-    params: [0],
-  },
+  // {
+  //   name: "3D",
+  //   params: {
+  //     name: "",
+  //     threeJsContent: "",
+  //   },
+  // },
 ];
 
 export const GEOMETRY_FUNCTIONS = [
@@ -476,7 +312,7 @@ export const MODULATE_FUNCTIONS = [
   {
     name: "modulateKaleid",
     blocks: [],
-    params: GEOMETRY_FUNCTIONS[6].params,
+    params: GEOMETRY_FUNCTIONS[9].params,
   },
   {
     name: "modulateScrollX",

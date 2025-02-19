@@ -1,0 +1,29 @@
+<script setup>
+import { cn } from '@/utils';
+import { useVModel } from '@vueuse/core';
+
+const props = defineProps({
+  defaultValue: { type: [String, Number], required: false },
+  modelValue: { type: [String, Number], required: false },
+  class: { type: null, required: false },
+});
+
+const emits = defineEmits(['update:modelValue']);
+
+const modelValue = useVModel(props, 'modelValue', emits, {
+  passive: true,
+  defaultValue: props.defaultValue,
+});
+</script>
+
+<template>
+  <input
+    v-model="modelValue"
+    :class="
+      cn(
+        'flex h-7 w-full rounded-sm border border-input bg-zinc-900 px-2 py-1 my-0.5 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+        props.class,
+      )
+    "
+  />
+</template>
