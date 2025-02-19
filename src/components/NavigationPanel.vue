@@ -1,6 +1,6 @@
 <script setup>
+import { computed } from "vue";
 import { useHydraStore } from "@/stores/hydra";
-
 import { MODIFIER_KEY } from "@/constants";
 
 import {
@@ -80,6 +80,19 @@ const openAddBlockModal = () => {
   emit("openAddBlockModal");
 };
 
+const isAddEffectModalDisabled = computed(() => {
+  const { focused } = store;
+  return (
+    !focused ||
+    (focused.type === "complex" && focused.blocks.length > 0) ||
+    focused.type === "external"
+  );
+});
+
+const openAddEffectModal = () => {
+  emit("openAddBlockModal", store.focused);
+};
+
 // const openThreeModal = () => {
 //   emit("openThreeModal");
 // };
@@ -103,29 +116,18 @@ const goFullscreen = () => {
 </script>
 
 <template>
-  <!-- <div class="navigation">
-    <div>
-      <div class="dropdown">
-        <button @click="openAddBlockModal">new source</button>
-      </div>
-    </div>
-
-    <div>
-      <button @click="openThreeModal">3D settings</button>
-      <button class="settings" @click="openSettingsModal">
-        synth settings
-      </button>
-      <button class="send" @click="handleSend">send</button>
-    </div>
-  </div> -->
-
   <div class="navigation">
     <Menubar>
       <MenubarMenu>
         <MenubarTrigger>New</MenubarTrigger>
         <MenubarContent>
           <MenubarItem @click="openAddBlockModal"> Source </MenubarItem>
-          <MenubarItem> Effect </MenubarItem>
+          <MenubarItem
+            :disabled="isAddEffectModalDisabled"
+            @click="openAddEffectModal"
+          >
+            Effect
+          </MenubarItem>
           <!-- <MenubarSeparator />
         <MenubarItem disabled> Scene </MenubarItem> -->
         </MenubarContent>
@@ -191,12 +193,6 @@ const goFullscreen = () => {
 </template>
 
 <style lang="scss" scoped>
-// @use "@/assets/styles/variables" as *;
-
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
 .navigation {
   position: fixed;
   z-index: 1;
