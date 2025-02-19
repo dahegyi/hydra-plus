@@ -237,6 +237,8 @@ export const useHydraStore = defineStore("hydra", () => {
       newCodeString += `window.hydra.render(o${synthSettings.output})`;
     }
 
+    await document.getElementById("hydra-canvas").focus();
+
     try {
       eval(newCodeString);
       codeString.value = newCodeString;
