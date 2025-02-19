@@ -2,7 +2,7 @@
 import { computed, ref, onMounted } from "vue";
 import { useHydraStore } from "@/stores/hydra";
 
-import { showToast } from "@/utils";
+import { showErrorToast } from "@/utils";
 
 import { TYPE_SRC, TYPE_THREE, PARAM_MAPPINGS } from "@/constants";
 
@@ -70,7 +70,7 @@ onMounted(async () => {
       cameraNames.value.push(`${i} - ${videoInput.label}`);
     }
   } catch (error) {
-    showToast("Error accessing video devices:", error);
+    showErrorToast("Error accessing video devices:", error);
   }
 });
 

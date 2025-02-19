@@ -1,7 +1,8 @@
-import Toastify from "toastify-js";
-
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -39,15 +40,12 @@ export const setSafeLocalStorage = (key, value) => {
   }
 };
 
-export const showToast = (error) => {
+export const showErrorToast = (error) => {
   console.error(error);
-  Toastify({
-    text: error,
-    duration: 4000,
-    close: true,
-    gravity: "bottom",
-    stopOnFocus: true,
-  }).showToast();
+  toast({
+    title: "Error",
+    description: error,
+  });
 };
 
 export const setHueLights = async (state) => {
@@ -99,7 +97,7 @@ export const setHueLights = async (state) => {
       const data = await response.json();
       console.log(data);
     } catch (error) {
-      showToast(error);
+      showErrorToast(error);
     }
   }
 };

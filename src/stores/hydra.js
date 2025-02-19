@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed, reactive } from "vue";
 import { useBroadcastChannel } from "@vueuse/core";
 import { deepCopy, flatten, flattenExternal } from "@/utils/object-utils";
-import { setSafeLocalStorage, showToast, setHueLights } from "@/utils";
+import { setSafeLocalStorage, showErrorToast, setHueLights } from "@/utils";
 import {
   INITIAL_BLOCKS,
   MAX_NUMBER_OF_SOURCES,
@@ -68,7 +68,9 @@ export const useHydraStore = defineStore("hydra", () => {
       source.type === TYPE_SRC &&
       blocks.value.length >= MAX_NUMBER_OF_SOURCES
     ) {
-      showToast(`You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`);
+      showErrorToast(
+        `You can't add more than ${MAX_NUMBER_OF_SOURCES} sources.`,
+      );
       return;
     }
 
@@ -76,7 +78,7 @@ export const useHydraStore = defineStore("hydra", () => {
       (source.type === TYPE_EXTERNAL || source.type === TYPE_THREE) &&
       externalSourceBlocks.value.length >= MAX_NUMBER_OF_EXTERNALS
     ) {
-      showToast(
+      showErrorToast(
         `You can't add more than ${MAX_NUMBER_OF_EXTERNALS} externals.`,
       );
       return;
@@ -243,7 +245,7 @@ export const useHydraStore = defineStore("hydra", () => {
       eval(newCodeString);
       codeString.value = newCodeString;
     } catch (error) {
-      showToast(error);
+      showErrorToast(error);
     }
 
     if (shouldSetHistory) setHistory();

@@ -36,44 +36,10 @@ hr {
   width: 100%;
 }
 
-// new toast
+// toast
 
 ol {
   &:focus-visible {
     outline: none;
-  }
-}
-
-// toastify
-
-.toastify {
-  position: fixed;
-  z-index: 1000;
-  right: 15px;
-  bottom: -150px;
-  max-width: calc(50% - 20px);
-  padding: 12px 8px 12px 15px;
-  background: linear-gradient(to right, #b62424, #a12020);
-  box-shadow: 0 3px 20px 10px rgba(0, 0, 0, 0.5);
-  color: #ffffff;
-  opacity: 0;
-  transition: all 0.3s ease-in-out;
-}
-
-.toastify.on {
-  opacity: 1;
-}
-
-.toast-close {
-  padding: 6px 8px 5px;
-  border: none;
-  margin-left: 15px;
-  background: none;
-  cursor: pointer;
-  font-size: 1em;
-  opacity: 0.4;
-
-  &:hover {
-    background: #00000040;
   }
 }

@@ -16,8 +16,8 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/toast/use-toast";
 
+import { useToast } from "@/components/ui/toast/use-toast";
 const { toast } = useToast();
 
 // // @todo: losing window focus breaks the beat counter
