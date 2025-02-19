@@ -1,88 +1,89 @@
 <script setup>
-// import { computed } from "vue";
-// import { CURRENT_VERSION } from "@/constants";
-// import { getSafeLocalStorage } from "@/utils";
+import { computed } from "vue";
+import { CURRENT_VERSION } from "@/constants";
+import { getSafeLocalStorage } from "@/utils";
 import BaseModal from "./BaseModal";
 
-// const showLatestUpdates = computed(
-//   () => getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION,
-// );
+const showLatestUpdates = computed(
+  () => getSafeLocalStorage("welcomeModalLastUpdate") < CURRENT_VERSION,
+);
 </script>
 
 <template>
-  <BaseModal modal-name="WelcomeModal"> content </BaseModal>
+  <BaseModal modal-name="WelcomeModal">
+    <div v-if="showLatestUpdates">
+      <h1>welcome to version 0.9!</h1>
+      <p>
+        This version may not seem like a big improvement, but it lays down some
+        foundational work for where the project is heading.
+      </p>
+      <p>There are a couple things though that are noticably new:</p>
+      <ul>
+        <li>new toolbar</li>
+        <li>copy, cut, and paste with either the toolbar, or with shortcuts</li>
+        <li>context menu for ease of use: right click on any of the blocks</li>
+        <li>export your hydra code to a file from the settings modal</li>
+        <li>+ also some design and functionality improvements</li>
+      </ul>
+      <hr />
+    </div>
+
+    <div v-else>
+      <h1>welcome!</h1>
+      <p>
+        <strong>hydra+</strong> is a graphical user interface for
+        <a href="https://hydra.ojack.xyz/" target="_blank">hydra</a>, a
+        javascript library for livecoding visuals.
+      </p>
+      <p>
+        Please refer to the
+        <a href="https://hydra.ojack.xyz/api/" target="_blank">hydra api</a> for
+        information on how to use the synthatizer.
+      </p>
+    </div>
+
+    <p>
+      Thank you for using hydra+, your feedback, shared via
+      <a href="https://github.com/dahegyi/hydra-plus" target="_blank">Github</a>
+      or <a href="https://discord.gg/CuEQbm8K" target="_blank">Discord</a> is
+      highly appreciated. Also, I'll try to answer any questions you might have.
+    </p>
+
+    <br />
+
+    <h2>❤️‍🔥 happy hacking!</h2>
+  </BaseModal>
 </template>
 
 <style lang="scss" scoped>
 h1 {
-  margin: 1.2rem auto;
+  margin: 1.2rem auto 1.4rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 p {
-  margin: 8px 0;
-  text-align: left;
+  margin: 0.4rem 0;
 }
 
-.feature {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 8px 14px;
+ul {
+  padding-left: 1.2rem;
+  margin: 0.4rem 0;
 
-  &:nth-child(2n) {
-    background: #1a1a1a;
-  }
-
-  .description {
-    flex-grow: 1;
-    margin-top: 2px;
-    text-align: left;
-  }
-
-  .key {
-    padding: 6px 10px;
-    border-radius: 5px;
-    margin: 0 4px;
-    background: #333;
-    box-shadow: 0 2px 0 #777;
-    font-size: 0.9rem;
-
-    &[data-type="enter"] {
-      padding: 6px 25px;
-    }
-  }
-
-  .or-text {
-    margin: 0 8px;
-  }
-
-  @media screen and (max-width: 500px) {
-    > div {
-      margin-bottom: 20px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    .description {
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    .key {
-      margin: 0;
-    }
-
-    .or-text {
-      display: none;
-    }
+  li {
+    margin: 0.2rem 0;
+    list-style-type: disc;
   }
 }
 
-li {
-  padding: 4px 0px 4px 20px;
-  text-align: left;
+hr {
+  border: 0;
+  border-top: 1px solid #888;
+  margin: 1.2rem 0 1rem;
 }
 </style>

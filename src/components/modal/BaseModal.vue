@@ -120,6 +120,11 @@ onMounted(() => {
 
     &.welcome {
       width: 520px;
+
+      .content {
+        align-items: unset;
+        text-align: left;
+      }
     }
 
     &.add-block {
