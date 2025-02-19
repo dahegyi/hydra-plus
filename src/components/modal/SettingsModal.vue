@@ -42,6 +42,19 @@ const updateRGB = (rgb) => {
   store.updateRGB(rgb);
 };
 
+// @todo extract this
+const download = () => {
+  const code = store.codeString;
+  const blob = new Blob([code], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const formattedDatetime = new Date().toISOString().replace(/:/g, "-");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `hydra-plus-export-${formattedDatetime}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
 const close = () => {
   emit("close");
 };
@@ -59,7 +72,10 @@ const close = () => {
       </button>
     </div> -->
 
-    <div v-if="activeTab === 0" class="flex flex-col space-y-4">
+    <div v-if="activeTab === 0" class="flex flex-col space-y-4 w-3/4">
+      <Label for="resolution">Resolution</Label>
+      <Slider id="resolution" v-model="resolution" :max="100" />
+
       <NumberField
         id="speed"
         v-model="synthSettings.speed"
@@ -80,22 +96,21 @@ const close = () => {
         <Label for="bpm">BPM</Label>
         <NumberFieldContent>
           <NumberFieldDecrement />
-          <NumberFieldInput />
+          <NumberFieldInput class="bg-zinc-900" />
           <NumberFieldIncrement />
         </NumberFieldContent>
       </NumberField>
-
-      <Label>Resolution</Label>
-      <Slider v-model="resolution" :max="100" />
 
       <NumberField id="fps" v-model="synthSettings.fps" :step="1" :min="0">
         <Label for="fps">FPS</Label>
         <NumberFieldContent>
           <NumberFieldDecrement />
-          <NumberFieldInput />
+          <NumberFieldInput class="bg-zinc-900" />
           <NumberFieldIncrement />
         </NumberFieldContent>
       </NumberField>
+
+      <Button variant="link" @click="download">download hydra code</Button>
 
       <Button variant="outline" @click="setSynthSettings">save</Button>
     </div>
