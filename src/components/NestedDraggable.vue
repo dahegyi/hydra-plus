@@ -148,7 +148,7 @@ const paste = (element) => {
               >
                 <Select
                   v-model="element.params[0]"
-                  @update:model-value="props.handleChange"
+                  @update:model-value="handleChange"
                 >
                   <SelectTrigger class="bg-zinc-900">
                     <SelectValue />
