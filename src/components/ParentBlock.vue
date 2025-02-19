@@ -160,7 +160,7 @@ const showLabel = (blockName) => {
           v-if="props.block.name === 'initCam'"
           :id="`${props.block.type}-block-${props.index}-param-${paramIndex}`"
           v-model="props.block.params[paramIndex]"
-          @change="() => props.handleChange()"
+          @update:model-value="props.handleChange"
         >
           <SelectTrigger class="bg-zinc-900">
             <SelectValue>
@@ -211,7 +211,7 @@ const showLabel = (blockName) => {
           v-else
           :id="`${props.block.type}-block-${props.index}-param-${paramIndex}`"
           v-model="props.block.params[paramIndex]"
-          class="bg-zinc-900"
+          class="bg-zinc-900 my-0"
           @focusin="store.setInputFocus(true)"
           @focusout="() => props.handleChange()"
         />
@@ -363,7 +363,7 @@ $spacing: 8px;
         top: calc($spacing * 1.4);
         left: calc($spacing / 4);
         width: calc($spacing * 2);
-        border-top: 2px solid #000;
+        border-top: 3px solid #000;
       }
 
       &:before {

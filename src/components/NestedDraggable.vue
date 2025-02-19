@@ -107,7 +107,10 @@ const handleEnd = () => {
             <Label class="min-w-24">{{
               PARAM_MAPPINGS[element.name][0]
             }}</Label>
-            <Select v-model="element.params[0]" @change="handleChange">
+            <Select
+              v-model="element.params[0]"
+              @update:model-value="props.handleChange"
+            >
               <SelectTrigger class="bg-zinc-900">
                 <SelectValue />
               </SelectTrigger>
@@ -175,7 +178,6 @@ ul {
   border-radius: 0 0 0 $border-radius;
   margin: 0;
   background: #00000040;
-  box-shadow: inset 0 0 0 1px #999;
   list-style: none;
 
   &.button-visible {
