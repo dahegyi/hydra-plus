@@ -4,6 +4,7 @@ import { createPinia } from "pinia";
 import "./assets/styles/main.scss";
 import "./assets/index.css";
 import App from "./App";
+import { autoAnimatePlugin } from "@formkit/auto-animate/vue";
 // import { isButtonPressed, activeButtons } from "./utils/gamecontroller-utils";
 
 const pinia = createPinia();
@@ -71,4 +72,4 @@ document.addEventListener("contextmenu", (event) => {
 //   });
 // });
 
-createApp(App).use(router).use(pinia).mount("#app");
+createApp(App).use(router).use(pinia).use(autoAnimatePlugin).mount("#app");

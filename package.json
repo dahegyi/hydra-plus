@@ -12,6 +12,7 @@
     "lint:fix": "eslint 'src/**/*.{js,vue}' --fix && stylelint 'src/**/*.{css,scss,vue}' --fix"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
     "@radix-icons/vue": "^1.0.0",
     "@vueuse/core": "^10.11.1",
     "class-variance-authority": "^0.7.1",

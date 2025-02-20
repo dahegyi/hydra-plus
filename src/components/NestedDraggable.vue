@@ -109,6 +109,12 @@ const paste = (element) => {
 
 <template>
   <draggable
+    v-auto-animate="{
+      enabled: true,
+      duration: 150,
+      delay: 1,
+      fill: 'both',
+    }"
     :class="[
       {
         'button-visible': canHaveChild(parent),
