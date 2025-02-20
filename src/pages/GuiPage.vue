@@ -178,8 +178,11 @@ const moveBlock = (e, index, type, position) => {
       e = e.touches[0];
     }
 
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+
+    if (x <= 0) x = 0;
+    if (y <= 48) y = 48;
 
     movedBlockCoordinates.value = { x, y };
     div.style.transform = `translate(${x}px, ${y}px)`;
