@@ -5,7 +5,12 @@ import { useHydraStore } from "@/stores/hydra";
 import { getSafeLocalStorage, setSafeLocalStorage } from "@/utils";
 import { deepCopy } from "@/utils/object-utils";
 
-import { CURRENT_VERSION, INITIAL_BLOCKS } from "@/constants";
+import {
+  CURRENT_VERSION,
+  INITIAL_BLOCKS,
+  MAX_NUMBER_OF_EXTERNALS,
+  MAX_NUMBER_OF_SOURCES,
+} from "@/constants";
 
 import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "@/components/ParentBlock";
@@ -147,11 +152,38 @@ const moveAllBlocks = () => {
   });
 };
 
+let zIndexCount = 1;
+const zIndexMax = MAX_NUMBER_OF_EXTERNALS + MAX_NUMBER_OF_SOURCES;
+
+const resetZIndexes = () => {
+  let parents = [...document.querySelectorAll(".parent-block")];
+
+  parents.sort(
+    (a, b) => (parseInt(a.style.zIndex) || 0) - (parseInt(b.style.zIndex) || 0),
+  );
+
+  parents.forEach((box, index) => {
+    box.style.zIndex = index + 1;
+  });
+
+  zIndexCount = parents.length + 1;
+};
+
 const moveBlock = (e, index, type, position) => {
   let div;
   let positionChanged = false;
 
   div = document.getElementById(`${type}-block-${index}`);
+
+  zIndexCount += 1;
+  div.style.zIndex = zIndexCount;
+  if (zIndexCount >= zIndexMax) {
+    resetZIndexes();
+  }
+
+  if (type === "source") {
+    store.setFocus(store.blocks[index]);
+  }
 
   if (position) {
     return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);

@@ -138,7 +138,6 @@ const deleteParent = () => {
       >
         <div
           class="output-header"
-          @click="store.setFocus(store.blocks[index])"
           @mousedown="(e) => moveBlock(e, index, block.type)"
           @touchstart="(e) => moveBlock(e, index, block.type)"
         >
