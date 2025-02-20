@@ -84,7 +84,16 @@ export const useHydraStore = defineStore("hydra", () => {
       return;
     }
 
-    const newBlock = { ...copiedSource, position: DEFAULT_POSITION };
+    const newBlock = {
+      ...copiedSource,
+      position: window.contextMenuPosition
+        ? {
+            x: window.contextMenuPosition.x - 180,
+            y: window.contextMenuPosition.y - 20,
+          }
+        : DEFAULT_POSITION,
+    };
+
     if (source.type === TYPE_SRC) {
       blocks.value.push(newBlock);
     } else {
