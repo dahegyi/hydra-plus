@@ -1,7 +1,7 @@
 {
   "name": "hydra-plus",
   "private": true,
-  "version": "0.9.0",
+  "version": "0.9.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,6 +17,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "codejar": "^4.2.0",
+    "crc-32": "^1.2.2",
     "gamecontroller.js": "^1.5.0",
     "hydra-synth": "^1.3.29",
     "lucide-vue-next": "^0.475.0",

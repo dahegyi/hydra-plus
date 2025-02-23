@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { getSafeLocalStorage } from "@/utils";
 
 import Hydra from "hydra-synth";
 
@@ -18,6 +19,11 @@ onMounted(() => {
     width: width.value,
     canvas: document.getElementById("hydra-canvas"),
   }).synth;
+
+  const areAnimationsEnabled = getSafeLocalStorage("animationsEnabled");
+
+  document.documentElement.dataset.animations =
+    areAnimationsEnabled === "false" ? "off" : "on";
 
   // const t = new three();
   // t.scene;

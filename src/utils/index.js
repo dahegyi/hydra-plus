@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import crc32 from "crc-32";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 const { toast } = useToast();
@@ -13,6 +14,7 @@ const safeKeys = [
   "externalSourceBlocks",
   "synthSettings",
   "welcomeModalLastUpdate",
+  "animationsEnabled",
 ];
 
 export const getSafeLocalStorage = (key) => {
@@ -46,6 +48,12 @@ export const showErrorToast = (error) => {
     title: "Error",
     description: error,
   });
+};
+
+// Generate a hash from the path
+export const generateUniqueId = (path) => {
+  const hash = crc32.str(path).toString(16); // Convert to hexadecimal
+  return `id-${hash}`; // Prefix with 'id-' to ensure it's a valid HTML ID
 };
 
 export const setHueLights = async (state) => {

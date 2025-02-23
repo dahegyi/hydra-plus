@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from "vue";
-import draggable from "vuedraggable";
 import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
+import { generateUniqueId } from "@/utils";
 import { useHydraStore } from "@/stores/hydra";
 
+import Draggable from "vuedraggable";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,6 +34,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  path: {
+    type: String,
+    default: "",
+  },
 });
 
 const store = useHydraStore();
@@ -58,29 +62,10 @@ const handleAddBlockModal = (element) => {
   props.openAddBlockModal(element);
 };
 
-const previouslyDraggedTo = ref(null);
-
-const handleMove = (e) => {
-  if (previouslyDraggedTo.value) {
-    previouslyDraggedTo.value.classList.remove("dragging");
-  }
-
-  previouslyDraggedTo.value = e.to;
-
-  if (
-    e.to !== e.from &&
-    e.to.classList.contains("button-visible") &&
-    !e.to.classList.contains("dragging")
-  ) {
-    e.to.classList.add("dragging");
-  }
-};
+// @todo disallow illegal moves
+const handleMove = () => {};
 
 const handleEnd = () => {
-  if (previouslyDraggedTo.value) {
-    previouslyDraggedTo.value.classList.remove("dragging");
-  }
-
   props.handleChange();
 };
 
@@ -108,7 +93,7 @@ const paste = (element) => {
 </script>
 
 <template>
-  <draggable
+  <Draggable
     :class="[
       {
         'button-visible': canHaveChild(parent),
@@ -118,6 +103,7 @@ const paste = (element) => {
     tag="ul"
     :list="parent.blocks"
     :group="{ name: 'g1' }"
+    :animation="200"
     item-key="name"
     @click.stop="handleAddBlockModal(parent)"
     @move="(e) => handleMove(e)"
@@ -179,10 +165,18 @@ const paste = (element) => {
                 class="flex items-center"
                 @click.stop="store.setFocus(element, parent)"
               >
-                <Label class="min-w-24">
+                <Label
+                  :for="
+                    generateUniqueId(`${path}.${element.name}.${paramIndex}`)
+                  "
+                  class="min-w-24"
+                >
                   {{ PARAM_MAPPINGS[element.name][paramIndex] }}
                 </Label>
                 <Input
+                  :id="
+                    generateUniqueId(`${path}.${element.name}.${paramIndex}`)
+                  "
                   v-model="element.params[paramIndex]"
                   class="bg-zinc-900"
                   @focusin="store.setInputFocus(true)"
@@ -219,15 +213,16 @@ const paste = (element) => {
           </ContextMenuContent>
         </ContextMenu>
 
-        <nested-draggable
+        <NestedDraggable
           v-if="element.blocks"
           :parent="element"
           :handle-change="handleChange"
           :open-add-block-modal="openAddBlockModal"
+          :path="path + '.' + element.name"
         />
       </li>
     </template>
-  </draggable>
+  </Draggable>
 </template>
 
 <style lang="scss" scoped>
@@ -248,12 +243,6 @@ ul {
   list-style: none;
 
   &.button-visible {
-    &.dragging {
-      &::after {
-        display: none;
-      }
-    }
-
     &::after {
       display: flex;
       min-height: $height;

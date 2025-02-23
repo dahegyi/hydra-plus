@@ -5,7 +5,12 @@ import { useHydraStore } from "@/stores/hydra";
 import { getSafeLocalStorage, setSafeLocalStorage } from "@/utils";
 import { deepCopy } from "@/utils/object-utils";
 
-import { CURRENT_VERSION, INITIAL_BLOCKS } from "@/constants";
+import {
+  CURRENT_VERSION,
+  INITIAL_BLOCKS,
+  MAX_NUMBER_OF_EXTERNALS,
+  MAX_NUMBER_OF_SOURCES,
+} from "@/constants";
 
 import NavigationPanel from "@/components/NavigationPanel";
 import ParentBlock from "@/components/ParentBlock";
@@ -111,14 +116,16 @@ onMounted(() => {
     blocks.push(...getSafeLocalStorage("externalSourceBlocks"));
   }
 
-  if (getSafeLocalStorage("synthSettings")) {
-    store.setSynthSettings(getSafeLocalStorage("synthSettings"));
-  } else {
-    eval(
-      `setResolution(${window.outerHeight * window.devicePixelRatio}, ${
-        window.outerWidth * window.devicePixelRatio
-      })`,
-    );
+  if (window.outerHeight && window.outerWidth) {
+    if (getSafeLocalStorage("synthSettings")) {
+      store.setSynthSettings(getSafeLocalStorage("synthSettings"));
+    } else {
+      eval(
+        `setResolution(${window.outerHeight * window.devicePixelRatio}, ${
+          window.outerWidth * window.devicePixelRatio
+        })`,
+      );
+    }
   }
 
   store.setBlocks({ blocks });
@@ -147,11 +154,40 @@ const moveAllBlocks = () => {
   });
 };
 
+let zIndexCount = 1;
+const zIndexMax = MAX_NUMBER_OF_EXTERNALS + MAX_NUMBER_OF_SOURCES;
+
+const resetZIndexes = () => {
+  let parents = [...document.querySelectorAll(".parent-block")];
+
+  parents.sort(
+    (a, b) => (parseInt(a.style.zIndex) || 0) - (parseInt(b.style.zIndex) || 0),
+  );
+
+  parents.forEach((box, index) => {
+    box.style.zIndex = index + 1;
+  });
+
+  zIndexCount = parents.length + 1;
+};
+
 const moveBlock = (e, index, type, position) => {
   let div;
   let positionChanged = false;
 
   div = document.getElementById(`${type}-block-${index}`);
+
+  if (e) {
+    zIndexCount += 1;
+    div.style.zIndex = zIndexCount;
+    if (zIndexCount >= zIndexMax) {
+      resetZIndexes();
+    }
+
+    if (type === "source") {
+      store.setFocus(store.blocks[index]);
+    }
+  }
 
   if (position) {
     return (div.style.transform = `translate(${position.x}px, ${position.y}px)`);
@@ -178,8 +214,11 @@ const moveBlock = (e, index, type, position) => {
       e = e.touches[0];
     }
 
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+
+    if (x <= 0) x = 0;
+    if (y <= 48) y = 48;
 
     movedBlockCoordinates.value = { x, y };
     div.style.transform = `translate(${x}px, ${y}px)`;
@@ -257,22 +296,22 @@ const closeSettingsModal = () => {
 </script>
 
 <template>
-  <transition name="modal">
+  <Transition name="modal">
     <div v-if="isAnyModalOpen">
-      <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
-      <add-block-modal
+      <WelcomeModal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
+      <AddBlockModal
         v-if="isAddBlockModalOpen"
         :parent="addBlockModalParent"
         @close="closeAddBlockModal"
       />
-      <three-modal
+      <ThreeModal
         v-if="isThreeModalOpen"
         :blocks="store.externalSourceBlocks"
         @close="closeThreeModal"
       />
-      <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
+      <SettingsModal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
     </div>
-  </transition>
+  </Transition>
 
   <ContextMenu>
     <ContextMenuTrigger @click="store.setFocus(null)">
@@ -295,16 +334,18 @@ const closeSettingsModal = () => {
     </ContextMenuContent>
   </ContextMenu>
 
-  <navigation-panel
-    v-show="!areBlocksHidden"
-    @open-add-block-modal="openAddBlockModal"
-    @open-three-modal="openThreeModal"
-    @open-settings-modal="openSettingsModal"
-    @toggle-fullscreen="toggleFullscreen"
-  />
+  <Transition name="nav">
+    <NavigationPanel
+      v-show="!areBlocksHidden"
+      @open-add-block-modal="openAddBlockModal"
+      @open-three-modal="openThreeModal"
+      @open-settings-modal="openSettingsModal"
+      @toggle-fullscreen="toggleFullscreen"
+    />
+  </Transition>
 
   <div v-show="!areBlocksHidden">
-    <parent-block
+    <ParentBlock
       v-for="(block, index) in store.blocks"
       :key="index"
       :index="index"
@@ -314,7 +355,7 @@ const closeSettingsModal = () => {
       :open-add-block-modal="openAddBlockModal"
     />
 
-    <parent-block
+    <ParentBlock
       v-for="(block, index) in store.externalSourceBlocks"
       :key="index"
       :index="index"
@@ -339,10 +380,24 @@ const closeSettingsModal = () => {
 
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.15s;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
-.modal-enter,
+
+.modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+  transform: translateY(20px);
+}
+
+.nav-enter-active,
+.nav-leave-active {
+  transition: transform 0.2s ease;
+}
+
+.nav-enter-from,
+.nav-leave-to {
+  transform: translateY(-48px);
 }
 </style>

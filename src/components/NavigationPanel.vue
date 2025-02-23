@@ -110,7 +110,7 @@ const goFullscreen = () => {
 
   toast({
     title: "Entered fullscreen mode",
-    description: "Press Esc to exit",
+    description: "Press Esc or right click to exit",
   });
 };
 </script>
@@ -195,7 +195,7 @@ const goFullscreen = () => {
 <style lang="scss" scoped>
 .navigation {
   position: fixed;
-  z-index: 1;
+  z-index: 100;
   display: flex;
   width: 100%;
   padding: 6px;

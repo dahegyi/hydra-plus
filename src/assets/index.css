@@ -46,6 +46,16 @@
   }
 }
 
+html[data-animations="off"] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+html,
+body {
+  overscroll-behavior-x: none;
+}
+
 @font-face {
   font-family: "Fira Code";
   font-style: normal;

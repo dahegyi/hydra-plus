@@ -6,17 +6,7 @@ hydra+ is a double-screen visual editing environment based on the [hydra synth](
 
 _The application is tested only on Chrome and Arc, so it may not work properly on other browsers._
 
-If you have any questions, suggestions, or just want to report a bug, please use the **Issues** / **Discussions** tabs on [Github](https://github.com/dahegyi/hydra-plus).
-
-## Available keyboard shortcuts:
-
-- update: `Enter`
-- copy: `Ctrl/Cmd + C`
-- cut: `Ctrl/Cmd + X`
-- paste: `Ctrl/Cmd + V`
-- undo: `Ctrl/Cmd + Z`
-- redo: `Ctrl/Cmd + Y` or `Ctrl/Cmd + Shift + Z`
-- toggle full-screen: `Escape`
+If you have any questions, suggestions, or just want to report a bug, please use the **Issues** or **Discussions** tab on [Github](https://github.com/dahegyi/hydra-plus).
 
 ## Known issues:
 

@@ -75,7 +75,7 @@ onMounted(() => {
         <slot />
 
         <Button v-if="modalName === 'WelcomeModal'" class="mt-8" @click="close">
-          Let's go!
+          Let's go
         </Button>
       </div>
     </div>
@@ -87,22 +87,21 @@ onMounted(() => {
 
 .modal-container {
   position: fixed;
-  z-index: 2;
-  top: 0;
+  z-index: 101;
+  top: -20px;
   left: 0;
   display: flex;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh + 20px);
   align-items: center;
   justify-content: center;
   padding: 15px;
-  animation: opacity-in 0.1s ease-in-out;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   background: rgba(0, 0, 0, 0.3);
 
   .modal {
-    z-index: 3;
+    z-index: 102;
     display: flex;
     width: 460px;
     max-width: 100%;
@@ -111,9 +110,6 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     border-radius: $border-radius 0;
-    animation:
-      slide-in 0.15s ease-in-out,
-      opacity-in 0.15s ease-in-out;
     background: #222;
     box-shadow: 0 3px 20px 10px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
@@ -173,16 +169,6 @@ onMounted(() => {
       overflow-y: auto;
       text-align: center;
     }
-
-    &.closing {
-      animation:
-        slide-out 0.15s ease-in-out,
-        opacity-out 0.15s ease-in-out;
-    }
-  }
-
-  &.closing {
-    animation: opacity-out 0.15s ease-in-out;
   }
 
   @media screen and (max-width: 500px) {
@@ -191,42 +177,6 @@ onMounted(() => {
     .modal {
       border-radius: 0;
     }
-  }
-}
-
-@keyframes opacity-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes opacity-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateY(20px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-out {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(20px);
   }
 }
 </style>

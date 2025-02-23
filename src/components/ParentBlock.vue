@@ -31,22 +31,18 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-
   block: {
     type: Object,
     required: true,
   },
-
   handleChange: {
     type: Function,
     required: true,
   },
-
   moveBlock: {
     type: Function,
     required: true,
   },
-
   openAddBlockModal: {
     type: Function,
     default: () => {},
@@ -120,7 +116,7 @@ const deleteParent = () => {
 
   'vue/no-mutating-props' is disabled because the props are not displayed anywhere else in the app.
   The state has to be updated on input change, but the update should be only called when exiting the input focus.
-  I concider this applicable for this case.
+  I consider this applicable in this case.
 
   @todo: param component
 -->
@@ -138,7 +134,6 @@ const deleteParent = () => {
       >
         <div
           class="output-header"
-          @click="store.setFocus(store.blocks[index])"
           @mousedown="(e) => moveBlock(e, index, block.type)"
           @touchstart="(e) => moveBlock(e, index, block.type)"
         >
@@ -243,42 +238,34 @@ const deleteParent = () => {
               @focusout="() => handleChange()"
             />
           </div>
-
-          <div v-if="isPreviewOpen">
-            <img
-              v-if="block.name === 'initImage'"
-              :src="hydra[`s${index}`].src?.src"
-            />
-
-            <video
-              v-else-if="block.name === 'initVideo'"
-              :src="hydra[`s${index}`].src?.src"
-              autoplay
-              muted
-              loop
-            />
-
-            <video
-              v-else-if="
-                block.name === 'initCam' || block.name === 'initScreen'
-              "
-              :srcObject="hydra[`s${index}`].src?.srcObject"
-              :class="block.name"
-              autoplay
-              muted
-            />
-
-            <!-- @todo 3D preview -->
-          </div>
         </div>
 
-        <div v-else>
-          <div class="param-input-container">
-            <button @click="openThreeModal">Open 3D settings</button>
-          </div>
+        <div v-if="isPreviewOpen">
+          <img
+            v-if="block.name === 'initImage'"
+            :src="hydra[`s${index}`].src?.src"
+          />
+
+          <video
+            v-else-if="block.name === 'initVideo'"
+            :src="hydra[`s${index}`].src?.src"
+            autoplay
+            muted
+            loop
+          />
+
+          <video
+            v-else-if="block.name === 'initCam' || block.name === 'initScreen'"
+            :srcObject="hydra[`s${index}`].src?.srcObject"
+            :class="block.name"
+            autoplay
+            muted
+          />
+
+          <!-- @todo 3D preview -->
         </div>
 
-        <nested-draggable
+        <NestedDraggable
           v-if="block.blocks"
           :parent="block"
           :handle-change="() => handleChange()"
@@ -308,6 +295,8 @@ const deleteParent = () => {
 </template>
 
 <style lang="scss" scoped>
+// @todo clean this mess up 😭
+
 @use "@/assets/styles/variables" as *;
 
 $spacing: 8px;
@@ -371,7 +360,7 @@ $spacing: 8px;
     }
 
     .activate {
-      right: calc($iconSize + $spacing);
+      right: 30px;
       width: calc($spacing * 2.5);
 
       &:after {
@@ -390,7 +379,7 @@ $spacing: 8px;
 
     .preview {
       top: calc($spacing + 1px);
-      right: calc($iconSize + $spacing * 1.5);
+      right: 32px;
       width: calc($iconSize - 2px);
       background-image: url(@/assets/eye-off.svg);
       background-repeat: no-repeat;
@@ -402,23 +391,15 @@ $spacing: 8px;
     }
 
     .delete {
-      right: calc($spacing * 1.5);
-      width: calc($spacing * 2.5);
-
-      &:before,
-      &:after {
-        top: calc($spacing * 1.4);
-        left: calc($spacing / 4);
-        width: calc($spacing * 2);
-        border-top: 3px solid #000;
-      }
+      right: 4px;
+      width: 24px;
 
       &:before {
-        transform: rotate(45deg);
-      }
-
-      &:after {
-        transform: rotate(-45deg);
+        top: 0;
+        right: 0;
+        width: $iconSize;
+        content: "×";
+        font-size: 1.5em;
       }
     }
   }
@@ -441,75 +422,76 @@ $spacing: 8px;
   }
 
   &.source {
-    $offset-top: -300%;
-    $color: #ffffff;
-    $bottom-color: #38383890;
-    $offset-bottom: 150%;
+    --offset-top: -300%;
+    --color: #ffffff;
+    --bottom-color: #38383890;
+    --offset-bottom: 150%;
 
     @mixin block-colors {
       background: linear-gradient(
         180deg,
-        $color $offset-top,
-        $bottom-color $offset-bottom
+        var(--color) var(--offset-top),
+        var(--bottom-color) var(--offset-bottom)
       );
 
       &.focused {
         background: linear-gradient(
           180deg,
-          $color calc($offset-top / 2),
-          $bottom-color calc($offset-bottom * 2)
+          var(--color) calc(var(--offset-top) / 2),
+          var(--bottom-color) calc(var(--offset-bottom) * 2)
         );
       }
 
       .output-header {
-        background: $color;
+        background: var(--color);
       }
     }
 
     &#source-block-0 {
-      $color: #fff81e;
+      --color: theme(colors.yellow.200);
       @include block-colors();
     }
 
     &#source-block-1 {
-      $color: #b8f770;
+      --color: theme(colors.green.300);
       @include block-colors();
     }
 
     &#source-block-2 {
-      $color: #3bd5f0;
+      --color: theme(colors.blue.300);
       @include block-colors();
     }
 
     &#source-block-3 {
-      $color: #ff8fec;
+      --color: theme(colors.pink.300);
       @include block-colors();
     }
 
     &#source-block-4 {
-      $color: #9063f3;
+      --color: theme(colors.purple.300);
       @include block-colors();
     }
 
     &#source-block-5 {
-      $color: #ef8c56;
+      --color: theme(colors.orange.300);
       @include block-colors();
     }
 
     &#source-block-6 {
-      $color: #4282d6;
+      --color: theme(colors.emerald.100);
       @include block-colors();
     }
 
     &#source-block-7 {
-      $color: #ea7979;
+      --color: theme(colors.indigo.400);
       @include block-colors();
     }
   }
 
   &.external {
     .output-header {
-      background: #f1a3a3;
+      --color: theme(colors.red.300);
+      background: var(--color);
     }
 
     img,

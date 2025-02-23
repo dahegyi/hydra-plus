@@ -40,7 +40,7 @@ export const useHydraStore = defineStore("hydra", () => {
   const copied = ref(null);
   const copiedParent = ref(null);
   const isCut = ref(false);
-  // const canPaste = computed(() => copied.value !== null &&);
+
   const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
   // Actions
@@ -84,7 +84,16 @@ export const useHydraStore = defineStore("hydra", () => {
       return;
     }
 
-    const newBlock = { ...copiedSource, position: DEFAULT_POSITION };
+    const newBlock = {
+      ...copiedSource,
+      position: window.contextMenuPosition
+        ? {
+            x: window.contextMenuPosition.x - 180,
+            y: window.contextMenuPosition.y - 20,
+          }
+        : DEFAULT_POSITION,
+    };
+
     if (source.type === TYPE_SRC) {
       blocks.value.push(newBlock);
     } else {
@@ -197,7 +206,7 @@ export const useHydraStore = defineStore("hydra", () => {
     }
   };
 
-  const update = async (
+  const update = (
     { shouldSetHistory, isDelete } = {
       shouldSetHistory: true,
       isDelete: false,
@@ -239,7 +248,7 @@ export const useHydraStore = defineStore("hydra", () => {
       newCodeString += `window.hydra.render(o${synthSettings.output})`;
     }
 
-    await document.getElementById("hydra-canvas").focus();
+    document.getElementById("hydra-canvas");
 
     try {
       eval(newCodeString);

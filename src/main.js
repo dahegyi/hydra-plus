@@ -23,9 +23,13 @@ const router = createRouter({
 
 // window.isButtonPressed = isButtonPressed;
 
-if (process.env.NODE_ENV === "production") {
-  document.addEventListener("contextmenu", (event) => event.preventDefault());
-}
+document.addEventListener("contextmenu", (event) => {
+  if (process.env.NODE_ENV === "production") event.preventDefault();
+  window.contextMenuPosition = {
+    x: event.clientX + window.scrollX,
+    y: event.clientY + window.scrollY,
+  };
+});
 
 /* eslint-disable-next-line no-undef */
 // gameControl.on("connect", function (gamepad) {
