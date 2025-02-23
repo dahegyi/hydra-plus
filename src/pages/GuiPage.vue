@@ -177,14 +177,16 @@ const moveBlock = (e, index, type, position) => {
 
   div = document.getElementById(`${type}-block-${index}`);
 
-  zIndexCount += 1;
-  div.style.zIndex = zIndexCount;
-  if (zIndexCount >= zIndexMax) {
-    resetZIndexes();
-  }
+  if (e) {
+    zIndexCount += 1;
+    div.style.zIndex = zIndexCount;
+    if (zIndexCount >= zIndexMax) {
+      resetZIndexes();
+    }
 
-  if (type === "source") {
-    store.setFocus(store.blocks[index]);
+    if (type === "source") {
+      store.setFocus(store.blocks[index]);
+    }
   }
 
   if (position) {
