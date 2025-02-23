@@ -116,14 +116,16 @@ onMounted(() => {
     blocks.push(...getSafeLocalStorage("externalSourceBlocks"));
   }
 
-  if (getSafeLocalStorage("synthSettings")) {
-    store.setSynthSettings(getSafeLocalStorage("synthSettings"));
-  } else {
-    eval(
-      `setResolution(${window.outerHeight * window.devicePixelRatio}, ${
-        window.outerWidth * window.devicePixelRatio
-      })`,
-    );
+  if (window.outerHeight && window.outerWidth) {
+    if (getSafeLocalStorage("synthSettings")) {
+      store.setSynthSettings(getSafeLocalStorage("synthSettings"));
+    } else {
+      eval(
+        `setResolution(${window.outerHeight * window.devicePixelRatio}, ${
+          window.outerWidth * window.devicePixelRatio
+        })`,
+      );
+    }
   }
 
   store.setBlocks({ blocks });
