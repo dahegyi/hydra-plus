@@ -40,7 +40,7 @@ export const useHydraStore = defineStore("hydra", () => {
   const copied = ref(null);
   const copiedParent = ref(null);
   const isCut = ref(false);
-  // const canPaste = computed(() => copied.value !== null &&);
+
   const { post } = useBroadcastChannel({ name: "hydra-plus-channel" });
 
   // Actions

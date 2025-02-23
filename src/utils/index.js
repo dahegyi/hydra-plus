@@ -13,6 +13,7 @@ const safeKeys = [
   "externalSourceBlocks",
   "synthSettings",
   "welcomeModalLastUpdate",
+  "animationsEnabled",
 ];
 
 export const getSafeLocalStorage = (key) => {

@@ -1,9 +1,8 @@
 <script setup>
-import { ref } from "vue";
-import draggable from "vuedraggable";
 import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
 import { useHydraStore } from "@/stores/hydra";
 
+import Draggable from "vuedraggable";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,29 +57,10 @@ const handleAddBlockModal = (element) => {
   props.openAddBlockModal(element);
 };
 
-const previouslyDraggedTo = ref(null);
-
-const handleMove = (e) => {
-  if (previouslyDraggedTo.value) {
-    previouslyDraggedTo.value.classList.remove("dragging");
-  }
-
-  previouslyDraggedTo.value = e.to;
-
-  if (
-    e.to !== e.from &&
-    e.to.classList.contains("button-visible") &&
-    !e.to.classList.contains("dragging")
-  ) {
-    e.to.classList.add("dragging");
-  }
-};
+// @todo disallow illegal moves
+const handleMove = () => {};
 
 const handleEnd = () => {
-  if (previouslyDraggedTo.value) {
-    previouslyDraggedTo.value.classList.remove("dragging");
-  }
-
   props.handleChange();
 };
 
@@ -108,13 +88,7 @@ const paste = (element) => {
 </script>
 
 <template>
-  <draggable
-    v-auto-animate="{
-      enabled: true,
-      duration: 150,
-      delay: 1,
-      fill: 'both',
-    }"
+  <Draggable
     :class="[
       {
         'button-visible': canHaveChild(parent),
@@ -124,6 +98,7 @@ const paste = (element) => {
     tag="ul"
     :list="parent.blocks"
     :group="{ name: 'g1' }"
+    :animation="200"
     item-key="name"
     @click.stop="handleAddBlockModal(parent)"
     @move="(e) => handleMove(e)"
@@ -225,7 +200,7 @@ const paste = (element) => {
           </ContextMenuContent>
         </ContextMenu>
 
-        <nested-draggable
+        <NestedDraggable
           v-if="element.blocks"
           :parent="element"
           :handle-change="handleChange"
@@ -233,7 +208,7 @@ const paste = (element) => {
         />
       </li>
     </template>
-  </draggable>
+  </Draggable>
 </template>
 
 <style lang="scss" scoped>
@@ -254,12 +229,6 @@ ul {
   list-style: none;
 
   &.button-visible {
-    &.dragging {
-      &::after {
-        display: none;
-      }
-    }
-
     &::after {
       display: flex;
       min-height: $height;

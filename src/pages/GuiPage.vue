@@ -292,22 +292,22 @@ const closeSettingsModal = () => {
 </script>
 
 <template>
-  <transition name="modal">
+  <Transition name="modal">
     <div v-if="isAnyModalOpen">
-      <welcome-modal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
-      <add-block-modal
+      <WelcomeModal v-if="isWelcomeModalOpen" @close="closeWelcomeModal" />
+      <AddBlockModal
         v-if="isAddBlockModalOpen"
         :parent="addBlockModalParent"
         @close="closeAddBlockModal"
       />
-      <three-modal
+      <ThreeModal
         v-if="isThreeModalOpen"
         :blocks="store.externalSourceBlocks"
         @close="closeThreeModal"
       />
-      <settings-modal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
+      <SettingsModal v-if="isSettingsModalOpen" @close="closeSettingsModal" />
     </div>
-  </transition>
+  </Transition>
 
   <ContextMenu>
     <ContextMenuTrigger @click="store.setFocus(null)">
@@ -330,7 +330,7 @@ const closeSettingsModal = () => {
     </ContextMenuContent>
   </ContextMenu>
 
-  <navigation-panel
+  <NavigationPanel
     v-show="!areBlocksHidden"
     @open-add-block-modal="openAddBlockModal"
     @open-three-modal="openThreeModal"
@@ -339,7 +339,7 @@ const closeSettingsModal = () => {
   />
 
   <div v-show="!areBlocksHidden">
-    <parent-block
+    <ParentBlock
       v-for="(block, index) in store.blocks"
       :key="index"
       :index="index"
@@ -349,7 +349,7 @@ const closeSettingsModal = () => {
       :open-add-block-modal="openAddBlockModal"
     />
 
-    <parent-block
+    <ParentBlock
       v-for="(block, index) in store.externalSourceBlocks"
       :key="index"
       :index="index"
@@ -374,10 +374,14 @@ const closeSettingsModal = () => {
 
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.15s;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
-.modal-enter,
+
+.modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+  transform: translateY(20px);
 }
 </style>

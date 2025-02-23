@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useHydraStore } from "@/stores/hydra";
+import { useAppStore } from "@/stores/app";
 import { deepCopy } from "@/utils/object-utils";
 
 import BaseModal from "./BaseModal";
@@ -15,12 +16,12 @@ import {
 } from "@/components/ui/number-field";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import Switch from "../ui/switch/Switch.vue";
 
 const store = useHydraStore();
+const appStore = useAppStore();
 
 const emit = defineEmits(["close"]);
-
-const activeTab = ref(0);
 
 const synthSettings = ref(deepCopy(store.synthSettings));
 const resolution = ref([synthSettings.value.resolution]);
@@ -28,18 +29,6 @@ const resolution = ref([synthSettings.value.resolution]);
 const setSynthSettings = () => {
   synthSettings.value.resolution = resolution.value[0];
   store.setSynthSettings(synthSettings.value);
-};
-
-const red = ref("1");
-const green = ref("1");
-const blue = ref("1");
-
-const arePhilipsHueSettingsAvailabe = computed(
-  () => process.env.NODE_ENV !== "production",
-);
-
-const updateRGB = (rgb) => {
-  store.updateRGB(rgb);
 };
 
 // @todo extract this
@@ -62,17 +51,7 @@ const close = () => {
 
 <template>
   <BaseModal modal-name="SettingsModal" @close="close">
-    <!-- <div class="tab-select">
-      <button :class="{ active: activeTab === 0 }" @click="activeTab = 0">
-        synth settings
-      </button>
-
-      <button :class="{ active: activeTab === 1 }" @click="activeTab = 1">
-        philips hue settings
-      </button>
-    </div> -->
-
-    <div v-if="activeTab === 0" class="flex flex-col space-y-4 w-3/4">
+    <div class="flex flex-col space-y-4 w-3/4">
       <Label for="resolution">Resolution</Label>
       <Slider id="resolution" v-model="resolution" :max="100" />
 
@@ -110,47 +89,19 @@ const close = () => {
         </NumberFieldContent>
       </NumberField>
 
+      <div class="flex items-center space-x-4 justify-center">
+        <Switch
+          id="animationSwitch"
+          :checked="appStore.areAnimationsEnabled"
+          class="bg-zinc-900"
+          @update:checked="appStore.toggleAnimations"
+        />
+        <Label for="animationSwitch"> Enable animations </Label>
+      </div>
+
       <Button variant="link" @click="download">download hydra code</Button>
 
       <Button variant="outline" @click="setSynthSettings">save</Button>
-    </div>
-
-    <div v-else-if="activeTab === 1" class="tab-content">
-      <div v-if="arePhilipsHueSettingsAvailabe">
-        <p>philips hue settings - experimental</p>
-
-        <!-- @todo connection settings -->
-
-        <div class="row">
-          <label>red</label>
-          <input
-            v-model="red"
-            type="number"
-            @focusout="updateRGB({ red, green, blue })"
-          />
-        </div>
-
-        <div class="row">
-          <label>green</label>
-          <input
-            v-model="green"
-            type="number"
-            @focusout="updateRGB({ red, green, blue })"
-          />
-        </div>
-
-        <div class="row">
-          <label>blue</label>
-          <input
-            v-model="blue"
-            type="number"
-            @focusout="updateRGB({ red, green, blue })"
-          />
-        </div>
-      </div>
-      <div v-else>
-        <p>not available in production</p>
-      </div>
     </div>
   </BaseModal>
 </template>
