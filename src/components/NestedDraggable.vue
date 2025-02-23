@@ -1,5 +1,6 @@
 <script setup>
 import { TYPE_SRC, TYPE_COMPLEX, PARAM_MAPPINGS } from "@/constants";
+import { generateUniqueId } from "@/utils";
 import { useHydraStore } from "@/stores/hydra";
 
 import Draggable from "vuedraggable";
@@ -32,6 +33,10 @@ const props = defineProps({
   openAddBlockModal: {
     type: Function,
     required: true,
+  },
+  path: {
+    type: String,
+    default: "",
   },
 });
 
@@ -160,10 +165,18 @@ const paste = (element) => {
                 class="flex items-center"
                 @click.stop="store.setFocus(element, parent)"
               >
-                <Label class="min-w-24">
+                <Label
+                  :for="
+                    generateUniqueId(`${path}.${element.name}.${paramIndex}`)
+                  "
+                  class="min-w-24"
+                >
                   {{ PARAM_MAPPINGS[element.name][paramIndex] }}
                 </Label>
                 <Input
+                  :id="
+                    generateUniqueId(`${path}.${element.name}.${paramIndex}`)
+                  "
                   v-model="element.params[paramIndex]"
                   class="bg-zinc-900"
                   @focusin="store.setInputFocus(true)"
@@ -205,6 +218,7 @@ const paste = (element) => {
           :parent="element"
           :handle-change="handleChange"
           :open-add-block-modal="openAddBlockModal"
+          :path="path + '.' + element.name"
         />
       </li>
     </template>
