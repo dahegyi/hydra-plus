@@ -31,22 +31,18 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-
   block: {
     type: Object,
     required: true,
   },
-
   handleChange: {
     type: Function,
     required: true,
   },
-
   moveBlock: {
     type: Function,
     required: true,
   },
-
   openAddBlockModal: {
     type: Function,
     default: () => {},
@@ -120,7 +116,7 @@ const deleteParent = () => {
 
   'vue/no-mutating-props' is disabled because the props are not displayed anywhere else in the app.
   The state has to be updated on input change, but the update should be only called when exiting the input focus.
-  I concider this applicable for this case.
+  I consider this applicable in this case.
 
   @todo: param component
 -->
@@ -277,7 +273,7 @@ const deleteParent = () => {
           </div>
         </div>
 
-        <nested-draggable
+        <NestedDraggable
           v-if="block.blocks"
           :parent="block"
           :handle-change="() => handleChange()"

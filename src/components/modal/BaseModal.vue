@@ -75,7 +75,7 @@ onMounted(() => {
         <slot />
 
         <Button v-if="modalName === 'WelcomeModal'" class="mt-8" @click="close">
-          Let's go!
+          Let's go
         </Button>
       </div>
     </div>
