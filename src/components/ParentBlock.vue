@@ -238,39 +238,31 @@ const deleteParent = () => {
               @focusout="() => handleChange()"
             />
           </div>
-
-          <div v-if="isPreviewOpen">
-            <img
-              v-if="block.name === 'initImage'"
-              :src="hydra[`s${index}`].src?.src"
-            />
-
-            <video
-              v-else-if="block.name === 'initVideo'"
-              :src="hydra[`s${index}`].src?.src"
-              autoplay
-              muted
-              loop
-            />
-
-            <video
-              v-else-if="
-                block.name === 'initCam' || block.name === 'initScreen'
-              "
-              :srcObject="hydra[`s${index}`].src?.srcObject"
-              :class="block.name"
-              autoplay
-              muted
-            />
-
-            <!-- @todo 3D preview -->
-          </div>
         </div>
 
-        <div v-else>
-          <div class="param-input-container">
-            <button @click="openThreeModal">Open 3D settings</button>
-          </div>
+        <div v-if="isPreviewOpen">
+          <img
+            v-if="block.name === 'initImage'"
+            :src="hydra[`s${index}`].src?.src"
+          />
+
+          <video
+            v-else-if="block.name === 'initVideo'"
+            :src="hydra[`s${index}`].src?.src"
+            autoplay
+            muted
+            loop
+          />
+
+          <video
+            v-else-if="block.name === 'initCam' || block.name === 'initScreen'"
+            :srcObject="hydra[`s${index}`].src?.srcObject"
+            :class="block.name"
+            autoplay
+            muted
+          />
+
+          <!-- @todo 3D preview -->
         </div>
 
         <NestedDraggable
@@ -498,7 +490,8 @@ $spacing: 8px;
 
   &.external {
     .output-header {
-      background: #f1a3a3;
+      --color: theme(colors.red.300);
+      background: var(--color);
     }
 
     img,
