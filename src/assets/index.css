@@ -51,6 +51,11 @@ html[data-animations="off"] * {
   transition: none !important;
 }
 
+html,
+body {
+  overscroll-behavior-x: none;
+}
+
 @font-face {
   font-family: "Fira Code";
   font-style: normal;
