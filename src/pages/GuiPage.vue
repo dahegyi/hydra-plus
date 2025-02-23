@@ -330,13 +330,15 @@ const closeSettingsModal = () => {
     </ContextMenuContent>
   </ContextMenu>
 
-  <NavigationPanel
-    v-show="!areBlocksHidden"
-    @open-add-block-modal="openAddBlockModal"
-    @open-three-modal="openThreeModal"
-    @open-settings-modal="openSettingsModal"
-    @toggle-fullscreen="toggleFullscreen"
-  />
+  <Transition name="nav">
+    <NavigationPanel
+      v-show="!areBlocksHidden"
+      @open-add-block-modal="openAddBlockModal"
+      @open-three-modal="openThreeModal"
+      @open-settings-modal="openSettingsModal"
+      @toggle-fullscreen="toggleFullscreen"
+    />
+  </Transition>
 
   <div v-show="!areBlocksHidden">
     <ParentBlock
@@ -383,5 +385,15 @@ const closeSettingsModal = () => {
 .modal-leave-to {
   opacity: 0;
   transform: translateY(20px);
+}
+
+.nav-enter-active,
+.nav-leave-active {
+  transition: transform 0.2s ease;
+}
+
+.nav-enter-from,
+.nav-leave-to {
+  transform: translateY(-48px);
 }
 </style>

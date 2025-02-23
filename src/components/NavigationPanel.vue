@@ -110,7 +110,7 @@ const goFullscreen = () => {
 
   toast({
     title: "Entered fullscreen mode",
-    description: "Press Esc to exit",
+    description: "Press Esc or right click to exit",
   });
 };
 </script>
