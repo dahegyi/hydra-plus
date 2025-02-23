@@ -206,7 +206,7 @@ export const useHydraStore = defineStore("hydra", () => {
     }
   };
 
-  const update = async (
+  const update = (
     { shouldSetHistory, isDelete } = {
       shouldSetHistory: true,
       isDelete: false,
@@ -248,7 +248,7 @@ export const useHydraStore = defineStore("hydra", () => {
       newCodeString += `window.hydra.render(o${synthSettings.output})`;
     }
 
-    await document.getElementById("hydra-canvas").focus();
+    document.getElementById("hydra-canvas");
 
     try {
       eval(newCodeString);
