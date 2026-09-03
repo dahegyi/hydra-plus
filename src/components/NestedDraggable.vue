@@ -42,6 +42,17 @@ const props = defineProps({
 
 const store = useHydraStore();
 
+const itemKeys = new WeakMap();
+let nextItemKey = 0;
+
+const getItemKey = (element) => {
+  if (!itemKeys.has(element)) {
+    itemKeys.set(element, `nested-block-${nextItemKey++}`);
+  }
+
+  return itemKeys.get(element);
+};
+
 const canHaveChild = (element) => {
   return (
     element.type === TYPE_SRC ||
@@ -104,12 +115,7 @@ const paste = (element) => {
     :list="parent.blocks"
     :group="{ name: 'g1' }"
     :animation="200"
-    :item-key="
-      (element, index) =>
-        `${element.name}-${index}-${element.type}-${
-          element.params?.join('-') || 'no-params'
-        }`
-    "
+    :item-key="getItemKey"
     @click.stop="handleAddBlockModal(parent)"
     @move="(e) => handleMove(e)"
     @end="handleEnd"
